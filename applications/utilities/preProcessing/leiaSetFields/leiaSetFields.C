@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 AUTHOR,AFFILIATION
+    Copyright (C) 2021 Tomislav Maric, TU Darmstadt 
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,6 +27,7 @@ Application
     leiaSetFields
 
 Description
+    Initialization of signed-distance fields.
 
 \*---------------------------------------------------------------------------*/
 
@@ -36,8 +37,59 @@ Description
 
 int main(int argc, char *argv[])
 {
+    argList::addOption
+    (
+        "center",
+        "(double double double)",
+        "Sphere center."
+    );
+
+    argList::addOption
+    (
+        "radius",
+        "double",
+        "Sphere center."
+    );
+
     #include "setRootCase.H"
     #include "createTime.H"
+    #include "createMesh.H"
+
+    volScalarField phi
+    (
+        IOobject
+        (
+            "phi", 
+            runTime.timeName(), 
+            mesh, 
+            IOobject::MUST_READ, 
+            IOobject::AUTO_WRITE
+        ),
+        mesh
+    );
+
+    if (!args.found("center")) 
+    {
+        FatalErrorInFunction
+            << "Sphere center not provided, use -center option." 
+            << abort(FatalError);
+    }
+    if (!args.found("radius")) 
+    {
+        FatalErrorInFunction
+            << "Sphere radius not provided, use -radius option." 
+            << abort(FatalError);
+    }
+
+    const auto center = args.get<vector>("center");
+    const auto radius = args.get<scalar>("radius");
+
+    const auto& cellCenters = mesh.C(); 
+    forAll(phi, cellI)
+    {
+        phi[cellI] = mag(cellCenters[cellI] - center) - radius;
+    }
+    phi.write();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
