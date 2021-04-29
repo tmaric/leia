@@ -35,6 +35,10 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+
+#include "initializationFunctions.H"
+
+
 int main(int argc, char *argv[])
 {
     argList::addOption
@@ -55,18 +59,8 @@ int main(int argc, char *argv[])
     #include "createTime.H"
     #include "createMesh.H"
 
-    volScalarField phi
-    (
-        IOobject
-        (
-            "phi", 
-            runTime.timeName(), 
-            mesh, 
-            IOobject::MUST_READ, 
-            IOobject::AUTO_WRITE
-        ),
-        mesh
-    );
+    #include "createFields.H"
+
 
     if (!args.found("center")) 
     {
@@ -80,16 +74,16 @@ int main(int argc, char *argv[])
             << "Sphere radius not provided, use -radius option." 
             << abort(FatalError);
     }
-
+    
     const auto center = args.get<vector>("center");
     const auto radius = args.get<scalar>("radius");
 
-    const auto& cellCenters = mesh.C(); 
-    forAll(phi, cellI)
-    {
-        phi[cellI] = mag(cellCenters[cellI] - center) - radius;
-    }
+    setPhi(phi, center, radius);
+    setVolumetricFlux(F);
+    setVelocity(U);
+
     phi.write();
+    U.write();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
