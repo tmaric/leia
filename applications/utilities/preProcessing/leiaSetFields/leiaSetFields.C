@@ -38,7 +38,6 @@ Description
 
 #include "initializationFunctions.H"
 
-
 int main(int argc, char *argv[])
 {
     argList::addOption
@@ -83,6 +82,7 @@ int main(int argc, char *argv[])
     setVelocity(U);
 
     phi.write();
+    F.write();
     U.write();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
