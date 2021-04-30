@@ -83,4 +83,8 @@ doc/Doxygen/DTAGS
 
 *polyMesh/
 VTK/
-
+[0-9]\.*
+[1-9]*/
+*.png
+*.ogv
+*.avi
