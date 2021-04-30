@@ -17,21 +17,7 @@ FoamFile
 
 solvers
 {
-    p
-    {
-        solver          PCG;
-        preconditioner  DIC;
-        tolerance       1e-06;
-        relTol          0.05;
-    }
-
-    pFinal
-    {
-        $p;
-        relTol          0;
-    }
-
-    U
+    phi
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;

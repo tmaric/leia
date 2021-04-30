@@ -88,3 +88,4 @@ VTK/
 *.png
 *.ogv
 *.avi
+PyFoam*
