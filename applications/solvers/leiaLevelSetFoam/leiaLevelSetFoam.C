@@ -74,6 +74,7 @@ int main(int argc, char *argv[])
     Info<< "\nCalculating scalar transport\n" << endl;
 
     surfaceScalarField F0 ("F0", F);
+    volScalarField phi0("phi0", phi);
 
     while (simple.loop())
     {
@@ -98,6 +99,12 @@ int main(int argc, char *argv[])
 
         runTime.write();
     }
+
+    // Output L_inf(phi) and h for convergence analysis.
+    scalar lInfEphi = Foam::mag(Foam::max(phi - phi0)).value();
+    scalar h = Foam::max(Foam::pow(mesh.deltaCoeffs(),-1)).value();
+    OFstream errorFile ("leiaLevelSetFoam.csv"); 
+    errorFile << h << "," << lInfEphi << endl;
 
     Info<< "End\n" << endl;
 

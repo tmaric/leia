@@ -60,7 +60,6 @@ int main(int argc, char *argv[])
 
     #include "createFields.H"
 
-
     if (!args.found("center")) 
     {
         FatalErrorInFunction

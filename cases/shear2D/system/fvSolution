@@ -21,7 +21,7 @@ solvers
     {
         solver          smoothSolver;
         smoother        symGaussSeidel;
-        tolerance       1e-05;
+        tolerance       1e-10;
         relTol          0;
     }
 }
