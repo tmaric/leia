@@ -101,7 +101,9 @@ int main(int argc, char *argv[])
     }
 
     // Output L_inf(phi) and h for convergence analysis.
-    scalar lInfEphi = Foam::mag(Foam::max(phi - phi0)).value();
+    volScalarField ePhi ("ePhi", Foam::mag(phi - phi0));
+    ePhi.write();
+    scalar lInfEphi = Foam::max(ePhi).value();
     scalar h = Foam::max(Foam::pow(mesh.deltaCoeffs(),-1)).value();
     OFstream errorFile ("leiaLevelSetFoam.csv"); 
     errorFile << h << "," << lInfEphi << endl;

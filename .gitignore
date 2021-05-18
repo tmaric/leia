@@ -89,3 +89,10 @@ VTK/
 *.ogv
 *.avi
 PyFoam*
+
+.ipynb_checkpoints/
+*.database
+*_000*_*/
+log.analyzed/
+log
+*.csv
