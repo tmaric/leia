@@ -34,6 +34,7 @@ surfaceScalarField F0 ("F0", F);
 
 // Advection error analysis. 
 volScalarField phi0("phi0", phi);
+volScalarField ePhi ("ePhi", phi);
 
 // Heaviside model
 
@@ -53,6 +54,8 @@ volScalarField alpha
     mesh, 
     dimensionedScalar("alpha", dimless, 0)
 );
+// alpha error analysis 
+volScalarField alpha0 ("alpha0", alpha);
 calcPhaseIndicator(alpha, phi, epsilon);
 alpha.write();
 

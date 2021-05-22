@@ -50,32 +50,10 @@ Description
 
 #include "fvCFD.H"
 #include "simpleControl.H"
+#include "heaviside.H"
+#include "advectionErrors.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-void calcPhaseIndicator 
-( 
-    volScalarField& alpha, 
-    const volScalarField& phi,
-    const dimensionedScalar& epsilon
-)
-{
-    forAll(alpha, cellID)
-    {
-        if (phi[cellID] < -epsilon.value())
-            alpha[cellID] = 0;
-        else if (phi[cellID] > epsilon.value())
-            alpha[cellID] = 1;
-        else
-        {
-            alpha[cellID] = 0.5 + 
-                 + phi[cellID] / (2*epsilon.value())
-                 + Foam::sin((M_PI * phi[cellID]) / epsilon.value()) / (2*M_PI);
-        }
-    }
-    alpha = 1 - alpha;
-}
-
 
 int main(int argc, char *argv[])
 {
@@ -126,13 +104,33 @@ int main(int argc, char *argv[])
         runTime.write();
     }
 
-    // Output L_inf(phi) and h for convergence analysis.
-    volScalarField ePhi ("ePhi", Foam::mag(phi - phi0));
+    // Error evaluation
+    
+    // Discretization length
+    scalar h = Foam::max(Foam::pow(mesh.deltaCoeffs(),-1)).value();
+
+    // max_c(phi_0 - phi_end)
+    ePhi = Foam::mag(phi - phi0);
     ePhi.write();
     scalar lInfEphi = Foam::max(ePhi).value();
-    scalar h = Foam::max(Foam::pow(mesh.deltaCoeffs(),-1)).value();
-    OFstream errorFile ("leiaLevelSetFoam.csv"); 
-    errorFile << h << "," << lInfEphi << endl;
+
+    // max_c(||grad phi| - 1|)
+    scalar lInfEgradPhi = Foam::max(eGradPhi).value();
+
+    OFstream errorFile("leiaLevelSetFoam.csv"); 
+
+    // CSV Header 
+    errorFile << "H,"
+        << "L_INF_E_PHI,L_INF_E_GRAD_PHI,"
+        << "E_VOL_ALPHA,E_GEOM_ALPHA,"
+        << "E_BOUND_ALPHA\n";
+
+    errorFile << h << "," 
+        << lInfEphi << "," << lInfEgradPhi << ","
+        << calcEvolAlpha(alpha, alpha0) << "," 
+        << calcEgeomAlpha(alpha, alpha0) << "," 
+        << calcEboundAlpha(alpha) << "," 
+        << endl;
 
     Info<< "End\n" << endl;
 
