@@ -53,6 +53,30 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+void calcPhaseIndicator 
+( 
+    volScalarField& alpha, 
+    const volScalarField& phi,
+    const dimensionedScalar& epsilon
+)
+{
+    forAll(alpha, cellID)
+    {
+        if (phi[cellID] < -epsilon.value())
+            alpha[cellID] = 0;
+        else if (phi[cellID] > epsilon.value())
+            alpha[cellID] = 1;
+        else
+        {
+            alpha[cellID] = 0.5 + 
+                 + phi[cellID] / (2*epsilon.value())
+                 + Foam::sin((M_PI * phi[cellID]) / epsilon.value()) / (2*M_PI);
+        }
+    }
+    alpha = 1 - alpha;
+}
+
+
 int main(int argc, char *argv[])
 {
     argList::addNote
@@ -73,9 +97,6 @@ int main(int argc, char *argv[])
 
     Info<< "\nCalculating scalar transport\n" << endl;
 
-    surfaceScalarField F0 ("F0", F);
-    volScalarField phi0("phi0", phi);
-
     while (simple.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
@@ -95,7 +116,12 @@ int main(int argc, char *argv[])
             fvm::ddt(phi)
           + fvm::div(F, phi)
         );
+
         phiEqn.solve();
+        calcPhaseIndicator(alpha, phi, epsilon);
+
+        // ||grad(phi)| - 1|
+        eGradPhi = Foam::mag(Foam::mag(fvc::grad(phi)) - 1);
 
         runTime.write();
     }
