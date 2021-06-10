@@ -39,6 +39,7 @@ levelSet
     phaseIndicator
     {
         type heaviside;
+        nCells 3;
     }
 }
 

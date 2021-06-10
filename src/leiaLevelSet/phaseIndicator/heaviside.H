@@ -51,6 +51,7 @@ class heaviside
 :
     public phaseIndicator
 {
+    label nCells_; 
 
 public:
 
@@ -60,7 +61,7 @@ public:
 
     // Constructors
 
-    heaviside() = default;
+    heaviside();
 
     heaviside(const dictionary& dict);
 

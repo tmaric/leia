@@ -40,7 +40,14 @@ addToRunTimeSelectionTable(phaseIndicator, heaviside, Dictionary);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+heaviside::heaviside()
+    : 
+        nCells_(3)
+{}
+
 heaviside::heaviside(const dictionary& dict)
+    :
+        nCells_(dict.getOrDefault<label>("nCells", 3))
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -53,7 +60,7 @@ void heaviside::calcPhaseIndicator
 {
     const fvMesh& mesh = alpha.mesh();
 
-    scalar epsilon = 1.5 * 
+    scalar epsilon = (nCells_ / 2.0) * 
         Foam::max(Foam::pow(mesh.deltaCoeffs(), -1)).value(); 
 
     forAll(alpha, cellID)
