@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 AUTHOR,AFFILIATION
+    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,7 +23,18 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::heaviside
+
+Description
+
+SourceFiles
+    heaviside.C
+
 \*---------------------------------------------------------------------------*/
+
+#ifndef heaviside_H
+#define heaviside_H
 
 #include "phaseIndicator.H"
 
@@ -32,44 +43,45 @@ License
 namespace Foam
 {
 
-defineTypeNameAndDebug(phaseIndicator, false);
-defineRunTimeSelectionTable(phaseIndicator, Dictionary);
+/*---------------------------------------------------------------------------*\
+                         Class heaviside Declaration
+\*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
-
-Foam::autoPtr<Foam::phaseIndicator>
-Foam::phaseIndicator::New(const dictionary& dict)
+class heaviside
+:
+    public phaseIndicator
 {
-    const word type = dict.get<word>("type");
 
-    // Find the constructor pointer for the model in the constructor table.
-    DictionaryConstructorTable::iterator cstrIter =
-        DictionaryConstructorTablePtr_->find(type);
+public:
 
-    // If the constructor pointer is not found in the table.
-    if (cstrIter == DictionaryConstructorTablePtr_->end())
-    {
-        FatalErrorIn (
-            "phaseIndicator::New(const fvSolution&)"
-        )   << "Unknown phase indicator type "
-            << type << nl << nl
-            << "Valid phase indicators are : " << endl
-            << DictionaryConstructorTablePtr_->sortedToc()
-            << exit(FatalError);
-    }
+    // Static Data Members
 
-    // Construct the model and return the autoPtr to the object. 
-    return autoPtr<phaseIndicator>
-        (cstrIter()(dict));
-}
+    TypeName ("heaviside");
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+    // Constructors
 
-phaseIndicator::phaseIndicator(const dictionary& dict)
-{}
+    heaviside() = default;
 
-// ************************************************************************* //
+    heaviside(const dictionary& dict);
+
+    //- Destructor
+    virtual ~heaviside() = default;
+
+    // Member Functions
+    
+    virtual void calcPhaseIndicator
+    (
+        volScalarField& alpha, 
+        const volScalarField& phi
+    ); 
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************************************************************* //

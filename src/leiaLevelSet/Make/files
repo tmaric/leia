@@ -1,3 +1,4 @@
 phaseIndicator/phaseIndicator.C
+phaseIndicator/heaviside.C
 
 LIB = $(FOAM_USER_LIBBIN)/libleiaLevelSet

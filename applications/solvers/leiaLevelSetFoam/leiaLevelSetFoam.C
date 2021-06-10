@@ -50,8 +50,8 @@ Description
 
 #include "fvCFD.H"
 #include "simpleControl.H"
-#include "heaviside.H"
 #include "advectionErrors.H"
+#include "phaseIndicator.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -96,13 +96,17 @@ int main(int argc, char *argv[])
         );
 
         phiEqn.solve();
-        calcPhaseIndicator(alpha, phi, epsilon);
+        phaseInd->calcPhaseIndicator(alpha, phi);
 
         // ||grad(phi)| - 1|
         eGradPhi = Foam::mag(Foam::mag(fvc::grad(phi)) - 1);
 
         runTime.write();
     }
+
+    // FIXME: they aren't picked up by the loop in the last time step. 
+    phi.write();
+    alpha.write();
 
     // Error evaluation
     
@@ -123,16 +127,17 @@ int main(int argc, char *argv[])
     errorFile << "H,"
         << "L_INF_E_PHI,L_INF_E_GRAD_PHI,"
         << "E_VOL_ALPHA,E_GEOM_ALPHA,"
-        << "E_BOUND_ALPHA\n";
+        << "E_BOUND_ALPHA,VOL_ALPHA_0\n";
 
+    volumeError eVolAlpha(alpha, alpha0);
     errorFile << h << "," 
         << lInfEphi << "," << lInfEgradPhi << ","
-        << calcEvolAlpha(alpha, alpha0) << "," 
+        << eVolAlpha.eVolAlpha() << "," 
         << calcEgeomAlpha(alpha, alpha0) << "," 
-        << calcEboundAlpha(alpha) << "," 
-        << endl;
-
+        << calcEboundAlpha(alpha) << ","
+        << eVolAlpha.volume0() << "\n"; 
     Info<< "End\n" << endl;
+
 
     return 0;
 }

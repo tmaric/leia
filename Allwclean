@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
+wclean all src 
 wclean all applications

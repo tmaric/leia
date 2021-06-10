@@ -11,35 +11,40 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSolution;
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-solvers
-{
-    phi
-    {
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
-        tolerance       1e-10;
-        relTol          0;
-    }
-}
+application     leiaLevelSetFoam;
 
-PISO
-{
-    nCorrectors     2;
-    nNonOrthogonalCorrectors 0;
-    pRefCell        0;
-    pRefValue       0;
-}
+startFrom       startTime;
 
-levelSet
-{
-    phaseIndicator
-    {
-        type heaviside;
-    }
-}
+startTime       0;
+
+stopAt          endTime;
+
+endTime         7;
+
+// deltaT          #calc "1.0 / @!N_CELLS!@";
+deltaT          0.005; 
+
+writeControl    timeStep;
+
+writeInterval   50;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  7;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
 
 // ************************************************************************* //

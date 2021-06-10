@@ -37,10 +37,6 @@ volScalarField phi0("phi0", phi);
 volScalarField ePhi ("ePhi", phi);
 
 // Heaviside model
-
-const dimensionedScalar epsilon  = 
-    1.5 * Foam::max(Foam::pow(mesh.deltaCoeffs(), -1)); /* 1.5h */
-
 volScalarField alpha 
 (
     IOobject
@@ -54,10 +50,19 @@ volScalarField alpha
     mesh, 
     dimensionedScalar("alpha", dimless, 0)
 );
-// alpha error analysis 
-volScalarField alpha0 ("alpha0", alpha);
-calcPhaseIndicator(alpha, phi, epsilon);
+
+// RTS of the phase indicator model.
+const fvSolution& fvSolution (mesh);
+const dictionary& levelSetDict = fvSolution.subDict("levelSet");
+autoPtr<phaseIndicator> phaseInd = 
+    phaseIndicator::New(levelSetDict.subDict("phaseIndicator"));
+phaseInd->calcPhaseIndicator(alpha, phi);
+
+// Write initial indicator.
 alpha.write();
+
+// Alpha error analysis.
+volScalarField alpha0 ("alpha0", alpha);
 
 // ||grad phi| - 1| error analysis.
 volScalarField eGradPhi(
@@ -72,3 +77,5 @@ volScalarField eGradPhi(
     Foam::mag(Foam::mag(fvc::grad(phi)) - 1)
 );
 eGradPhi.write();
+
+

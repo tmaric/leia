@@ -25,51 +25,56 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "phaseIndicator.H"
+#include "heaviside.H"
+#include "addToRunTimeSelectionTable.H"
+#include "volFields.H"
+#include "surfaceFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-defineTypeNameAndDebug(phaseIndicator, false);
-defineRunTimeSelectionTable(phaseIndicator, Dictionary);
-
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
-
-Foam::autoPtr<Foam::phaseIndicator>
-Foam::phaseIndicator::New(const dictionary& dict)
-{
-    const word type = dict.get<word>("type");
-
-    // Find the constructor pointer for the model in the constructor table.
-    DictionaryConstructorTable::iterator cstrIter =
-        DictionaryConstructorTablePtr_->find(type);
-
-    // If the constructor pointer is not found in the table.
-    if (cstrIter == DictionaryConstructorTablePtr_->end())
-    {
-        FatalErrorIn (
-            "phaseIndicator::New(const fvSolution&)"
-        )   << "Unknown phase indicator type "
-            << type << nl << nl
-            << "Valid phase indicators are : " << endl
-            << DictionaryConstructorTablePtr_->sortedToc()
-            << exit(FatalError);
-    }
-
-    // Construct the model and return the autoPtr to the object. 
-    return autoPtr<phaseIndicator>
-        (cstrIter()(dict));
-}
+defineTypeNameAndDebug(heaviside, false);
+addToRunTimeSelectionTable(phaseIndicator, heaviside, Dictionary);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-phaseIndicator::phaseIndicator(const dictionary& dict)
+heaviside::heaviside(const dictionary& dict)
 {}
 
-// ************************************************************************* //
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void heaviside::calcPhaseIndicator
+(
+    volScalarField& alpha, 
+    const volScalarField& phi
+) 
+{
+    const fvMesh& mesh = alpha.mesh();
+
+    scalar epsilon = 1.5 * 
+        Foam::max(Foam::pow(mesh.deltaCoeffs(), -1)).value(); 
+
+    forAll(alpha, cellID)
+    {
+        if (phi[cellID] < -epsilon)
+            alpha[cellID] = 0;
+        else if (phi[cellID] > epsilon)
+            alpha[cellID] = 1;
+        else
+        {
+            alpha[cellID] = 0.5 + 
+                 + phi[cellID] / (2*epsilon)
+                 + Foam::sin((M_PI * phi[cellID]) / epsilon) / 
+                     (2*M_PI);
+        }
+    }
+    alpha == 1 - alpha;
+}
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ************************************************************************* //
