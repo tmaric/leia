@@ -19,8 +19,10 @@ solvers
 {
     phi
     {
-        solver          smoothSolver;
-        smoother        symGaussSeidel;
+        //solver          smoothSolver;
+        //smoother        symGaussSeidel;
+        solver          PBiCGStab;
+        preconditioner  DILU;
         tolerance       1e-10;
         relTol          0;
     }
@@ -28,7 +30,7 @@ solvers
 
 PISO
 {
-    nCorrectors     2;
+    nCorrectors     1;
     nNonOrthogonalCorrectors 0;
     pRefCell        0;
     pRefValue       0;
@@ -40,6 +42,8 @@ levelSet
     {
         type heaviside;
         nCells 3;
+        
+        //type sharpJump;
     }
 }
 

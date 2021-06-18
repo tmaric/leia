@@ -38,3 +38,24 @@ volVectorField U
     mesh, 
     dimensionedVector("U", dimVelocity, vector(0,0,0))
 );
+
+// Heaviside model
+volScalarField alpha 
+(
+    IOobject
+    (
+        "alpha",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh, 
+    dimensionedScalar("alpha", dimless, 0)
+);
+
+// RTS of the phase indicator model.
+const fvSolution& fvSolution (mesh);
+const dictionary& levelSetDict = fvSolution.subDict("levelSet");
+autoPtr<phaseIndicator> phaseInd = 
+    phaseIndicator::New(levelSetDict.subDict("phaseIndicator"));

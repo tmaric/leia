@@ -32,6 +32,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "phaseIndicator.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -77,14 +78,25 @@ int main(int argc, char *argv[])
     const auto radius = args.get<scalar>("radius");
 
     setPhi(phi, center, radius);
+    phaseInd->calcPhaseIndicator(alpha, phi);
     setVolumetricFlux(F);
     setVelocity(U);
 
     phi.write();
+    alpha.write();
     F.write();
     U.write();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+    // Checking the marker field convergence.
+    OFstream initFile("leiaSetFields.csv"); 
+    // Discretization length
+    scalar h = Foam::max(Foam::pow(mesh.deltaCoeffs(),-1)).value();
+    // |\Omega^-(t=0)|
+    scalar V0 = gSum((alpha * mesh.V())());
+    initFile << "H,VOL_ALPHA_0\n";
+    initFile << h << "," << V0 << "\n";
 
     Info<< nl;
     runTime.printExecutionTime(Info);
