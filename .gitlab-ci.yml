@@ -10,7 +10,7 @@ build:
     ##
     ## Configure the OpenFOAM environment
     ##
-    - source /opt/openfoam8/etc/bashrc || true  
+    - source /opt/openfoam/etc/bashrc || true  
 
     ##
     ## Build and install: this project only has a single OF application
