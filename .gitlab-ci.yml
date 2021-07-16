@@ -1,4 +1,4 @@
-image: "openfoam/openfoam8-paraview56"
+image: "tmaric/openfoam-v2012_ubuntu-focal:latest"
 
 stages:
   - building
