@@ -1,4 +1,4 @@
-image: "openfoam:openfoam8-paraview56"
+image: "openfoam/openfoam8-paraview56"
 
 stages:
   - building
