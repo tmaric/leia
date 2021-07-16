@@ -30,7 +30,8 @@ gradSchemes
 divSchemes
 {
     default         none;
-    div(F,phi)      Gauss myCubic;
+    // div(F,phi)      Gauss myCubic;
+    div(F,phi)      Gauss linear;
 }
 
 laplacianSchemes
