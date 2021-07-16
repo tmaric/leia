@@ -7,8 +7,7 @@ build:
   stage: building
   script:
 
-    - echo "Hello world"
-    - touch data-file.csv
+    - source /opt/openfoam8/etc/bashrc || true 
 
   artifacts:
     paths:
