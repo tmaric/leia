@@ -7,8 +7,38 @@ build:
   stage: building
   script:
 
-    - source /opt/openfoam8/etc/bashrc || true 
+    ##
+    ## Configure the OpenFOAM environment
+    ##
+    - source /opt/openfoam8/etc/bashrc || true  
+
+    ##
+    ## Build and install: this project only has a single OF application
+    ##
+    - ./Allwmake 
+
+    ##
+    ## OpenFOAM stores app and library binaries outside of project folder!
+    ## To re-use project apps and libraries, use FOAM_USER_* env variables.
+    ## Store the app and library binary files in a local folder and forward
+    ## this folder to the next job using GitLab CI artifacts. 
+    ##
+   
+    ## 
+    ## Uncomment if the project builds user-defined OF libraries. 
+    ##
+    - mkdir FOAM_USER_LIBBIN && cp $FOAM_USER_LIBBIN/* FOAM_USER_LIBBIN
+    - mkdir FOAM_USER_APPBIN && cp $FOAM_USER_APPBIN/* FOAM_USER_APPBIN
 
   artifacts:
     paths:
-        - data-file.csv
+
+        ##
+        ## Uncomment if user-defind OF libraries are built.
+        ##
+        - FOAM_USER_LIBBIN/*
+       
+        ##
+        ## Export user-defined OF applications
+        ##
+        - FOAM_USER_APPBIN/*
