@@ -18,7 +18,7 @@ FoamFile
 ddtSchemes
 {
     //default         Euler;
-    default         CrankNicolson 0.5;
+    default         CrankNicolson 1;
 }
 
 gradSchemes
@@ -30,7 +30,7 @@ gradSchemes
 divSchemes
 {
     default         none;
-    div(F,phi)      Gauss linear;
+    div(F,phi)      Gauss myCubic;
 }
 
 laplacianSchemes
