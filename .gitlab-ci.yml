@@ -1,0 +1,144 @@
+#image: "openfoam-v2012_ubuntu-focal:latest"
+#image: "andreweiner:of_pytorch" 
+image: "ubuntu:focal" 
+
+stages:
+  - building
+  - running
+  - visualization
+  - publishing 
+  - testing
+
+build:
+  stage: building
+  script:
+
+    ##
+    ## Configure the OpenFOAM environment
+    ##
+    #- source /opt/OpenFOAM/OpenFOAM-v2012/etc/bashrc || true
+
+    ##
+    ## Build and install: this project only has a single OF application
+    ##
+    #- ./Allwmake 
+
+    ##
+    ## OpenFOAM stores app and library binaries outside of project folder!
+    ## To re-use project apps and libraries, use FOAM_USER_* env variables.
+    ## Store the app and library binary files in a local folder and forward
+    ## this folder to the next job using GitLab CI artifacts. 
+    ##
+   
+    ## 
+    ## Uncomment if the project builds user-defined OF libraries. 
+    ##
+    # - mkdir FOAM_USER_LIBBIN && cp $FOAM_USER_LIBBIN/* FOAM_USER_LIBBIN
+    #- mkdir FOAM_USER_APPBIN && cp $FOAM_USER_APPBIN/* FOAM_USER_APPBIN
+
+  artifacts:
+    paths:
+
+        ##
+        ## Uncomment if user-defind OF libraries are built.
+        ##
+        # - FOAM_USER_LIBBIN/*
+       
+        ##
+        ## Export user-defined OF applications
+        ##
+        #- FOAM_USER_APPBIN/*
+
+param_study:
+  stage: running
+  dependencies:
+    - build
+  script: 
+
+    ##
+    ## Configure the OpenFOAM environment
+    ## 
+    #- source /opt/OpenFOAM/OpenFOAM-v2012/etc/bashrc || true
+
+    ##
+    ## Re-use user-defined OF applications from the FOAM_USER_APPBIN artifact
+    ##
+    #- if [ ! -d "$FOAM_USER_APPBIN" ]; then mkdir -p "$FOAM_USER_APPBIN"; fi
+    #- cp FOAM_USER_APPBIN/* $FOAM_USER_APPBIN
+
+    ##
+    ## Re-use user-defined OF libraries from the FOAM_USER_LIBBIN artifact
+    ##
+    # - if [ ! -d "$FOAM_USER_LIBBIN" ]; then mkdir -p "$FOAM_USER_LIBBIN"; fi
+    # - cp FOAM_USER_LIBBIN/* $FOAM_USER_LIBBIN
+   
+    # Run the parameter variation tests 
+    #- cd cases/hex2D && ./studyRun 
+
+  artifacts:
+    paths:
+        #- cases/hex2D/*.csv 
+
+convert_notebooks:
+  stage: visualization 
+  dependencies:
+    - param_study
+  script:
+
+    ##
+    ## Configure the OpenFOAM environment
+    ##
+    #- source /opt/OpenFOAM/OpenFOAM-v2012/etc/bashrc || true
+
+    ##
+    ## Process secondary data from applications in jupyter notebooks 
+    ## - Visualize errors  
+    ## - Compute convergence rates
+    ## - Write the additional convergence data
+    ##
+    #- cd cases && 
+      #jupyter nbconvert fvc-reconstruct-convergence.ipynb --execute --to markdown && 
+      #jupyter nbconvert fvc-reconstruct-convergence.ipynb --execute --to pdf 
+
+
+  artifacts:
+    paths:
+        ##
+        ## Secondary data used by Jupyter notebooks
+        ##
+        #- cases/hex2D/*.csv 
+
+        ##
+        ## Secondary data processed by Jupyter notebooks
+        ##
+        #- cases/fvc-reconstruct-data/*
+
+        ##
+        ## Jupyter Notebooks in different formats  
+        ##
+        #- cases/fvc-reconstruct-convergence.ipynb
+        #- cases/fvc-reconstruct-convergence_files
+        #- cases/fvc-reconstruct-convergence.md
+        #- cases/fvc-reconstruct-convergence.pdf
+
+test_shear2D:
+  stage: testing 
+  dependencies:
+    - convert_notebooks 
+  script:
+
+    ##
+    ## Test shear2D convergence 
+    ##
+    #- cd cases &&  python test_convergence.py fvc-reconstruct-data/SHEAR_2D.csv  
+
+test_hadamard-rybczynsky2D:
+  stage: testing 
+  dependencies:
+    - convert_notebooks 
+  script:
+
+    ##
+    ## Test hadamard-rybczynsky2D convergence 
+    ##
+    #- cd cases &&  python test_convergence.py fvc-reconstruct-data/HADAMARD_RYBCZYNSKY_2D.csv
