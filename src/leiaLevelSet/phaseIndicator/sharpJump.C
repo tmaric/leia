@@ -29,6 +29,7 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "fvcAverage.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -40,7 +41,14 @@ addToRunTimeSelectionTable(phaseIndicator, sharpJump, Dictionary);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
+sharpJump::sharpJump()
+:
+    nAverages_(0)
+{}
+
 sharpJump::sharpJump(const dictionary& dict)
+:
+        nAverages_(dict.getOrDefault<label>("nCells", 0))
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
@@ -55,9 +63,12 @@ void sharpJump::calcPhaseIndicator
     {
         if (phi[cellID] < 0)
             alpha[cellID] = 1;
-        else if (phi[cellID] > 0)
+        else 
             alpha[cellID] = 0;
     }
+
+    for (int i = 0; i < 1; ++i)
+        alpha = fvc::average(alpha);
 }
 
 } // End namespace Foam

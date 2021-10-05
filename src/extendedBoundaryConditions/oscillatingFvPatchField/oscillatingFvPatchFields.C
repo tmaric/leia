@@ -2,10 +2,8 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | www.openfoam.com
+    \\  /    A nd           | Copyright (C) 2011 OpenFOAM Foundation
      \\/     M anipulation  |
--------------------------------------------------------------------------------
-    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,66 +21,18 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::sharpJump
-
-Description
-
-SourceFiles
-    sharpJump.C
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef sharpJump_H
-#define sharpJump_H
-
-#include "phaseIndicator.H"
+#include "oscillatingFvPatchFields.H"
+#include "fvPatchFields.H"
+#include "addToRunTimeSelectionTable.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-/*---------------------------------------------------------------------------*\
-                         Class sharpJump Declaration
-\*---------------------------------------------------------------------------*/
-
-class sharpJump
-:
-    public phaseIndicator
-{
-    label nAverages_; 
-
-public:
-
-    // Static Data Members
-
-    TypeName ("sharpJump");
-
-    // Constructors
-
-    sharpJump();
-
-    sharpJump(const dictionary& dict);
-
-    //- Destructor
-    virtual ~sharpJump() = default;
-
-    // Member Functions
-    
-    virtual void calcPhaseIndicator
-    (
-        volScalarField& alpha, 
-        const volScalarField& phi
-    ); 
-};
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-} // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
+    makePatchFields(oscillating);
+} 
 
 // ************************************************************************* //

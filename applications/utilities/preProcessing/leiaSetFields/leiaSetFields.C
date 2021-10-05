@@ -77,14 +77,14 @@ int main(int argc, char *argv[])
     const auto center = args.get<vector>("center");
     const auto radius = args.get<scalar>("radius");
 
-    setPhi(phi, center, radius);
-    phaseInd->calcPhaseIndicator(alpha, phi);
-    setVolumetricFlux(F);
+    setPsi(psi, center, radius);
+    phaseInd->calcPhaseIndicator(alpha, psi);
+    setVolumetricFlux(phi);
     setVelocity(U);
 
-    phi.write();
+    psi.write();
     alpha.write();
-    F.write();
+    phi.write();
     U.write();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

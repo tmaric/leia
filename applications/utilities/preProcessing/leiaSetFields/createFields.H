@@ -1,8 +1,8 @@
-volScalarField phi
+volScalarField psi
 (
     IOobject
     (
-        "phi", 
+        "psi", 
         runTime.timeName(), 
         mesh, 
         IOobject::MUST_READ, 
@@ -11,18 +11,18 @@ volScalarField phi
     mesh
 );
 
-surfaceScalarField F 
+surfaceScalarField phi 
 (
     IOobject
     (
-        "F", 
+        "phi", 
         runTime.timeName(), 
         mesh, 
         IOobject::NO_READ, 
         IOobject::NO_WRITE
     ),
     mesh, 
-    dimensionedScalar("F", dimVelocity * dimArea, 0)
+    dimensionedScalar("phi", dimVelocity * dimArea, 0)
 );
 
 volVectorField U 

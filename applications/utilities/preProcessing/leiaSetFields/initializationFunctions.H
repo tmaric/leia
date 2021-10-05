@@ -7,34 +7,35 @@ vector velocityShear2D(const vector& x)
     );
 }
 
-void setPhi
+void setPsi
 (
-    volScalarField& phi, 
+    volScalarField& psi, 
     const vector& center, 
     const scalar radius
 )
 {
 
-    const fvMesh& mesh = phi.mesh();
+    const fvMesh& mesh = psi.mesh();
     const auto& C = mesh.C(); 
-    forAll(phi, cellI)
+    forAll(psi, cellI)
     {
-        phi[cellI] = mag(C[cellI] - center) - radius;
+        psi[cellI] = mag(C[cellI] - center) - radius;
     }
 }
 
 
-void setVolumetricFlux(surfaceScalarField& F)
+void setVolumetricFlux(surfaceScalarField& phi)
 {
-    const fvMesh& mesh = F.mesh();
+    const fvMesh& mesh = phi.mesh();
     const surfaceVectorField& Sf = mesh.Sf();
     const surfaceVectorField& Cf = mesh.Cf();
 
     forAll (Cf, faceID)
     {
-        F[faceID] = 
+        phi[faceID] = 
             velocityShear2D(Cf[faceID]) & Sf[faceID];
     }
+    // TODO: the boundaries for advection cases. 
 }
 
 void setVelocity(volVectorField& U)

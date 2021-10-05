@@ -17,10 +17,8 @@ FoamFile
 
 solvers
 {
-    phi
+    psi 
     {
-        //solver          smoothSolver;
-        //smoother        symGaussSeidel;
         solver          PBiCGStab;
         preconditioner  DILU;
         tolerance       1e-10;
@@ -40,10 +38,8 @@ levelSet
 {
     phaseIndicator
     {
-        type heaviside;
-        nCells 3;
-        
-        //type sharpJump;
+        type sharpJump;
+        nAverages 3;
     }
 }
 

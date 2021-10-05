@@ -44,7 +44,7 @@ if __name__ == "__main__":
     if ((options.casedir == None) or  
         (options.paramfile == None) or 
         (options.studyname == None)): 
-        print ("Error: case or parameter option not used. Use --help option for more information.") 
+        print ("Error: case, parameter, or study name option not used. Use --help option for more information.") 
         sys.exit(1)
 
     (options, args) = parser.parse_args()

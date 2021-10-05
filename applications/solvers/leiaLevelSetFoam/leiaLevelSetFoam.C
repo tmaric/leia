@@ -32,17 +32,17 @@ Description
     The equation is given by:
 
     \f[
-        \ddt{phi} + \div \left(\vec{v} \phi\right) = 0 
+        \ddt{psi} + \div \left(\vec{v} \psi\right) = 0 
     \f]
 
     Where:
     \vartable
-        phi       | Passive scalar
+        psi       | Passive scalar
     \endvartable
 
     \heading Required fields
     \plaintable
-        phi       | Passive scalar
+        psi       | Passive scalar
         F       | Volumetric Flux [m^3/s]
     \endplaintable
 
@@ -54,6 +54,7 @@ Description
 #include "phaseIndicator.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 
 int main(int argc, char *argv[])
 {
@@ -75,6 +76,17 @@ int main(int argc, char *argv[])
 
     Info<< "\nCalculating scalar transport\n" << endl;
 
+    OFstream errorFile("leiaLevelSetFoam.csv"); 
+    // CSV Header 
+    errorFile << "TIME,"
+        << "DELTA_X,"
+        << "L_INF_E_PSI,"
+        << "E_VOL_ALPHA,"
+        << "E_GEOM_ALPHA,"
+        << "E_BOUND_ALPHA\n";
+
+    reportErrors(errorFile, psi, psi0, alpha, alpha0);
+
     while (simple.loop())
     {
         Info<< "Time = " << runTime.timeName() << nl << endl;
@@ -87,57 +99,27 @@ int main(int argc, char *argv[])
                 runTime.endTime().value())
         );
 
-        F == F0 * cosFactor; 
+        phi == phi0 * cosFactor; 
 
-        fvScalarMatrix phiEqn
+        fvScalarMatrix psiEqn
         (
-            fvm::ddt(phi)
-          + fvm::div(F, phi)
+            fvm::ddt(psi)
+          + fvm::div(phi, psi)
         );
 
-        phiEqn.solve();
-        phaseInd->calcPhaseIndicator(alpha, phi);
+        psiEqn.solve();
+        phaseInd->calcPhaseIndicator(alpha, psi);
 
-        // ||grad(phi)| - 1|
-        eGradPhi = Foam::mag(Foam::mag(fvc::grad(phi)) - 1);
+        reportErrors(errorFile, psi, psi0, alpha, alpha0);
 
         runTime.write();
     }
 
     // FIXME: they aren't picked up by the loop in the last time step. 
-    phi.write();
+    psi.write();
     alpha.write();
 
-    // Error evaluation
-    
-    // Discretization length
-    scalar h = Foam::max(Foam::pow(mesh.deltaCoeffs(),-1)).value();
-
-    // max_c(phi_0 - phi_end)
-    ePhi = Foam::mag(phi - phi0);
-    ePhi.write();
-    scalar lInfEphi = Foam::max(ePhi).value();
-
-    // max_c(||grad phi| - 1|)
-    scalar lInfEgradPhi = Foam::max(eGradPhi).value();
-
-    OFstream errorFile("leiaLevelSetFoam.csv"); 
-
-    // CSV Header 
-    errorFile << "H,"
-        << "L_INF_E_PHI,L_INF_E_GRAD_PHI,"
-        << "E_VOL_ALPHA,E_GEOM_ALPHA,"
-        << "E_BOUND_ALPHA,VOL_ALPHA_0\n";
-
-    volumeError eVolAlpha(alpha, alpha0);
-    errorFile << h << "," 
-        << lInfEphi << "," << lInfEgradPhi << ","
-        << eVolAlpha.eVolAlpha() << "," 
-        << calcEgeomAlpha(alpha, alpha0) << "," 
-        << calcEboundAlpha(alpha) << ","
-        << eVolAlpha.volume0() << "\n"; 
     Info<< "End\n" << endl;
-
 
     return 0;
 }

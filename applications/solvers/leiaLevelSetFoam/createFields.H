@@ -1,6 +1,22 @@
-Info<< "Reading field phi\n" << endl;
+Info<< "Reading field psi\n" << endl;
 
-volScalarField phi
+volScalarField psi 
+(
+    IOobject
+    (
+        "psi",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
+
+Info<< "Reading field F\n" << endl;
+
+surfaceScalarField phi 
 (
     IOobject
     (
@@ -13,30 +29,37 @@ volScalarField phi
     mesh
 );
 
+// For phi = phi0 * cos(pi t / T) 
+surfaceScalarField phi0 ("phi0", phi);
 
-Info<< "Reading field F\n" << endl;
-
-surfaceScalarField F
+// Advection error analysis. 
+volScalarField psi0
 (
     IOobject
     (
-        "F",
+        "psi0",
         runTime.timeName(),
         mesh,
-        IOobject::MUST_READ,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    mesh
+    psi 
+);
+volScalarField epsi 
+(
+    IOobject
+    (
+        "ePsi",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh, 
+    dimensionedScalar("ePsi", dimLength, 0)
 );
 
-// For F = F0 * cos(pi t / T) 
-surfaceScalarField F0 ("F0", F);
-
-// Advection error analysis. 
-volScalarField phi0("phi0", phi);
-volScalarField ePhi ("ePhi", phi);
-
-// Heaviside model
+// Marker field 
 volScalarField alpha 
 (
     IOobject
@@ -56,26 +79,9 @@ const fvSolution& fvSolution (mesh);
 const dictionary& levelSetDict = fvSolution.subDict("levelSet");
 autoPtr<phaseIndicator> phaseInd = 
     phaseIndicator::New(levelSetDict.subDict("phaseIndicator"));
-phaseInd->calcPhaseIndicator(alpha, phi);
-
+phaseInd->calcPhaseIndicator(alpha, psi);
 // Write initial indicator.
 alpha.write();
 
 // Alpha error analysis.
 volScalarField alpha0 ("alpha0", alpha);
-
-// ||grad phi| - 1| error analysis.
-volScalarField eGradPhi(
-    IOobject
-    (
-        "egradPhi",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    Foam::mag(Foam::mag(fvc::grad(phi)) - 1)
-);
-eGradPhi.write();
-
-

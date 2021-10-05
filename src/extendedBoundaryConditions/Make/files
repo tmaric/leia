@@ -1,0 +1,3 @@
+oscillatingFvPatchField/oscillatingFvPatchFields.C
+
+LIB = $(FOAM_USER_LIBBIN)/libextendedBoundaryConditions
