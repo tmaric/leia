@@ -216,6 +216,71 @@ void testVolFraction_UnitDomainHalvedVertically(volScalarField& alpha)
     }
 }
 
+void testVolFraction_UnitDomainHalvedDiagonally(volScalarField& alpha) 
+{
+    alpha = dimensionedScalar("0", dimless, 0);
+    const fvMesh& mesh = alpha.mesh();
+
+    point planePoint {0.5, 0.5, 0.5}; 
+    vector planeNormal {0, 1, 1};  
+
+    implicitPlane cutPlane(planePoint, planeNormal);
+
+    forAll(mesh.cells(), cellL) 
+    {
+        alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
+    }
+    alpha.correctBoundaryConditions();
+
+    scalar error = Foam::mag(
+        Foam::sum(alpha.internalField() * mesh.V()) - 
+        dimensionedScalar("0.5", dimVolume, 0.5)
+    ).value();
+
+    alpha.rename("alpha.testVolFraction_UnitDomainHalvedVertically");
+    alpha.write();
+
+    if (error > SMALL) 
+    {
+        FatalErrorInFunction
+            << "The volume of a halved unit domain should be 0.5.\n"  
+            << "|0.5 - \\sum_c \\alpha_c |\\Omega_c|| = " << error
+            << abort(FatalError);
+    }
+}
+
+void testVolFraction_UnitTest(volScalarField& alpha) 
+{
+    alpha = dimensionedScalar("0", dimless, 0);
+    const fvMesh& mesh = alpha.mesh();
+
+    point planePoint {0.5, 0.5, 0.5}; 
+    vector planeNormal {0.7, 0, 0};  
+
+    implicitPlane cutPlane(planePoint, planeNormal);
+
+    forAll(mesh.cells(), cellL) 
+    {
+        alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
+    }
+    alpha.correctBoundaryConditions();
+
+    scalar error = Foam::mag(
+        Foam::sum(alpha.internalField() * mesh.V()) - 
+        dimensionedScalar("0.7", dimVolume, 0.7)
+    ).value();
+
+    alpha.rename("alpha.testVolFraction_UnitDomainHalvedVertically");
+    alpha.write();
+
+    if (error > SMALL) 
+    {
+        FatalErrorInFunction
+            << "The volume of a halved unit domain should be 0.7.\n"  
+            << "|0.7 - \\sum_c \\alpha_c |\\Omega_c|| = " << error
+            << abort(FatalError);
+    }
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
