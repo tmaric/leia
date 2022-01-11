@@ -1,0 +1,11 @@
+EXE_INC = \
+    -DDEBUG_FOAM_GEOMETRY \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/surfMesh/lnInclude \
+    -I../../../src/vof 
+
+EXE_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
+    -lsurfMesh
