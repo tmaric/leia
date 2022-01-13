@@ -42,10 +42,11 @@ Description
 #include "surfaceFields.H"
 #include "volFields.H"
 #include <vector>
+#include <set>
 #include <algorithm>
 #include "sigFpe.H"
 
-#ifdef DEBUG_FOAM_GEOMETRY
+#ifdef VISUALIZE_FOAM_GEOMETRY
 #include "vtkSurfaceWriter.H"
 #include "DynamicList.H"
 #include "DynamicField.H"
@@ -173,7 +174,7 @@ scalar cutVolume
     const auto& meshPoints = mesh.points();
     const auto& faceOwner = mesh.faceOwner();
     
-#ifdef DEBUG_FOAM_GEOMETRY
+#ifdef VISUALIZE_FOAM_GEOMETRY
     DynamicField<point> vtkPoints; 
     DynamicList<face>   vtkFaces;
     using Foam::surfaceWriters::vtkWriter;
@@ -232,16 +233,17 @@ scalar cutVolume
             {
 
                 bool triangleInside = 
-                    (psiValues[0] <= 0) && 
-                    (psiValues[1] <= 0) &&  
-                    (psiValues[2] <= 0); 
+                    (psiValues[0] < 0) && 
+                    (psiValues[1] < 0) &&  
+                    (psiValues[2] < 0); 
                 
+                vector triAreaNormal = orient*0.5*((xfp0  - xf) ^ (xfp1 -  xf));
+
                 if (triangleInside)
                 {
-                    cutVol += xf & 
-                        (orient*0.5*((xfp0  - xf) ^ (xfp1 -  xf))); // Triangle area normal vector.
+                    cutVol += (xf & triAreaNormal);
                     
-                    #ifdef DEBUG_FOAM_GEOMETRY // Visualize the inside triangle.
+                    #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the inside triangle.
                     vtkFaces.append(
                         face {
                             vtkPoints.size(), 
@@ -255,10 +257,17 @@ scalar cutVolume
                     #endif 
                 } else // The triangle is intersected
                 {
-                    std::vector<point> triangle {xf, xfp0, xfp1};
+                    // Local addressing simplifies intersection.
+                    std::array<point,3> triangle {xf, xfp0, xfp1};
+                    if (orient == -1)
+                    {
+                        // Ensure the orientation of the local triangle 
+                        // generates outward-oriented area normal vector.
+                        std::swap(triangle[1], triangle[2]);
+                    }
                     std::vector<point> triangleCut; 
-                    triangleCut.reserve(4);
-
+                    //std::vector<point> cutPoints;
+                    std::set<size_t> cutSet;
                     // Iterate over triangle points and intersect the triangle 
                     for(label tp0 = 0; tp0 < 3; ++tp0)
                     {
@@ -270,10 +279,11 @@ scalar cutVolume
                             triangleCut.push_back(triangle[tp0]);
                         }
                         // Triangle point tp0 is a coplanar and is an (intersection) point
-                        if ((psiValues[tp0] > -SMALL) && (psiValues[tp0] < SMALL))
+                        if (Foam::mag(psiValues[tp0]) < SMALL) 
                         {
                             triangleCut.push_back(triangle[tp0]);
-                            capPolygon.push_back(triangle[tp0]);
+                            cutSet.insert(triangleCut.size() - 1);
+                            //cutPoints.push_back(triangle[tp0]);
                         }
                         else // Intersect the edge 
                         { 
@@ -284,15 +294,16 @@ scalar cutVolume
                             if (std::isnan(lambda)) // Both tp0 and tp1 are on the plane.
                             {
                                triangleCut.push_back(triangle[tp0]); 
-                               capPolygon.push_back(triangle[tp0]);
-                               // tp1 will be picked up in the next iteration.
+                               cutSet.insert(triangleCut.size() - 1);
+                               //cutPoints.push_back(triangle[tp0]);
                             }
                             else if ((lambda > SMALL) && (lambda < 1-SMALL))
                             {
                                 point cutPoint = triangle[tp0] + 
                                     lambda * (triangle[tp1] - triangle[tp0]); 
                                 triangleCut.push_back(cutPoint); 
-                                capPolygon.push_back(cutPoint);
+                                cutSet.insert(triangleCut.size() - 1);
+                                //cutPoints.push_back(cutPoint);
                             }
                             sigFpe::set(); // Enable OpenFOAM's SIGFPE trapping 
                         }
@@ -304,7 +315,23 @@ scalar cutVolume
                     {
                         cutVol += triangleCut[0] & orientedAreaNormal(triangleCut);
 
-                        #ifdef DEBUG_FOAM_GEOMETRY // Visualize the triangle cut polygon.
+                        // Add oriented cut points to the cap polygon.
+                        for(std::size_t tc0 = 0; tc0 < triangleCut.size(); ++tc0)
+                        {
+                            const std::size_t tc1 = (tc0 + 1) % triangleCut.size();
+                            const bool tc0Found = cutSet.find(tc0) != cutSet.end();
+                            const bool tc1Found = cutSet.find(tc1) != cutSet.end();
+
+                            if (tc0Found && tc1Found)
+                            {
+                                // Reverse cut point order to for outward orientation 
+                                // of the cap polygon.
+                                capPolygon.push_back(triangleCut[tc1]);
+                                capPolygon.push_back(triangleCut[tc0]); 
+                            }
+                        }
+
+                        #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the triangle cut polygon.
                         DynamicList<label> triangleCutFace;
                         std::size_t oldVtkPointsSize = vtkPoints.size();
                         for (std::size_t i = 0; i < triangleCut.size(); ++i)
@@ -315,7 +342,7 @@ scalar cutVolume
                         vtkFaces.append(face(triangleCutFace));
                         #endif 
                     }
-
+                    
                 }
             }
         }
@@ -326,15 +353,21 @@ scalar cutVolume
     if (capPolygon.size() > 2) 
     {
         // Coordinate system local to the cut triangle polygon.
-        // Using polygon normal as Z-axis, first polygon edge 
-        // as Y-axis, and the edge normal in (XY plane) as the
-        // X-axis.
+        // E01 coordinate system: 
+        // Z-axis (k0dash) : reversed polygon normal
+        // Y-axis (j0dash) : first polygon edge
+        // X-axis (i0dash) : j0dash x k0dash
+        
+        // Cap polygon is stored as a sequcence of points 
+        // but actually stores disconnected edges 
+        // (c0, c1), (c2, c3), ...
+        // oriented counter-clockwise w.r.t. k0dash 
         const vector& k0dash = plane.normal();
-        vector edge01 = capPolygon[1] - capPolygon[0];    
+        vector edge01 = capPolygon[1] - capPolygon[0]; 
         scalar edge01mag = mag(edge01);
         vector j0dash = edge01 / edge01mag; 
-        vector i0dash = j0dash ^ k0dash;  // edge normal
-        
+        vector i0dash = j0dash ^ k0dash;  
+
         const auto& capPolygonSize = capPolygon.size();
         using sizeType = decltype(capPolygon.size()); 
         for(sizeType k = 0; k < capPolygonSize / 2; ++k)
@@ -342,32 +375,34 @@ scalar cutVolume
             sizeType c0 = 2*k;
             sizeType c1 = (c0 + 1) % capPolygonSize;
 
-            // Compute xe in the global coordinate system.
-            vector xeDash = 0.5*(capPolygon[c0] + capPolygon[c1]) - 
-                capPolygon[0];
-            // Project xe to xeDash (local coordinate system (ne, e0, np))
+            // Edge centroid in a global coordinate system. 
+            vector xeDash = 0.5*(capPolygon[c0] + capPolygon[c1]) - capPolygon[0];
+
+            // Edge centroid in the E01 coordinate system.
             xeDash = vector(
                 xeDash & i0dash, 
                 xeDash & j0dash, 
                 xeDash & k0dash
             );
 
-            // Compute ne in the global coordinate system.
-            vector neDash = (capPolygon[c1] - capPolygon[c0]) ^ plane.normal(); 
-            // Project ne to neDash (local coordinate system (ne, e0, np))
+            // Edge normal in the global coordinate system.
+            // Should be pointing outward from the cap polygon.
+            vector neDash = (capPolygon[c1] - capPolygon[c0])^ k0dash;  
+
+            // Edge normal in the E01 coordinate system.
             neDash = vector(
                 neDash & i0dash, 
                 neDash & j0dash, 
                 neDash & k0dash
             );
-            
+
             capPolygonArea += (xeDash & neDash);
         }
-        capPolygonArea *= -0.5; // Cap polygon is oriented into the cut volume.
+        capPolygonArea *= 0.5; // Cap polygon is oriented into the cut volume.
         // Add the volume contribution from the cap polygon.
         cutVol += capPolygon[0] & (plane.normal() * capPolygonArea);
 
-        #ifdef DEBUG_FOAM_GEOMETRY // Visualize the cap polygon. 
+        #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the cap polygon. 
         DynamicList<label> capFace;
         std::size_t oldVtkPointsSize = vtkPoints.size();
         for (std::size_t i = 0; i < capPolygon.size(); ++i)
@@ -376,13 +411,16 @@ scalar cutVolume
             vtkPoints.append(capPolygon[i]);
         }
         vtkFaces.append(face(capFace));
-        std::stringstream ss; 
-        ss << "cutCell-" << std::setw(5) << std::setfill('0') << cellL; 
-        vtkWriter writer(vtkPoints, vtkFaces, ss.str());
-        writer.write();
         #endif
 
     }
+
+    #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the cap polygon. 
+    std::stringstream ss; 
+    ss << "cutCell-" << std::setw(5) << std::setfill('0') << cellL; 
+    vtkWriter writer(vtkPoints, vtkFaces, ss.str());
+    writer.write();
+    #endif
 
     return  cutVol / 3.; 
 };

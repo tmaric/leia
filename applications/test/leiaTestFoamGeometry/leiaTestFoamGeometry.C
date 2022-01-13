@@ -150,6 +150,8 @@ void testUnorientedSquareArea()
 
 void testVolFraction_UnitDomainInsidePlaneHalfspace(volScalarField& alpha) 
 {
+    Info << "testVolFraction_UnitDomainInsidePlaneHalfspace \n"  << endl;
+    alpha = dimensionedScalar("0", dimless, 0);
     const fvMesh& mesh = alpha.mesh();
 
     point planePoint {10, 10, 10}; 
@@ -157,20 +159,20 @@ void testVolFraction_UnitDomainInsidePlaneHalfspace(volScalarField& alpha)
 
     implicitPlane cutPlane(planePoint, planeNormal);
 
-    forAll(mesh.cells(), cellL) 
+    forAll(alpha, cellL) 
     {
         alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
     }
     alpha.correctBoundaryConditions();
+
+    alpha.rename("alpha.testVolFraction_UnitDomainInsidePlaneHalfspace");
+    alpha.write();
 
     scalar error = Foam::max(
         Foam::mag(
             alpha.internalField() - dimensionedScalar("1", dimless, 1)
         )
     ).value();
-
-    alpha.rename("alpha.testVolFraction_UnitDomainInsidePlaneHalfspace");
-    alpha.write();
 
     if (error > SMALL) 
     {
@@ -181,105 +183,102 @@ void testVolFraction_UnitDomainInsidePlaneHalfspace(volScalarField& alpha)
             << "max(|\\alpha - 1|): " << error 
             << abort(FatalError);
     }
+    Info << "testVolFraction_UnitDomainInsidePlaneHalfspace PASS \n"  << endl;
 }
 
-void testVolFraction_UnitDomainHalvedVertically(volScalarField& alpha) 
+void testVolFraction_UnitDomainHalved(volScalarField& alpha) 
 {
-    alpha = dimensionedScalar("0", dimless, 0);
+    Info << "testVolFraction_UnitDomainHalved \n"  << endl;
     const fvMesh& mesh = alpha.mesh();
+    const auto& V = mesh.V();
 
-    point planePoint {0.5, 0.5, 0.5}; 
-    vector planeNormal {0, 0, 1};  
-
-    implicitPlane cutPlane(planePoint, planeNormal);
-
-    forAll(mesh.cells(), cellL) 
-    {
-        alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
-    }
-    alpha.correctBoundaryConditions();
-
-    scalar error = Foam::mag(
-        Foam::sum(alpha.internalField() * mesh.V()) - 
-        dimensionedScalar("0.5", dimVolume, 0.5)
-    ).value();
-
-    alpha.rename("alpha.testVolFraction_UnitDomainHalvedVertically");
-    alpha.write();
-
-    if (error > SMALL) 
+    if (Foam::mag(gSum(V) - 1) > SMALL) 
     {
         FatalErrorInFunction
-            << "The volume of a halved unit domain should be 0.5.\n"  
-            << "|0.5 - \\sum_c \\alpha_c |\\Omega_c|| = " << error
+            << "This test works only on the unit domain." 
             << abort(FatalError);
     }
-}
 
-void testVolFraction_UnitDomainHalvedDiagonally(volScalarField& alpha) 
-{
-    alpha = dimensionedScalar("0", dimless, 0);
-    const fvMesh& mesh = alpha.mesh();
-
-    point planePoint {0.5, 0.5, 0.5}; 
-    vector planeNormal {0, 1, 1};  
-
-    implicitPlane cutPlane(planePoint, planeNormal);
-
-    forAll(mesh.cells(), cellL) 
+    auto doTest = [](
+        auto& alpha, 
+        const auto& planeNormal
+    )
     {
-        alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
-    }
-    alpha.correctBoundaryConditions();
+        alpha = dimensionedScalar("0", dimless, 0);
+        const fvMesh& mesh = alpha.mesh();
 
-    scalar error = Foam::mag(
-        Foam::sum(alpha.internalField() * mesh.V()) - 
-        dimensionedScalar("0.5", dimVolume, 0.5)
-    ).value();
+        // Unit box domain has a centroid at (0.5, 0.5, 0.5) which is 
+        // used here to halve the domain using different normal orientations.
+        point planePoint (0.5, 0.5, 0.5);
+        implicitPlane cutPlane(planePoint, planeNormal);
 
-    alpha.rename("alpha.testVolFraction_UnitDomainHalvedVertically");
-    alpha.write();
+        Info << "Testing intersection with a plane with plane point " 
+            << planePoint << " and plane normal " << planeNormal << endl;
 
-    if (error > SMALL) 
-    {
-        FatalErrorInFunction
-            << "The volume of a halved unit domain should be 0.5.\n"  
-            << "|0.5 - \\sum_c \\alpha_c |\\Omega_c|| = " << error
-            << abort(FatalError);
-    }
-}
+        forAll(mesh.cells(), cellL) 
+        {
+            alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
+        }
 
-void testVolFraction_UnitTest(volScalarField& alpha) 
-{
-    alpha = dimensionedScalar("0", dimless, 0);
-    const fvMesh& mesh = alpha.mesh();
+        alpha.correctBoundaryConditions();
+        alpha.rename("alpha.testVolFraction_UnitDomainHalvedVertically");
+        alpha.write();
 
-    point planePoint {0.5, 0.5, 0.5}; 
-    vector planeNormal {0.7, 0, 0};  
+        scalar error = Foam::mag(
+            Foam::sum(alpha.internalField() * mesh.V()) - 
+            dimensionedScalar("0.5", dimVolume, 0.5)
+        ).value();
 
-    implicitPlane cutPlane(planePoint, planeNormal);
+        if (error > SMALL) 
+        {
+            FatalErrorInFunction
+                << "The volume of a halved unit domain should be 0.5.\n"  
+                << "|0.5 - \\sum_c \\alpha_c |\\Omega_c|| = " << error << "\n"
+                << "planePoint : " << planePoint << "\n"
+                << "planeNormal : " << planeNormal << "\n"
+                << abort(FatalError);
+        }
+        Info << "Plane normal " << planeNormal << " PASS" << endl;
+    };
 
-    forAll(mesh.cells(), cellL) 
-    {
-        alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
-    }
-    alpha.correctBoundaryConditions();
+    // Cartesian product of [-1, 0, 1] without [0,0,0] for halving the unit box domain.
+    // Generated in Python using 
+    // from itertools import product
+    // input = [-1,0,1]
+    // list(product(input, repeat = 3))
+    vectorField normals {{
+        vector(-1, -1, -1),
+        vector(-1, -1, 0),
+        vector(-1, -1, 1),
+        vector(-1, 0, -1),
+        vector(-1, 0, 0),
+        vector(-1, 0, 1),
+        vector(-1, 1, -1),
+        vector(-1, 1, 0),
+        vector(-1, 1, 1),
+        vector(0, -1, -1),
+        vector(0, -1, 0),
+        vector(0, -1, 1),
+        vector(0, 0, -1),
+        vector(0, 0, 1),
+        vector(0, 1, -1),
+        vector(0, 1, 0),
+        vector(0, 1, 1),
+        vector(1, -1, -1),
+        vector(1, -1, 0),
+        vector(1, -1, 1),
+        vector(1, 0, -1),
+        vector(1, 0, 0),
+        vector(1, 0, 1),
+        vector(1, 1, -1),
+        vector(1, 1, 0),
+        vector(1, 1, 1)
+    }};
+    normals /= Foam::mag(normals);
 
-    scalar error = Foam::mag(
-        Foam::sum(alpha.internalField() * mesh.V()) - 
-        dimensionedScalar("0.7", dimVolume, 0.7)
-    ).value();
-
-    alpha.rename("alpha.testVolFraction_UnitDomainHalvedVertically");
-    alpha.write();
-
-    if (error > SMALL) 
-    {
-        FatalErrorInFunction
-            << "The volume of a halved unit domain should be 0.7.\n"  
-            << "|0.7 - \\sum_c \\alpha_c |\\Omega_c|| = " << error
-            << abort(FatalError);
-    }
+    for(const auto& planeNormal : normals)
+        doTest(alpha, planeNormal); 
+    Info << "testVolFraction_UnitDomainHalved PASS \n"  << endl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -299,6 +298,7 @@ int main(int argc, char *argv[])
     testUnorientedSquareArea();
     
     // Volume fraction tests
+    
     volScalarField alpha
     (
         IOobject
@@ -313,9 +313,14 @@ int main(int argc, char *argv[])
         dimensionedScalar("0", dimless, 0)
     );
     
+    // - Single cell mesh as input: test special cases for the intersection
+    // that cause point and face duplication.
+    // - Standard mesh as input: test volume fraction calculation involving
+    // mesh boundary. 
+    
     testVolFraction_UnitDomainInsidePlaneHalfspace(alpha);
 
-    testVolFraction_UnitDomainHalvedVertically(alpha);
+    testVolFraction_UnitDomainHalved(alpha);
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
