@@ -46,7 +46,7 @@ Description
 #include <algorithm>
 #include "sigFpe.H"
 
-#ifdef VISUALIZE_FOAM_GEOMETRY
+#ifdef VISUALIZE_intersectCell
 #include "vtkSurfaceWriter.H"
 #include "DynamicList.H"
 #include "DynamicField.H"
@@ -156,16 +156,37 @@ struct implicitPlane
     }
 };
 
+struct volumeArea 
+{
+    double volume_;
+    double area_;
 
-template<typename ImplicitPlane> 
-scalar cutVolume 
+    volumeArea() 
+        : 
+            volume_(0), 
+            area_(0)
+    {}
+
+    double volume() 
+    {
+        return volume_;
+    }
+
+    double area()  
+    {
+        return area_;
+    }
+};
+
+template<typename Intersection=volumeArea, typename ImplicitPlane> 
+Intersection intersectCell 
 (
     label cellL, 
     const fvMesh& mesh, 
-    ImplicitPlane plane 
+    ImplicitPlane plane
 )
 {
-    scalar cutVol = 0;
+    Intersection cellIntersection;  
 
     // Unstructured mesh addressing
     const auto& meshCells = mesh.cells();
@@ -174,7 +195,7 @@ scalar cutVolume
     const auto& meshPoints = mesh.points();
     const auto& faceOwner = mesh.faceOwner();
     
-#ifdef VISUALIZE_FOAM_GEOMETRY
+#ifdef VISUALIZE_intersectCell
     DynamicField<point> vtkPoints; 
     DynamicList<face>   vtkFaces;
     using Foam::surfaceWriters::vtkWriter;
@@ -225,25 +246,25 @@ scalar cutVolume
             psiValues[2] = plane(xfp1);
             
             bool triangleOutside = 
-                (psiValues[0] > 0) && 
-                (psiValues[1] > 0) &&  
-                (psiValues[2] > 0); 
+                (psiValues[0] > 2*SMALL) && 
+                (psiValues[1] > 2*SMALL) &&  
+                (psiValues[2] > 2*SMALL); 
             
             if (!triangleOutside)
             {
 
                 bool triangleInside = 
-                    (psiValues[0] < 0) && 
-                    (psiValues[1] < 0) &&  
-                    (psiValues[2] < 0); 
+                    (psiValues[0] < -2*SMALL) && 
+                    (psiValues[1] < -2*SMALL) &&  
+                    (psiValues[2] < -2*SMALL); 
                 
                 vector triAreaNormal = orient*0.5*((xfp0  - xf) ^ (xfp1 -  xf));
 
                 if (triangleInside)
                 {
-                    cutVol += (xf & triAreaNormal);
+                    cellIntersection.volume_ += (xf & triAreaNormal);
                     
-                    #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the inside triangle.
+                    #ifdef VISUALIZE_intersectCell  // Visualize the inside triangle.
                     vtkFaces.append(
                         face {
                             vtkPoints.size(), 
@@ -264,6 +285,7 @@ scalar cutVolume
                         // Ensure the orientation of the local triangle 
                         // generates outward-oriented area normal vector.
                         std::swap(triangle[1], triangle[2]);
+                        std::swap(psiValues[1], psiValues[2]);
                     }
                     std::vector<point> triangleCut; 
                     //std::vector<point> cutPoints;
@@ -274,12 +296,12 @@ scalar cutVolume
                         label tp1 = (tp0 + 1) % 3;
 
                         // Triangle point tP0 is inside \Omega^- but not a coplanar point
-                        if (psiValues[tp0] < -SMALL)
+                        if (psiValues[tp0] < -2*SMALL)
                         {
                             triangleCut.push_back(triangle[tp0]);
                         }
                         // Triangle point tp0 is a coplanar and is an (intersection) point
-                        if (Foam::mag(psiValues[tp0]) < SMALL) 
+                        if (Foam::mag(psiValues[tp0]) < 2*SMALL) 
                         {
                             triangleCut.push_back(triangle[tp0]);
                             cutSet.insert(triangleCut.size() - 1);
@@ -297,7 +319,7 @@ scalar cutVolume
                                cutSet.insert(triangleCut.size() - 1);
                                //cutPoints.push_back(triangle[tp0]);
                             }
-                            else if ((lambda > SMALL) && (lambda < 1-SMALL))
+                            else if ((lambda > 2*SMALL) && (lambda < 1-2*SMALL))
                             {
                                 point cutPoint = triangle[tp0] + 
                                     lambda * (triangle[tp1] - triangle[tp0]); 
@@ -313,7 +335,7 @@ scalar cutVolume
                     // Add contribution from the triangle cut polygon.
                     if (triangleCut.size() > 2) 
                     {
-                        cutVol += triangleCut[0] & orientedAreaNormal(triangleCut);
+                        cellIntersection.volume_ += triangleCut[0] & orientedAreaNormal(triangleCut);
 
                         // Add oriented cut points to the cap polygon.
                         for(std::size_t tc0 = 0; tc0 < triangleCut.size(); ++tc0)
@@ -331,7 +353,7 @@ scalar cutVolume
                             }
                         }
 
-                        #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the triangle cut polygon.
+                        #ifdef VISUALIZE_intersectCell // Visualize the triangle cut polygon.
                         DynamicList<label> triangleCutFace;
                         std::size_t oldVtkPointsSize = vtkPoints.size();
                         for (std::size_t i = 0; i < triangleCut.size(); ++i)
@@ -400,9 +422,9 @@ scalar cutVolume
         }
         capPolygonArea *= 0.5; // Cap polygon is oriented into the cut volume.
         // Add the volume contribution from the cap polygon.
-        cutVol += capPolygon[0] & (plane.normal() * capPolygonArea);
+        cellIntersection.volume_ += capPolygon[0] & (plane.normal() * capPolygonArea);
 
-        #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the cap polygon. 
+        #ifdef VISUALIZE_intersectCell // Visualize the cap polygon. 
         DynamicList<label> capFace;
         std::size_t oldVtkPointsSize = vtkPoints.size();
         for (std::size_t i = 0; i < capPolygon.size(); ++i)
@@ -412,17 +434,19 @@ scalar cutVolume
         }
         vtkFaces.append(face(capFace));
         #endif
-
     }
 
-    #ifdef VISUALIZE_FOAM_GEOMETRY // Visualize the cap polygon. 
+    #ifdef VISUALIZE_intersectCell // Visualize the intersected cell 
     std::stringstream ss; 
     ss << "cutCell-" << std::setw(5) << std::setfill('0') << cellL; 
     vtkWriter writer(vtkPoints, vtkFaces, ss.str());
     writer.write();
+    writer.close();
     #endif
 
-    return  cutVol / 3.; 
+    cellIntersection.volume_ /= 3.;
+
+    return  cellIntersection; 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

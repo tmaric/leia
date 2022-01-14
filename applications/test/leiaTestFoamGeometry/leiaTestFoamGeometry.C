@@ -38,6 +38,14 @@ Description
 #include "foamGeometry.H"
 #include "fvcAverage.H"
 #include "plane.H"
+#include <iomanip>
+
+#ifdef VISUALIZE_intersectCell
+#include "vtkSurfaceWriter.H"
+#include "DynamicList.H"
+#include "DynamicField.H"
+#include <sstream>
+#endif 
 
 // Area unit tests. 
 void testTriangleArea()
@@ -159,11 +167,26 @@ void testVolFraction_UnitDomainInsidePlaneHalfspace(volScalarField& alpha)
 
     implicitPlane cutPlane(planePoint, planeNormal);
 
-    forAll(alpha, cellL) 
+    #ifdef VISUALIZE_intersectCell 
+    DynamicField<point> allPoints;
+    DynamicList<face> allFaces;
+    #endif
+
+    forAll(mesh.cells(), cellL) 
     {
-        alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
+        auto cellIntersection = intersectCell(cellL, mesh, cutPlane);
+        alpha[cellL] =  cellIntersection.volume() / mesh.V()[cellL];
+        
+        if ((alpha[cellL] > 1 + SMALL) || (alpha[cellL] < -SMALL))
+        {
+            std::cout << "alpha = " << std::setprecision(16) 
+                << alpha[cellL] << std::endl;
+            FatalErrorInFunction
+                << "Volume fraction out of bounds: " 
+                << alpha[cellL] << " for cell " << cellL << "\n" 
+                << abort(FatalError);
+        }
     }
-    alpha.correctBoundaryConditions();
 
     alpha.rename("alpha.testVolFraction_UnitDomainInsidePlaneHalfspace");
     alpha.write();
@@ -217,10 +240,19 @@ void testVolFraction_UnitDomainHalved(volScalarField& alpha)
 
         forAll(mesh.cells(), cellL) 
         {
-            alpha[cellL] = cutVolume(cellL, mesh, cutPlane) / mesh.V()[cellL];
-        }
+            auto cellIntersection = intersectCell(cellL, mesh, cutPlane);
+            alpha[cellL] =  cellIntersection.volume() / mesh.V()[cellL];
 
-        alpha.correctBoundaryConditions();
+            if ((alpha[cellL] > 1 + SMALL) || (alpha[cellL] < -SMALL))
+            {
+                std::cout << "alpha = " << std::setprecision(16) 
+                    << alpha[cellL] << std::endl;
+                FatalErrorInFunction
+                    << "Volume fraction out of bounds: " 
+                    << alpha[cellL] << " for cell " << cellL << "\n" 
+                    << abort(FatalError);
+            }
+        }
         alpha.rename("alpha.testVolFraction_UnitDomainHalvedVertically");
         alpha.write();
 
@@ -281,6 +313,74 @@ void testVolFraction_UnitDomainHalved(volScalarField& alpha)
     Info << "testVolFraction_UnitDomainHalved PASS \n"  << endl;
 }
 
+void testVolFraction_UnitDomainTranslatingPlane(
+    volScalarField& alpha, 
+    Time& runTime
+) 
+{
+    alpha.rename("alpha.UnitDomainTranslatingPlane");
+
+    vector planePoint(0, 0, 0.5);
+    vector planeNormal(1, 0, 0);
+
+    const fvMesh& mesh = alpha.mesh();
+
+    auto doTest = [&]()
+    {
+        planePoint = vector(runTime.timeOutputValue(), 0, 0);
+
+        implicitPlane cutPlane(planePoint, planeNormal); 
+
+        forAll(mesh.cells(), cellL) 
+        {
+            auto cellIntersection = intersectCell(cellL, mesh, cutPlane);
+            alpha[cellL] =  cellIntersection.volume() / mesh.V()[cellL];
+
+            if ((alpha[cellL] > 1+SMALL) || (alpha[cellL] < -SMALL))
+            {
+                std::cout << "alpha  =" << std::setprecision(16) 
+                    << alpha[cellL] << std::endl;
+                FatalErrorInFunction
+                    << "Volume fraction out of bounds: "
+                    << alpha[cellL] << " for cell " << cellL << "\n" 
+                    << abort(FatalError);
+            }
+        }
+
+        scalar error = Foam::mag(
+            Foam::sum(alpha.internalField() * mesh.V()) - 
+            dimensionedScalar("alpha", dimVolume, runTime.timeOutputValue())
+        ).value();
+
+        if (error > SMALL) 
+        {
+            FatalErrorInFunction
+                << "The volume of the intersected solution domain should be "  
+                << "equal to the simulation time. " 
+                << "|" << runTime.timeOutputValue() 
+                << " - \\sum_c \\alpha_c |\\Omega_c|| = " << error << "\n"
+                << "planePoint : " << planePoint << "\n"
+                << "planeNormal : " << planeNormal << "\n"
+                << abort(FatalError);
+        }
+    };
+
+    doTest();
+    alpha.write();
+    
+    while(runTime.run())
+    {
+        ++runTime;
+
+        doTest();
+
+        runTime.write();
+    }
+
+    // Reset simulation time.
+    runTime.setTime(0, 0); 
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -318,9 +418,13 @@ int main(int argc, char *argv[])
     // - Standard mesh as input: test volume fraction calculation involving
     // mesh boundary. 
     
-    testVolFraction_UnitDomainInsidePlaneHalfspace(alpha);
+    // testVolFraction_UnitDomainInsidePlaneHalfspace(alpha);
 
     testVolFraction_UnitDomainHalved(alpha);
+
+    // Test volume fraction calculation with a plane (1,0,0), moving along
+    // (1,0,0) with velocity (1,0,0). 
+    testVolFraction_UnitDomainTranslatingPlane(alpha, runTime);
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
