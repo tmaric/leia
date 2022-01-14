@@ -97,3 +97,6 @@ log.analyzed/
 log
 *.csv
 *.pvsm
+*.vtp
+*.vtk
+*.pdf

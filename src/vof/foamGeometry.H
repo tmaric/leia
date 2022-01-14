@@ -142,7 +142,7 @@ struct implicitPlane
         :
             p_(p), n_(n)
     {
-        n_ /= Foam::mag(n_); 
+        /*n_ /= Foam::mag(n_); */
     }
     
     scalar operator()(const point& x) 
@@ -384,7 +384,8 @@ Intersection intersectCell
         // but actually stores disconnected edges 
         // (c0, c1), (c2, c3), ...
         // oriented counter-clockwise w.r.t. k0dash 
-        const vector& k0dash = plane.normal();
+        vector k0dash = plane.normal();
+        k0dash /= mag(k0dash);
         vector edge01 = capPolygon[1] - capPolygon[0]; 
         scalar edge01mag = mag(edge01);
         vector j0dash = edge01 / edge01mag; 
@@ -422,7 +423,7 @@ Intersection intersectCell
         }
         capPolygonArea *= 0.5; // Cap polygon is oriented into the cut volume.
         // Add the volume contribution from the cap polygon.
-        cellIntersection.volume_ += capPolygon[0] & (plane.normal() * capPolygonArea);
+        cellIntersection.volume_ += capPolygon[0] & (k0dash * capPolygonArea);
 
         #ifdef VISUALIZE_intersectCell // Visualize the cap polygon. 
         DynamicList<label> capFace;
