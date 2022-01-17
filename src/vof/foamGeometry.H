@@ -156,6 +156,27 @@ struct implicitPlane
     }
 };
 
+struct hesseNormalPlane 
+{
+    vector n_; 
+    scalar d_; 
+    
+    hesseNormalPlane(vector n, scalar d)
+        :
+            n_(n), d_(d)
+    {}
+    
+    scalar operator()(const point& x) 
+    {
+        return (n_ & x) + d_; 
+    }
+
+    const vector& normal() 
+    {
+        return n_;
+    }
+};
+
 struct volumeArea 
 {
     double volume_;
@@ -217,14 +238,25 @@ Intersection intersectCell
         { 
             const auto& faceCentersB = faceCenters.boundaryField();
             const auto& patches = mesh.boundary();
+            // TODO: Remove
             forAll(faceCentersB, patchI)
             {
                 const fvPatch& patch = patches[patchI];
-                if ((faceG >= patch.start()) && 
+                if (patch.type() == "empty") // 2D calculations on the "empty" patch 
+                {
+                    const face& emptyFace = mesh.faces()[faceG]; 
+                    xf = point{0,0,0};
+                    forAll(emptyFace, pointI)
+                    {
+                        xf += mesh.points()[emptyFace[pointI]];
+                    }
+                    xf /= emptyFace.size();
+                }
+                else if ((faceG >= patch.start()) && 
                     (faceG < patch.start() + patch.size()))
                 {
                     xf = faceCentersB[patchI][faceG - patch.start()];   
-                }
+                } 
             }
         }
         

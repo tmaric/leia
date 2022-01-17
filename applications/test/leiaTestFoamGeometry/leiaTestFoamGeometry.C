@@ -213,6 +213,15 @@ void testVolFraction_UnitDomainHalved(volScalarField& alpha)
 {
     Info << "testVolFraction_UnitDomainHalved \n"  << endl;
     const fvMesh& mesh = alpha.mesh();
+
+    // TODO: Extend foamGeometry::intersectCell for 2D calculations.
+    /*
+    if (mesh.nSolutionD() == 2)
+        FatalErrorInFunction
+            << "Cell intersection currently supports only 3D calculations.\n"
+            << abort(FatalError);
+    */
+
     const auto& V = mesh.V();
 
     if (Foam::mag(gSum(V) - 1) > SMALL) 
@@ -224,7 +233,7 @@ void testVolFraction_UnitDomainHalved(volScalarField& alpha)
 
     auto doTest = [](
         auto& alpha, 
-        const auto& planeNormal
+        auto& planeNormal
     )
     {
         alpha = dimensionedScalar("0", dimless, 0);
@@ -308,8 +317,21 @@ void testVolFraction_UnitDomainHalved(volScalarField& alpha)
     }};
     normals /= Foam::mag(normals);
 
-    for(const auto& planeNormal : normals)
+    for(auto& planeNormal : normals)
+    {
+        // Adjust the normal to correspond to solution directions.
+        const auto& solutionD = mesh.solutionD(); 
+        Info << "Mesh solution directions = " << solutionD << endl;
+        forAll(solutionD, solD)
+            if (solutionD[solD] == -1)
+                planeNormal[solD] = 0;
+
+        if (Foam::mag(planeNormal) == 0)
+            continue;
+
         doTest(alpha, planeNormal); 
+    }
+
     Info << "testVolFraction_UnitDomainHalved PASS \n"  << endl;
 }
 
