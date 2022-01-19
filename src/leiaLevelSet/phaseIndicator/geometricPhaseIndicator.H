@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 AUTHOR,AFFILIATION
+    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,65 +23,73 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::geometricPhaseIndicator
+
+Description
+
+    Computes the phase indicator as a volume fraction from a field \psi_c. 
+    
+    In each cell \Omega_c, a piecewise-planer approximation \psi^l_c is
+    computed using linear least squares. This implicit plane is then used to
+    truncate the cell and compute the phase-specific volume \Omega_c^-,
+    resulting in the volume fraction 
+
+    \alpha_c = |\Omega_c^-| / |\Omega_c| 
+
+SourceFiles
+    geometricPhaseIndicator.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "heaviside.H"
-#include "addToRunTimeSelectionTable.H"
-#include "volFields.H"
-#include "surfaceFields.H"
+#ifndef geometricPhaseIndicator_H
+#define geometricPhaseIndicator_H
+
+#include "phaseIndicator.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-defineTypeNameAndDebug(heaviside, false);
-addToRunTimeSelectionTable(phaseIndicator, heaviside, Dictionary);
+/*---------------------------------------------------------------------------*\
+                         Class geometricPhaseIndicator Declaration
+\*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-heaviside::heaviside()
-    : 
-        nCells_(3)
-{}
-
-heaviside::heaviside(const dictionary& dict)
-    :
-        nCells_(dict.getOrDefault<label>("nCells", 3))
-{}
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-void heaviside::calcPhaseIndicator
-(
-    volScalarField& alpha, 
-    const volScalarField& phi
-) 
+class geometricPhaseIndicator
+:
+    public phaseIndicator
 {
-    const fvMesh& mesh = alpha.mesh();
 
-    scalar epsilon = (nCells_ / 2.0) * 
-        Foam::max(Foam::pow(mesh.deltaCoeffs(), -1)).value(); 
+public:
 
-    forAll(alpha, cellID)
-    {
-        if (phi[cellID] < -epsilon)
-            alpha[cellID] = 0;
-        else if (phi[cellID] > epsilon)
-            alpha[cellID] = 1;
-        else
-        {
-            alpha[cellID] = 0.5 + 
-                 + phi[cellID] / (2*epsilon)
-                 + Foam::sin((M_PI * phi[cellID]) / epsilon) / 
-                     (2*M_PI);
-        }
-    }
-    alpha == 1 - alpha;
-}
+    // Static Data Members
+
+    TypeName ("geometric");
+
+    // Constructors
+
+    geometricPhaseIndicator();
+
+    geometricPhaseIndicator(const dictionary& dict);
+
+    //- Destructor
+    virtual ~geometricPhaseIndicator() = default;
+
+    // Member Functions
+    virtual void calcPhaseIndicator
+    (
+        volScalarField& alpha, 
+        const volScalarField& psi 
+    ); 
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //

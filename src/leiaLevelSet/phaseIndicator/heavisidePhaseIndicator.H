@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 AUTHOR,AFFILIATION
+    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,56 +23,66 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::heavisidePhaseIndicator
+
+Description
+
+SourceFiles
+    heavisidePhaseIndicator.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "sharpJump.H"
-#include "addToRunTimeSelectionTable.H"
-#include "volFields.H"
-#include "surfaceFields.H"
-#include "fvcAverage.H"
+#ifndef heavisidePhaseIndicator_H
+#define heavisidePhaseIndicator_H
+
+#include "phaseIndicator.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-defineTypeNameAndDebug(sharpJump, false);
-addToRunTimeSelectionTable(phaseIndicator, sharpJump, Dictionary);
+/*---------------------------------------------------------------------------*\
+                         Class heavisidePhaseIndicator Declaration
+\*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-sharpJump::sharpJump()
+class heavisidePhaseIndicator
 :
-    nAverages_(0)
-{}
-
-sharpJump::sharpJump(const dictionary& dict)
-:
-        nAverages_(dict.getOrDefault<label>("nCells", 0))
-{}
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-void sharpJump::calcPhaseIndicator
-(
-    volScalarField& alpha, 
-    const volScalarField& phi
-) 
+    public phaseIndicator
 {
-    forAll(alpha, cellID)
-    {
-        if (phi[cellID] < 0)
-            alpha[cellID] = 1;
-        else 
-            alpha[cellID] = 0;
-    }
+    label nCells_; 
 
-    for (int i = 0; i < 1; ++i)
-        alpha = fvc::average(alpha);
-}
+public:
+
+    // Static Data Members
+
+    TypeName ("heaviside");
+
+    // Constructors
+
+    heavisidePhaseIndicator();
+
+    heavisidePhaseIndicator(const dictionary& dict);
+
+    //- Destructor
+    virtual ~heavisidePhaseIndicator() = default;
+
+    // Member Functions
+    
+    virtual void calcPhaseIndicator
+    (
+        volScalarField& alpha, 
+        const volScalarField& psi 
+    ); 
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
 
 // ************************************************************************* //

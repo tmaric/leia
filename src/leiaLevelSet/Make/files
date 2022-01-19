@@ -1,5 +1,9 @@
 phaseIndicator/phaseIndicator.C
-phaseIndicator/heaviside.C
-phaseIndicator/sharpJump.C
+phaseIndicator/heavisidePhaseIndicator.C
+phaseIndicator/sharpJumpPhaseIndicator.C
+phaseIndicator/geometricPhaseIndicator.C
+
+redistancer/redistancer.C
+redistancer/lsqRedistancer.C
 
 LIB = $(FOAM_USER_LIBBIN)/libleiaLevelSet

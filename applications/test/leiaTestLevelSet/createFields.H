@@ -13,20 +13,7 @@ volScalarField psi
     mesh
 );
 
-// Volumetric flux
-Info<< "Reading field phi\n" << endl;
-surfaceScalarField phi 
-(
-    IOobject
-    (
-        "phi",
-        runTime.timeName(),
-        mesh,
-        IOobject::MUST_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh
-);
+volScalarField psi0("psi0", psi);
 
 // Phase-indicator  
 volScalarField alpha 
@@ -48,13 +35,9 @@ const fvSolution& fvSolution (mesh);
 const dictionary& levelSetDict = fvSolution.subDict("levelSet");
 
 //- redistancer selection
-autoPtr<redistancer> redist =
+autoPtr<redistancer> redist = 
     redistancer::New(levelSetDict.subDict("redistancer"));
 
 //- phase-indicator selection
 autoPtr<phaseIndicator> phaseInd = 
     phaseIndicator::New(levelSetDict.subDict("phaseIndicator"));
-
-//- compute and write initial phase-indicator.
-phaseInd->calcPhaseIndicator(alpha, psi);
-alpha.write();

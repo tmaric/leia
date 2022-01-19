@@ -17,7 +17,6 @@ FoamFile
 
 ddtSchemes
 {
-    //default         Euler;
     default         CrankNicolson 1;
 }
 

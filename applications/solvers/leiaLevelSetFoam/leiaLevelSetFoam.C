@@ -29,7 +29,7 @@ Application
 Description
 
     \heading Solver details
-    The equation is given by:
+    A level-set equation in conservative form   
 
     \f[
         \ddt{psi} + \div \left(\vec{v} \psi\right) = 0 
@@ -43,7 +43,7 @@ Description
     \heading Required fields
     \plaintable
         psi       | Passive scalar
-        F       | Volumetric Flux [m^3/s]
+        phi       | Volumetric Flux [m^3/s]
     \endplaintable
 
 \*---------------------------------------------------------------------------*/
@@ -52,6 +52,7 @@ Description
 #include "simpleControl.H"
 #include "advectionErrors.H"
 #include "phaseIndicator.H"
+#include "redistancer.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -74,21 +75,13 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+    #include "errorCalculation.H"
+
     Info<< "\nCalculating scalar transport\n" << endl;
-
-    OFstream errorFile("leiaLevelSetFoam.csv"); 
-    // CSV Header 
-    errorFile << "TIME,"
-        << "DELTA_X,"
-        << "L_INF_E_PSI,"
-        << "E_VOL_ALPHA,"
-        << "E_GEOM_ALPHA,"
-        << "E_BOUND_ALPHA\n";
-
-    reportErrors(errorFile, psi, psi0, alpha, alpha0);
-
-    while (simple.loop())
+    
+    while (runTime.run())
     {
+        ++runTime;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         dimensionedScalar cosFactor 
@@ -108,6 +101,9 @@ int main(int argc, char *argv[])
         );
 
         psiEqn.solve();
+
+        redist->redistance(psi);
+        
         phaseInd->calcPhaseIndicator(alpha, psi);
 
         reportErrors(errorFile, psi, psi0, alpha, alpha0);
@@ -115,7 +111,6 @@ int main(int argc, char *argv[])
         runTime.write();
     }
 
-    // FIXME: they aren't picked up by the loop in the last time step. 
     psi.write();
     alpha.write();
 

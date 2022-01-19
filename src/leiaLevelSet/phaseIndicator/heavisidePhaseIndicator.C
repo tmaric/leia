@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
+    Copyright (C) 2021 AUTHOR,AFFILIATION
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,87 +23,65 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::phaseIndicator
-
-Description
-
-SourceFiles
-    phaseIndicator.C
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef phaseIndicator_H
-#define phaseIndicator_H
-
-#include "typeInfo.H"
-#include "autoPtr.H"
-#include "runTimeSelectionTables.H"
-#include "fvSolution.H"
+#include "heavisidePhaseIndicator.H"
+#include "addToRunTimeSelectionTable.H"
 #include "volFields.H"
+#include "surfaceFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-/*---------------------------------------------------------------------------*\
-                         Class phaseIndicator Declaration
-\*---------------------------------------------------------------------------*/
+defineTypeNameAndDebug(heavisidePhaseIndicator, false);
+addToRunTimeSelectionTable(phaseIndicator, heavisidePhaseIndicator, Dictionary);
 
-class phaseIndicator
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+heavisidePhaseIndicator::heavisidePhaseIndicator()
+    : 
+        nCells_(2)
+{}
+
+heavisidePhaseIndicator::heavisidePhaseIndicator(const dictionary& dict)
+    :
+        nCells_(dict.getOrDefault<label>("nCells", 2))
+{}
+
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+void heavisidePhaseIndicator::calcPhaseIndicator
+(
+    volScalarField& alpha, 
+    const volScalarField& psi 
+) 
 {
+    const fvMesh& mesh = alpha.mesh();
 
-public:
+    scalar epsilon = (nCells_ / 2.0) * 
+        Foam::max(Foam::pow(mesh.deltaCoeffs(), -1)).value(); 
 
-    // Static Data Members
-
-    TypeName("phaseIndicator");
-
-
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        phaseIndicator, 
-        Dictionary, 
-        (
-            const dictionary& dict 
-        ), 
-        (dict)
-    );
-
-    // Constructors
-
-        //- Default construct
-        phaseIndicator() = default;
-
-        phaseIndicator(const dictionary& dict);
-
-    // Selectors
-
-        //- Select default constructed
-        static autoPtr<phaseIndicator> 
-        New(const dictionary& fvSolutionDict);
-
-    //- Destructor
-    virtual ~phaseIndicator() = default;
-
-    // Member Functions
-
-    virtual void calcPhaseIndicator
-    (
-        volScalarField& alpha, 
-        const volScalarField& psi 
-    ) = 0;
-    
-};
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    forAll(alpha, cellID)
+    {
+        if (psi[cellID] < -epsilon)
+            alpha[cellID] = 0;
+        else if (psi[cellID] > epsilon)
+            alpha[cellID] = 1;
+        else
+        {
+            alpha[cellID] = 0.5 + 
+                 + psi[cellID] / (2*epsilon)
+                 + Foam::sin((M_PI * psi[cellID]) / epsilon) / 
+                     (2*M_PI);
+        }
+    }
+    alpha == 1 - alpha;
+}
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
 
 // ************************************************************************* //

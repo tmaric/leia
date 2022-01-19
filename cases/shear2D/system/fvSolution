@@ -38,8 +38,11 @@ levelSet
 {
     phaseIndicator
     {
-        type sharpJump;
-        nAverages 3;
+        type geometric;
+    }
+    redistancer 
+    {
+        type noRedistancing;
     }
 }
 

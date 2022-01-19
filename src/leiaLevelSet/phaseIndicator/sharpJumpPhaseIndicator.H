@@ -24,17 +24,17 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::sharpJump
+    Foam::sharpJumpPhaseIndicator
 
 Description
 
 SourceFiles
-    sharpJump.C
+    sharpJumpPhaseIndicator.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef sharpJump_H
-#define sharpJump_H
+#ifndef sharpJumpPhaseIndicator_H
+#define sharpJumpPhaseIndicator_H
 
 #include "phaseIndicator.H"
 
@@ -44,10 +44,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class sharpJump Declaration
+                         Class sharpJumpPhaseIndicator Declaration
 \*---------------------------------------------------------------------------*/
 
-class sharpJump
+class sharpJumpPhaseIndicator
 :
     public phaseIndicator
 {
@@ -61,19 +61,19 @@ public:
 
     // Constructors
 
-    sharpJump();
+    sharpJumpPhaseIndicator();
 
-    sharpJump(const dictionary& dict);
+    sharpJumpPhaseIndicator(const dictionary& dict);
 
     //- Destructor
-    virtual ~sharpJump() = default;
+    virtual ~sharpJumpPhaseIndicator() = default;
 
     // Member Functions
     
     virtual void calcPhaseIndicator
     (
         volScalarField& alpha, 
-        const volScalarField& phi
+        const volScalarField& psi 
     ); 
 };
 
