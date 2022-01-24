@@ -28,22 +28,39 @@ solvers
 
 PISO
 {
-    nCorrectors     1;
+    nCorrectors     -1; // Disables p-v coupling.
     nNonOrthogonalCorrectors 0;
     pRefCell        0;
     pRefValue       0;
 }
 
+velocityModel
+{
+    type deformation3D; 
+}
+
 levelSet
 {
+    // TODO: Make leiaSetFields select the implicit surface 
+    implicitSurface // Initial values 
+    {
+        type sphere; 
+        center (0.35, 0.35, 0.35);  
+        radius 0.15;
+    }
+
+    // TODO: default to geometric.
     phaseIndicator
     {
         type geometric;
     }
+
+    // TODO: default to none.
     redistancer 
     {
         type noRedistancing;
     }
 }
+
 
 // ************************************************************************* //

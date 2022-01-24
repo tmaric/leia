@@ -36,6 +36,7 @@ SourceFiles
 #ifndef redistancer_H
 #define redistancer_H
 
+#include "messageStream.H"
 #include "typeInfo.H"
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
@@ -65,7 +66,7 @@ public:
     (
         autoPtr,
         redistancer, 
-        Dictionary, 
+        dictionary, 
         (
             const dictionary& dict 
         ), 
@@ -83,7 +84,7 @@ public:
 
         //- Select default constructed
         static autoPtr<redistancer> 
-        New(const dictionary& fvSolutionDict);
+        New(const word& modelType, const dictionary& dict);
 
     //- Destructor
     virtual ~redistancer() = default;
@@ -95,7 +96,8 @@ public:
         volScalarField& psi 
     ) 
     {
-        Info << "No redistancing. " << endl;
+        WarningIn("redistancer::redistance") 
+            << "No redistancing. " << endl;
     }
     
 };

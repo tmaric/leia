@@ -57,5 +57,11 @@ volScalarField alpha
 // RTS of the phase indicator model.
 const fvSolution& fvSolution (mesh);
 const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-autoPtr<phaseIndicator> phaseInd = 
-    phaseIndicator::New(levelSetDict.subDict("phaseIndicator"));
+const dictionary& phaseIndDict = levelSetDict.subDict("phaseIndicator");
+const word phaseIndType = phaseIndDict.getOrDefault<word>("type", "geometric");
+autoPtr<phaseIndicator> phaseInd = phaseIndicator::New
+(
+    phaseIndType,
+    phaseIndDict
+);
+

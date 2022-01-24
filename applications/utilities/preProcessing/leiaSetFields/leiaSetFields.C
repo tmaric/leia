@@ -36,8 +36,21 @@ Description
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+void setSphere 
+(
+    volScalarField& psi, 
+    const vector& center, 
+    const scalar radius
+)
+{
 
-#include "initializationFunctions.H"
+    const fvMesh& mesh = psi.mesh();
+    const auto& C = mesh.C(); 
+    forAll(psi, cellI)
+    {
+        psi[cellI] = mag(C[cellI] - center) - radius;
+    }
+}
 
 int main(int argc, char *argv[])
 {
@@ -77,15 +90,11 @@ int main(int argc, char *argv[])
     const auto center = args.get<vector>("center");
     const auto radius = args.get<scalar>("radius");
 
-    setPsi(psi, center, radius);
+    setSphere(psi, center, radius);
     phaseInd->calcPhaseIndicator(alpha, psi);
-    setVolumetricFlux(phi);
-    setVelocity(U);
 
     psi.write();
     alpha.write();
-    phi.write();
-    U.write();
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -37,7 +37,7 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(lsqRedistancer, false);
-addToRunTimeSelectionTable(redistancer, lsqRedistancer, Dictionary);
+addToRunTimeSelectionTable(redistancer, lsqRedistancer, dictionary);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

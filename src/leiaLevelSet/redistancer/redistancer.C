@@ -34,18 +34,20 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(redistancer, false);
-defineRunTimeSelectionTable(redistancer, Dictionary);
-addToRunTimeSelectionTable(redistancer, redistancer, Dictionary);
+defineRunTimeSelectionTable(redistancer, dictionary);
+addToRunTimeSelectionTable(redistancer, redistancer, dictionary);
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
 Foam::autoPtr<Foam::redistancer>
-Foam::redistancer::New(const dictionary& dict)
+Foam::redistancer::New
+(
+    const word& modelType,
+    const dictionary& dict
+)
 {
-    const word type = dict.getOrDefault<word>("type", "noRedistancing");
-
     // Find the constructor pointer for the model in the constructor table.
-    auto* ctorPtr = DictionaryConstructorTable(type);
+    auto* ctorPtr = dictionaryConstructorTable(modelType);
 
     // If the constructor pointer is not found in the table.
     if (!ctorPtr) 
@@ -54,8 +56,8 @@ Foam::redistancer::New(const dictionary& dict)
         (
             dict,
             "redistancer",
-            type,
-            *DictionaryConstructorTablePtr_
+            modelType,
+            *dictionaryConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 
@@ -64,8 +66,7 @@ Foam::redistancer::New(const dictionary& dict)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-redistancer::redistancer(const dictionary& dict)
-{}
+redistancer::redistancer(const dictionary& dict) {}
 
 // ************************************************************************* //
 

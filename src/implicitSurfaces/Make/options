@@ -1,0 +1,7 @@
+EXE_INC = \
+    -std=c++20 \
+    -DAI_DEBUG \
+    -I$(LIB_SRC)/OpenFOAM/lnInclude 
+
+LIB_LIBS = \
+    -lOpenFOAM 

@@ -53,6 +53,7 @@ Description
 #include "advectionErrors.H"
 #include "phaseIndicator.H"
 #include "redistancer.H"
+#include "advectionVerification.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -68,8 +69,6 @@ int main(int argc, char *argv[])
     #include "setRootCaseLists.H"
     #include "createTime.H"
     #include "createMesh.H"
-
-    simpleControl simple(mesh);
 
     #include "createFields.H"
 

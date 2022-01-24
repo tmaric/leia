@@ -38,11 +38,12 @@ defineRunTimeSelectionTable(phaseIndicator, Dictionary);
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
 Foam::autoPtr<Foam::phaseIndicator>
-Foam::phaseIndicator::New(const dictionary& dict)
+Foam::phaseIndicator::New(
+    const word modelType, 
+    const dictionary& dict
+)
 {
-    const word type = dict.get<word>("type");
-
-    auto* ctorPtr = DictionaryConstructorTable(type);
+    auto* ctorPtr = DictionaryConstructorTable(modelType);
 
     if (!ctorPtr)
     {
@@ -50,7 +51,7 @@ Foam::phaseIndicator::New(const dictionary& dict)
         (
             dict,
             "phaseIndicator",
-            type,
+            modelType,
             *DictionaryConstructorTablePtr_
         ) << exit(FatalIOError);
     }

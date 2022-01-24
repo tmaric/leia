@@ -58,8 +58,7 @@ public:
 
     // Static Data Members
 
-    TypeName("phaseIndicator");
-
+    TypeName("none");
 
     declareRunTimeSelectionTable
     (
@@ -83,7 +82,11 @@ public:
 
         //- Select default constructed
         static autoPtr<phaseIndicator> 
-        New(const dictionary& fvSolutionDict);
+        New
+        (
+            const word modelType, 
+            const dictionary& fvSolutionDict
+        );
 
     //- Destructor
     virtual ~phaseIndicator() = default;
@@ -94,7 +97,11 @@ public:
     (
         volScalarField& alpha, 
         const volScalarField& psi 
-    ) = 0;
+    )
+    {
+        WarningIn("phaseIndicator::calcPhaseIndicator") 
+            << "Phase indicator not used. " << endl;
+    } 
     
 };
 

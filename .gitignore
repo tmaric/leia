@@ -104,3 +104,4 @@ processor*/
 dynamicCode/
 *.csv*
 mpirun.schema
+.ipynb_checkpoints/
