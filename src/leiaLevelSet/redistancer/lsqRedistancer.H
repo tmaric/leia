@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 AUTHOR,AFFILIATION
+    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,49 +23,64 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::lsqRedistancer
+
+Description
+
+SourceFiles
+    lsqRedistancer.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "phaseIndicator.H"
+#ifndef lsqRedistancer_H
+#define lsqRedistancer_H
+
+#include "redistancer.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-defineTypeNameAndDebug(phaseIndicator, false);
-defineRunTimeSelectionTable(phaseIndicator, Dictionary);
+/*---------------------------------------------------------------------------*\
+                         Class lsqRedistancer Declaration
+\*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
-
-Foam::autoPtr<Foam::phaseIndicator>
-Foam::phaseIndicator::New(const dictionary& dict)
+class lsqRedistancer
+:
+    public redistancer
 {
-    const word type = dict.get<word>("type");
 
-    auto* ctorPtr = DictionaryConstructorTable(type);
+public:
 
-    if (!ctorPtr)
-    {
-        FatalIOErrorInLookup
-        (
-            dict,
-            "phaseIndicator",
-            type,
-            *DictionaryConstructorTablePtr_
-        ) << exit(FatalIOError);
-    }
+    // Static Data Members
 
-    // Construct the model and return the autoPtr to the object. 
-    return autoPtr<phaseIndicator>(ctorPtr(dict));
-}
+    TypeName ("linearLeastSquares");
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+    // Constructors
 
-phaseIndicator::phaseIndicator(const dictionary& dict)
-{}
+    lsqRedistancer();
 
-// ************************************************************************* //
+    lsqRedistancer(const dictionary& dict);
+
+    //- Destructor
+    virtual ~lsqRedistancer() = default;
+
+    // Member Functions
+    
+    virtual void redistance 
+    (
+        volScalarField& psi
+    ); 
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************************************************************* //

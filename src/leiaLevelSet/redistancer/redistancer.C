@@ -25,43 +25,46 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "phaseIndicator.H"
+#include "redistancer.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-defineTypeNameAndDebug(phaseIndicator, false);
-defineRunTimeSelectionTable(phaseIndicator, Dictionary);
+defineTypeNameAndDebug(redistancer, false);
+defineRunTimeSelectionTable(redistancer, Dictionary);
+addToRunTimeSelectionTable(redistancer, redistancer, Dictionary);
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::phaseIndicator>
-Foam::phaseIndicator::New(const dictionary& dict)
+Foam::autoPtr<Foam::redistancer>
+Foam::redistancer::New(const dictionary& dict)
 {
-    const word type = dict.get<word>("type");
+    const word type = dict.getOrDefault<word>("type", "noRedistancing");
 
+    // Find the constructor pointer for the model in the constructor table.
     auto* ctorPtr = DictionaryConstructorTable(type);
 
-    if (!ctorPtr)
+    // If the constructor pointer is not found in the table.
+    if (!ctorPtr) 
     {
         FatalIOErrorInLookup
         (
             dict,
-            "phaseIndicator",
+            "redistancer",
             type,
             *DictionaryConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 
-    // Construct the model and return the autoPtr to the object. 
-    return autoPtr<phaseIndicator>(ctorPtr(dict));
+    return autoPtr<redistancer>(ctorPtr(dict));
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-phaseIndicator::phaseIndicator(const dictionary& dict)
+redistancer::redistancer(const dictionary& dict)
 {}
 
 // ************************************************************************* //

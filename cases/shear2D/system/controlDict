@@ -23,7 +23,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         1;
+endTime         8;
 
 deltaT          #calc "1. / 256";
 //deltaT          0.005;

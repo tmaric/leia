@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 AUTHOR,AFFILIATION
+    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,49 +23,89 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::redistancer
+
+Description
+
+SourceFiles
+    redistancer.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "phaseIndicator.H"
+#ifndef redistancer_H
+#define redistancer_H
+
+#include "typeInfo.H"
+#include "autoPtr.H"
+#include "runTimeSelectionTables.H"
+#include "fvSolution.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-defineTypeNameAndDebug(phaseIndicator, false);
-defineRunTimeSelectionTable(phaseIndicator, Dictionary);
+/*---------------------------------------------------------------------------*\
+                         Class redistancer Declaration
+\*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
-
-Foam::autoPtr<Foam::phaseIndicator>
-Foam::phaseIndicator::New(const dictionary& dict)
+class redistancer
 {
-    const word type = dict.get<word>("type");
 
-    auto* ctorPtr = DictionaryConstructorTable(type);
+public:
 
-    if (!ctorPtr)
-    {
-        FatalIOErrorInLookup
+    // Static Data Members
+
+    TypeName("noRedistancing");
+
+
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        redistancer, 
+        Dictionary, 
         (
-            dict,
-            "phaseIndicator",
-            type,
-            *DictionaryConstructorTablePtr_
-        ) << exit(FatalIOError);
+            const dictionary& dict 
+        ), 
+        (dict)
+    );
+
+    // Constructors
+
+        //- Default construct
+        redistancer() = default;
+
+        redistancer(const dictionary& dict);
+
+    // Selectors
+
+        //- Select default constructed
+        static autoPtr<redistancer> 
+        New(const dictionary& fvSolutionDict);
+
+    //- Destructor
+    virtual ~redistancer() = default;
+
+    // Member Functions
+
+    virtual void redistance
+    (
+        volScalarField& psi 
+    ) 
+    {
+        Info << "No redistancing. " << endl;
     }
+    
+};
 
-    // Construct the model and return the autoPtr to the object. 
-    return autoPtr<phaseIndicator>(ctorPtr(dict));
-}
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-phaseIndicator::phaseIndicator(const dictionary& dict)
-{}
-
-// ************************************************************************* //
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************************************************************* //
