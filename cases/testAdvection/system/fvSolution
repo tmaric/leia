@@ -37,25 +37,23 @@ PISO
 velocityModel
 {
     type deformation3D; 
+    oscillation on;
 }
 
 levelSet
 {
-    // TODO: Make leiaSetFields select the implicit surface 
-    implicitSurface // Initial values 
+    implicitSurface 
     {
-        type sphere; 
-        center (0.35, 0.35, 0.35);  
+        type implicitSphere; 
+        center (0.35 0.35 0.35);  
         radius 0.15;
     }
 
-    // TODO: default to geometric.
     phaseIndicator
     {
         type geometric;
     }
 
-    // TODO: default to none.
     redistancer 
     {
         type noRedistancing;

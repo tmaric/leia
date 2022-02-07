@@ -1,3 +1,0 @@
-implicitSurfaces.C
-
-LIB = $(FOAM_USER_LIBBIN)/libimplicitSurfaces

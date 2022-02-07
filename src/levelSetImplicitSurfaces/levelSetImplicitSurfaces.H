@@ -28,8 +28,8 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef implicitSurfaces_H
-#define implicitSurfaces_H
+#ifndef levelSetImplicitSurfaces_H
+#define levelSetImplicitSurfaces_H
 
 #include "typeInfo.H"
 #include "autoPtr.H"
@@ -72,22 +72,22 @@ namespace Foam {
             virtual scalar curvature(const vector&) const = 0;
     };
 
-    class plane : public implicitSurface
+    class implicitPlane : public implicitSurface
     {
         vector position_; 
         vector normal_; 
 
         public:
 
-            TypeName ("plane");
+            TypeName ("implicitPlane");
 
-            plane() = default;
+            implicitPlane() = default;
 
-            plane(vector position, vector normal);
+            implicitPlane(vector position, vector normal);
 
-            plane(const dictionary& dict);
+            implicitPlane(const dictionary& dict);
 
-            virtual ~plane() = default;
+            virtual ~implicitPlane() = default;
 
             virtual scalar value(const vector& x) const;
 
@@ -100,22 +100,46 @@ namespace Foam {
             vector normal() const;
     };
 
-    class sphere : public implicitSurface
+    class hesseNormalPlane : public implicitSurface
+    {
+        vector n_; 
+        scalar d_; 
+        
+        public:
+
+            TypeName ("hesseNormalPlane");
+        
+            hesseNormalPlane(vector n, scalar d);
+
+            hesseNormalPlane(const dictionary&);
+
+            virtual scalar value(const vector& x) const;
+
+            virtual vector grad(const vector& x) const;
+
+            virtual scalar curvature(const vector& x) const;
+
+            const vector& normal() const;
+            
+            scalar cutoff() const;
+    };
+
+    class implicitSphere : public implicitSurface
     {
         vector center_; 
         scalar radius_; 
 
         public:
 
-            TypeName ("sphere");
+            TypeName ("implicitSphere");
 
-            sphere() = default;
+            implicitSphere() = default;
 
-            sphere(vector center, scalar radius);
+            implicitSphere(vector center, scalar radius);
 
-            sphere(const dictionary& dict);
+            implicitSphere(const dictionary& dict);
 
-            virtual ~sphere() = default;
+            virtual ~implicitSphere() = default;
 
             virtual scalar value(const vector& x) const;
 
@@ -128,7 +152,7 @@ namespace Foam {
             scalar radius() const;
     };
 
-    class ellipsoid : public implicitSurface
+    class implicitEllipsoid : public implicitSurface
     {
         vector center_; 
         vector axes_; 
@@ -138,17 +162,15 @@ namespace Foam {
 
         public:
 
-            TypeName ("ellipsoid");
+            TypeName ("implicitEllipsoid");
 
-            ellipsoid(vector center, vector axes);
+            implicitEllipsoid(vector center, vector axes);
 
-            ellipsoid(const dictionary& dict);
+            implicitEllipsoid(const dictionary& dict);
 
-            virtual ~ellipsoid() = default;
+            virtual ~implicitEllipsoid() = default;
 
             virtual scalar value(const vector& x) const;
-
-            virtual scalar operator()(const vector& x) const;
             
             virtual vector grad(const vector& x) const;
 
@@ -159,7 +181,7 @@ namespace Foam {
             vector axes() const;
     };
 
-    class sinc : public implicitSurface
+    class implicitSinc : public implicitSurface
     {
         vector origin_; 
         scalar amplitude_; 
@@ -167,17 +189,15 @@ namespace Foam {
 
         public:
 
-            TypeName ("sinc");
+            TypeName ("implicitSinc");
 
-            sinc(vector origin, scalar amplitude, scalar omega);
+            implicitSinc(vector origin, scalar amplitude, scalar omega);
 
-            sinc(const dictionary& dict);
+            implicitSinc(const dictionary& dict);
 
-            virtual ~sinc() = default;
+            virtual ~implicitSinc() = default;
 
             virtual scalar value(const vector& x) const;
-
-            virtual scalar operator()(const vector& x) const;
             
             virtual vector grad(const vector& x) const;
 

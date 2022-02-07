@@ -32,65 +32,55 @@ Description
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
+#include "levelSetImplicitSurfaces.H"
 #include "phaseIndicator.H"
+#include "processorFvPatchField.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-void setSphere 
+template<typename Surface>  
+void setField
 (
     volScalarField& psi, 
-    const vector& center, 
-    const scalar radius
+    Surface const& surf
 )
 {
-
-    const fvMesh& mesh = psi.mesh();
-    const auto& C = mesh.C(); 
+    const auto& mesh = psi.mesh();
+    const auto& cellCenters = mesh.C();
     forAll(psi, cellI)
+        psi[cellI] = surf->value(cellCenters[cellI]);
+        
+    
+    const auto& Cf = mesh.Cf();
+    const auto& CfBoundaryField = Cf.boundaryField(); 
+    auto& psiBoundaryField = psi.boundaryFieldRef();  
+    const auto& meshBoundary = mesh.boundary(); 
+
+    // Prescribe values at MPI process domain boundaries.
+    forAll(meshBoundary, patchI)
     {
-        psi[cellI] = mag(C[cellI] - center) - radius;
+        const fvPatch& patch = meshBoundary[patchI]; 
+        if (isA<processorFvPatch>(patch))
+        {
+            const auto& CfPatchField = CfBoundaryField[patchI];
+            auto& psiPatchField = psiBoundaryField[patchI]; 
+            forAll(psiPatchField, faceI)
+            {
+                psiPatchField[faceI] = surf->value(CfPatchField[faceI]);
+            }
+        }
     }
 }
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
 int main(int argc, char *argv[])
 {
-    argList::addOption
-    (
-        "center",
-        "(double double double)",
-        "Sphere center."
-    );
-
-    argList::addOption
-    (
-        "radius",
-        "double",
-        "Sphere center."
-    );
-
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
 
     #include "createFields.H"
 
-    if (!args.found("center")) 
-    {
-        FatalErrorInFunction
-            << "Sphere center not provided, use -center option." 
-            << abort(FatalError);
-    }
-    if (!args.found("radius")) 
-    {
-        FatalErrorInFunction
-            << "Sphere radius not provided, use -radius option." 
-            << abort(FatalError);
-    }
-    
-    const auto center = args.get<vector>("center");
-    const auto radius = args.get<scalar>("radius");
-
-    setSphere(psi, center, radius);
+    setField(psi, implSurf);
     phaseInd->calcPhaseIndicator(alpha, psi);
 
     psi.write();

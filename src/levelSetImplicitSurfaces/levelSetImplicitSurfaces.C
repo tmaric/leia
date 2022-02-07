@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "implicitSurfaces.H"
+#include "levelSetImplicitSurfaces.H"
 #include "addToRunTimeSelectionTable.H"
 
 namespace Foam {
@@ -60,16 +60,16 @@ autoPtr<implicitSurface> implicitSurface::New
     return autoPtr<implicitSurface>(ctorPtr(dict));
 }
 
-// * * * * * * * * * * * * Class plane  * * * * * * * * * * * //
+// * * * * * * * * * * * * Class implicitPlane  * * * * * * * * * * * //
 
 // * * * * * * * * * * * * * * Static Members * * * * * * * * * * * * * //
 
-defineTypeNameAndDebug(plane, false);
-addToRunTimeSelectionTable(implicitSurface, plane, dictionary);
+defineTypeNameAndDebug(implicitPlane, false);
+addToRunTimeSelectionTable(implicitSurface, implicitPlane, dictionary);
 
 // * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-plane::plane(vector position, vector normal)
+implicitPlane::implicitPlane(vector position, vector normal)
 : 
     position_(position), 
     normal_(normal)
@@ -77,7 +77,7 @@ plane::plane(vector position, vector normal)
     normal_ /= Foam::mag(normal_);
 }
 
-plane::plane(const dictionary& dict)
+implicitPlane::implicitPlane(const dictionary& dict)
     :
         position_(dict.get<vector>("position")),
         normal_(dict.get<vector>("normal"))
@@ -85,47 +85,90 @@ plane::plane(const dictionary& dict)
 
 // * * * * * * * * * * * * * Member Functions * * * * * * * * * * * * * //
 
-scalar plane::value(const vector& x) const
+scalar implicitPlane::value(const vector& x) const
 {
     return Foam::dot(x - position_, normal_);
 }
 
-vector plane::grad(const vector& x) const
+vector implicitPlane::grad(const vector& x) const
 {
     return normal_; 
 }
 
-vector plane::position() const
+vector implicitPlane::position() const
 {
     return position_; 
 }
 
-vector plane::normal() const
+vector implicitPlane::normal() const
 {
     return normal_; 
 }
 
-scalar plane::curvature(const vector& x) const
+scalar implicitPlane::curvature(const vector& x) const
 {
     return 0;
 }
 
-// * * * * * * * * * * * * Class sphere * * * * * * * * * * * //
+// * * * * * * * * * * * * Class hesseNormalPlane  * * * * * * * * * * * //
 
 // * * * * * * * * * * * * * * Static Members * * * * * * * * * * * * * //
 
-defineTypeNameAndDebug(sphere, false);
-addToRunTimeSelectionTable(implicitSurface, sphere, dictionary);
+defineTypeNameAndDebug(hesseNormalPlane, false);
+addToRunTimeSelectionTable(implicitSurface, hesseNormalPlane, dictionary);
 
 // * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-sphere::sphere(vector center, scalar radius)
+hesseNormalPlane::hesseNormalPlane(vector n, scalar d)
+: 
+    n_(n), 
+    d_(d)
+{}
+
+hesseNormalPlane::hesseNormalPlane(const dictionary& dict)
+    :
+        n_(dict.get<vector>("n")),
+        d_(dict.get<scalar>("d"))
+{}
+
+// * * * * * * * * * * * * * Member Functions * * * * * * * * * * * * * //
+
+scalar hesseNormalPlane::value(const vector& x) const
+{
+    return Foam::dot(x , n_) + d_;
+}
+
+vector hesseNormalPlane::grad(const vector& x) const
+{
+    return n_; 
+}
+
+const vector& hesseNormalPlane::normal() const
+{
+    return n_; 
+}
+
+scalar hesseNormalPlane::curvature(const vector& x) const
+{
+    return 0;
+}
+
+// * * * * * * * * * * * * Class implicitSphere * * * * * * * * * * * //
+
+// * * * * * * * * * * * * * * Static Members * * * * * * * * * * * * * //
+
+defineTypeNameAndDebug(implicitSphere, false);
+addToRunTimeSelectionTable(implicitSurface, implicitSphere, dictionary);
+
+// * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+implicitSphere::implicitSphere(vector center, scalar radius)
     : 
         center_(center), 
         radius_(radius)
 {}
 
-sphere::sphere(dictionary const& dict)
+implicitSphere::implicitSphere(dictionary const& dict)
     : 
         center_(dict.get<vector>("center")),
         radius_(dict.get<scalar>("radius"))
@@ -133,12 +176,12 @@ sphere::sphere(dictionary const& dict)
 
 // * * * * * * * * * * * * * Member Functions * * * * * * * * * * * * * //
 
-scalar sphere::value(const vector& x) const
+scalar implicitSphere::value(const vector& x) const
 {
     return Foam::mag(x - center_) - radius_; 
 }
 
-vector sphere::grad(const vector& x) const
+vector implicitSphere::grad(const vector& x) const
 {
     scalar x0c0 = x[0] - center_[0];
     scalar x1c1 = x[1] - center_[1];
@@ -148,31 +191,31 @@ vector sphere::grad(const vector& x) const
         sqrt(x0c0*x0c0 + x1c1*x1c1 + x2c2*x2c2);
 }
 
-vector sphere::center() const
+vector implicitSphere::center() const
 {
     return center_; 
 }
 
-scalar sphere::radius() const
+scalar implicitSphere::radius() const
 {
     return radius_; 
 }
 
-scalar sphere::curvature(const vector& x) const
+scalar implicitSphere::curvature(const vector& x) const
 {
     return 1 / radius_;
 }
 
-// * * * * * * * * * * * * Class ellipsoid * * * * * * * * * * * //
+// * * * * * * * * * * * * Class implicitEllipsoid * * * * * * * * * * * //
 
 // * * * * * * * * * * * * * * Static Members * * * * * * * * * * * * * //
 
-defineTypeNameAndDebug(ellipsoid, false);
-addToRunTimeSelectionTable(implicitSurface, ellipsoid, dictionary);
+defineTypeNameAndDebug(implicitEllipsoid, false);
+addToRunTimeSelectionTable(implicitSurface, implicitEllipsoid, dictionary);
 
 // * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-ellipsoid::ellipsoid(vector center, vector axes)
+implicitEllipsoid::implicitEllipsoid(vector center, vector axes)
     : 
         center_(center), 
         axes_(axes)
@@ -180,7 +223,7 @@ ellipsoid::ellipsoid(vector center, vector axes)
     setAxesSqr(axes);
 }
 
-ellipsoid::ellipsoid(const dictionary& dict)
+implicitEllipsoid::implicitEllipsoid(const dictionary& dict)
     :
         center_(dict.get<vector>("center")),
         axes_(dict.get<vector>("axes"))
@@ -190,21 +233,21 @@ ellipsoid::ellipsoid(const dictionary& dict)
 
 // * * * * * * * * * * * * * Member Functions * * * * * * * * * * * * * //
 
-void ellipsoid::setAxesSqr(const vector& axes)
+void implicitEllipsoid::setAxesSqr(const vector& axes)
 {
     axesSqr_[0] = Foam::sqr(axes[0]);
     axesSqr_[1] = Foam::sqr(axes[1]);
     axesSqr_[2] = Foam::sqr(axes[2]);
 }
 
-scalar ellipsoid::value(const vector& x) const
+scalar implicitEllipsoid::value(const vector& x) const
 {
     return Foam::sqr(x[0] - center_[0]) / axesSqr_[0] + 
            Foam::sqr(x[1] - center_[1]) / axesSqr_[1] + 
            Foam::sqr(x[2] - center_[2]) / axesSqr_[2] - 1;
 }
 
-vector ellipsoid::grad(const vector& x) const
+vector implicitEllipsoid::grad(const vector& x) const
 {
     return 2*vector
     (
@@ -214,17 +257,17 @@ vector ellipsoid::grad(const vector& x) const
     );
 }
 
-vector ellipsoid::center() const
+vector implicitEllipsoid::center() const
 {
     return center_; 
 }
 
-vector ellipsoid::axes() const
+vector implicitEllipsoid::axes() const
 {
     return axes_; 
 }
 
-scalar ellipsoid::curvature(const vector& x) const
+scalar implicitEllipsoid::curvature(const vector& x) const
 {
     const scalar& x0 = x[0];
     const scalar& x1 = x[1];
@@ -252,23 +295,23 @@ scalar ellipsoid::curvature(const vector& x) const
            + 4*pow(-O0 + x0, 2)/pow(a0, 4), 3.0/2.0));
 }
 
-// * * * * * * * * * * * * Class sinc * * * * * * * * * * * //
+// * * * * * * * * * * * * Class implicitSinc * * * * * * * * * * * //
 
 // * * * * * * * * * * * * * * Static Members * * * * * * * * * * * * * //
 
-defineTypeNameAndDebug(sinc, false);
-addToRunTimeSelectionTable(implicitSurface, sinc, dictionary);
+defineTypeNameAndDebug(implicitSinc, false);
+addToRunTimeSelectionTable(implicitSurface, implicitSinc, dictionary);
 
 // * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-sinc::sinc(vector origin, scalar amplitude, scalar omega)
+implicitSinc::implicitSinc(vector origin, scalar amplitude, scalar omega)
     : 
         origin_(origin), 
         amplitude_(amplitude), 
         omega_(omega)
 {}
 
-sinc::sinc(const dictionary& dict)
+implicitSinc::implicitSinc(const dictionary& dict)
     :
         origin_(dict.get<vector>("origin")),
         amplitude_(dict.get<scalar>("amplitude")),
@@ -277,7 +320,7 @@ sinc::sinc(const dictionary& dict)
 
 // * * * * * * * * * * * * * Member Functions * * * * * * * * * * * * * //
 
-scalar sinc::value(const vector& x) const
+scalar implicitSinc::value(const vector& x) const
 {
     double r = Foam::sqrt
     (
@@ -293,7 +336,7 @@ scalar sinc::value(const vector& x) const
     }
 }
 
-vector sinc::grad(const vector& x) const
+vector implicitSinc::grad(const vector& x) const
 {
     const scalar& A = amplitude_; 
     const scalar& O0 = origin_[0];
@@ -310,22 +353,22 @@ vector sinc::grad(const vector& x) const
         );
 }
 
-vector sinc::origin() const
+vector implicitSinc::origin() const
 {
     return origin_; 
 }
 
-scalar sinc::amplitude() const
+scalar implicitSinc::amplitude() const
 {
     return amplitude_; 
 }
 
-scalar sinc::omega() const
+scalar implicitSinc::omega() const
 {
     return omega_; 
 }
 
-scalar sinc::curvature(const vector& x) const
+scalar implicitSinc::curvature(const vector& x) const
 {
     const scalar& x0 = x[0];
     const scalar& x1 = x[1];

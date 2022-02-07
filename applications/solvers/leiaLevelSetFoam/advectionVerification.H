@@ -49,6 +49,8 @@ namespace Foam
 
 class velocityModel
 {
+    Switch isOscillating_; 
+
     public: 
         
         //- Runtime type information
@@ -77,11 +79,19 @@ class velocityModel
 
         velocityModel() = default;
         
-        velocityModel(const dictionary&) {};
+        velocityModel(const dictionary& dict)
+        :
+            isOscillating_(dict.getOrDefault<Switch>("oscillation", "on"))
+        {} 
+
+        Switch isOscillating() const
+        {
+            return isOscillating_;
+        } 
 
         virtual ~velocityModel() = default;
 
-        virtual Foam::vector velocity(Foam::vector x) const
+        virtual Foam::vector velocity(const vector& x) const
         {
             notImplemented("Foam::velocityModel::velocity"); 
             return vector(0,0,0);
@@ -126,11 +136,11 @@ class shear2D
         
         shear2D() = default;
 
-        shear2D(const dictionary& dict) {}; 
+        shear2D(const dictionary& dict) : velocityModel(dict) {}; 
 
         virtual ~shear2D() = default;
 
-        virtual vector velocity(vector x) const
+        virtual vector velocity(const vector& x) const
         {
             return vector(
                 Foam::sin(2*M_PI*x[1])*Foam::sqr(Foam::sin(M_PI * x[0])),  
@@ -140,7 +150,7 @@ class shear2D
         } 
 };
 
-class deformation2D 
+class deformation3D 
 :
     public velocityModel
 {
@@ -149,13 +159,13 @@ class deformation2D
         //- Runtime type information
         TypeName("deformation3D");
         
-        deformation2D() = default;
+        deformation3D() = default;
 
-        deformation2D(const dictionary& dict) {}; 
+        deformation3D(const dictionary& dict) : velocityModel(dict) {}; 
 
-        virtual ~deformation2D() = default;
+        virtual ~deformation3D() = default;
 
-        virtual vector velocity(vector p) const
+        virtual vector velocity(const vector& p) const
         {
             const scalar x = p[0];
             const scalar y = p[1];
@@ -168,8 +178,40 @@ class deformation2D
         } 
 };
 
-defineTypeNameAndDebug(deformation2D, 0);
-addToRunTimeSelectionTable(velocityModel, deformation2D, dictionary);
+defineTypeNameAndDebug(deformation3D, 0);
+addToRunTimeSelectionTable(velocityModel, deformation3D, dictionary);
+
+class rotation 
+:
+    public velocityModel
+{
+    vector point_; 
+    vector omega_;
+
+    public: 
+
+        //- Runtime type information
+        TypeName("rotation");
+        
+        rotation() = default;
+
+        rotation(const dictionary& dict) 
+        : 
+            velocityModel(dict),
+            point_(dict.get<vector>("point")),
+            omega_(dict.get<vector>("omega"))
+        {}; 
+
+        virtual ~rotation() = default;
+
+        virtual vector velocity(const vector& p) const
+        {
+            return omega_ ^ (p - point_);
+        } 
+};
+
+defineTypeNameAndDebug(rotation, 0);
+addToRunTimeSelectionTable(velocityModel, rotation, dictionary);
 
 /*---------------------------------------------------------------------------*\    
                     Function templates for advection 
@@ -184,10 +226,20 @@ void setVolumetricFlux(
     const surfaceVectorField& Sf = mesh.Sf();
     const surfaceVectorField& Cf = mesh.Cf();
 
+    const auto& runTime = mesh.time(); 
+
+    scalar cosFactor = 1;
+    if (velocityModelPtr->isOscillating())
+    {
+        cosFactor = Foam::cos(M_PI * runTime.timeOutputValue() / 
+            runTime.endTime().value()
+        );
+    }
+
     forAll (Cf, faceID)
     {
         phi[faceID] = 
-            velocityModelPtr->velocity(Cf[faceID]) & Sf[faceID];
+            (velocityModelPtr->velocity(Cf[faceID]) & Sf[faceID]) * cosFactor;
     }
 
     const auto& CfBoundaryField = Cf.boundaryField(); 
@@ -197,32 +249,21 @@ void setVolumetricFlux(
 
     forAll(meshBoundary, patchI)
     {
-        const fvPatch& patch = meshBoundary[patchI]; 
-        if (isA<processorFvPatch>(patch))
-        {
+        /*const fvPatch& patch = meshBoundary[patchI]; */
+        /*if (isA<processorFvPatch>(patch))*/
+        /*{*/
             const auto& CfPatchField = CfBoundaryField[patchI];
             const auto& SfPatchField = SfBoundaryField[patchI];
             auto& phiPatchField = phiBoundaryField[patchI]; 
             forAll(phiPatchField, faceI)
             {
                 phiPatchField[faceI] = 
-                    velocityModelPtr->velocity(CfPatchField[faceI]) & SfPatchField[faceI];
+                (
+                    velocityModelPtr->velocity(CfPatchField[faceI]) & 
+                    SfPatchField[faceI]
+                ) * cosFactor;
             }
-        }
-    }
-}
-
-void setVelocity(
-    volVectorField& U,
-    autoPtr<velocityModel>& velocityModelPtr
-)
-{
-    const fvMesh& mesh = U.mesh();
-    const volVectorField& C = mesh.C();
-
-    forAll (C, cellID)
-    {
-        U[cellID] = velocityModelPtr->velocity(C[cellID]); 
+        /*}*/
     }
 }
 

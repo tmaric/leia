@@ -11,34 +11,6 @@ volScalarField psi
     mesh
 );
 
-surfaceScalarField phi 
-(
-    IOobject
-    (
-        "phi", 
-        runTime.timeName(), 
-        mesh, 
-        IOobject::NO_READ, 
-        IOobject::NO_WRITE
-    ),
-    mesh, 
-    dimensionedScalar("phi", dimVelocity * dimArea, 0)
-);
-
-volVectorField U 
-(
-    IOobject
-    (
-        "U", 
-        runTime.timeName(), 
-        mesh, 
-        IOobject::NO_READ, 
-        IOobject::AUTO_WRITE
-    ),
-    mesh, 
-    dimensionedVector("U", dimVelocity, vector(0,0,0))
-);
-
 // Heaviside model
 volScalarField alpha 
 (
@@ -54,9 +26,19 @@ volScalarField alpha
     dimensionedScalar("alpha", dimless, 0)
 );
 
-// RTS of the phase indicator model.
 const fvSolution& fvSolution (mesh);
 const dictionary& levelSetDict = fvSolution.subDict("levelSet");
+
+//- RTS of the implicit surface 
+const dictionary& implSurfDict = levelSetDict.subDict("implicitSurface");
+const word implSurfType = implSurfDict.get<word>("type"); 
+autoPtr<implicitSurface> implSurf = implicitSurface::New
+(
+    implSurfType, 
+    implSurfDict 
+);
+
+//- RTS of the phase indicator model.
 const dictionary& phaseIndDict = levelSetDict.subDict("phaseIndicator");
 const word phaseIndType = phaseIndDict.getOrDefault<word>("type", "geometric");
 autoPtr<phaseIndicator> phaseInd = phaseIndicator::New

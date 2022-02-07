@@ -22,10 +22,11 @@ surfaceScalarField phi
         "phi",
         runTime.timeName(),
         mesh,
-        IOobject::MUST_READ,
+        IOobject::NO_READ,
         IOobject::AUTO_WRITE
     ),
-    mesh
+    mesh,
+    dimensionedScalar ("phi", dimVolume / dimTime, 0)
 );
 
 // Phase-indicator  
@@ -57,7 +58,7 @@ autoPtr<redistancer> redist = redistancer::New(redistType, redistDict);
 //- phase-indicator selection
 const dictionary& phaseIndDict = levelSetDict.subDict("phaseIndicator");
 const word& phaseIndType = 
-    redistDict.getOrDefault<word>("type", "geometric");
+    phaseIndDict.getOrDefault<word>("type", "geometric");
 autoPtr<phaseIndicator> phaseInd = 
     phaseIndicator::New(phaseIndType, phaseIndDict); 
 

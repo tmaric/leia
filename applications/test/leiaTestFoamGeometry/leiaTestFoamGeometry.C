@@ -37,7 +37,7 @@ Description
 #include "fvCFD.H"
 #include "foamGeometry.H"
 #include "fvcAverage.H"
-#include "plane.H"
+#include "levelSetImplicitSurfaces.H"
 #include <iomanip>
 
 #ifdef VISUALIZE_intersectCell

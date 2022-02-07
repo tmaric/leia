@@ -99,9 +99,13 @@ log
 *.pvsm
 *.vtp
 *.vtk
+*.vtm
 *.pdf
 processor*/
 dynamicCode/
 *.csv*
 mpirun.schema
 .ipynb_checkpoints/
+*.hpcstruct
+hpctoolkit-*measurements*/
+hpctoolkit-*database*/

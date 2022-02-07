@@ -117,7 +117,7 @@ vector centroidAreaNormal
 }
 
 template<typename OrientedPointSequence> 
-    vector orientedAreaNormal 
+vector orientedAreaNormal 
 (
     OrientedPointSequence const& points
 )
@@ -133,49 +133,6 @@ template<typename OrientedPointSequence>
     return areaNormal;
 }
 
-struct implicitPlane 
-{
-    vector p_; 
-    vector n_; 
-    
-    implicitPlane (vector p, vector n)
-        :
-            p_(p), n_(n)
-    {
-        /*n_ /= Foam::mag(n_); */
-    }
-    
-    scalar operator()(const point& x) 
-    {
-        return n_ & (x - p_);
-    }
-
-    const vector& normal() 
-    {
-        return n_;
-    }
-};
-
-struct hesseNormalPlane 
-{
-    vector n_; 
-    scalar d_; 
-    
-    hesseNormalPlane(vector n, scalar d)
-        :
-            n_(n), d_(d)
-    {}
-    
-    scalar operator()(const point& x) 
-    {
-        return (n_ & x) + d_; 
-    }
-
-    const vector& normal() 
-    {
-        return n_;
-    }
-};
 
 struct volumeArea 
 {
@@ -273,9 +230,9 @@ Intersection intersectCell
             const point& xfp1 = meshPoints[cellFace[pointLnext]];
             
             std::array<scalar,3> psiValues {0, 0, 0};
-            psiValues[0] = plane(xf);
-            psiValues[1] = plane(xfp0);
-            psiValues[2] = plane(xfp1);
+            psiValues[0] = plane.value(xf);
+            psiValues[1] = plane.value(xfp0);
+            psiValues[2] = plane.value(xfp1);
             
             bool triangleOutside = 
                 (psiValues[0] > 2*SMALL) && 

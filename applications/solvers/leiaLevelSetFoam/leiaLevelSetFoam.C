@@ -80,18 +80,12 @@ int main(int argc, char *argv[])
     
     while (runTime.run())
     {
+        #include "CourantNo.H"
+
         ++runTime;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        dimensionedScalar cosFactor 
-        (
-            "tFactor", 
-            dimless, 
-            Foam::cos(M_PI * runTime.timeOutputValue() / 
-                runTime.endTime().value())
-        );
-
-        phi == phi0 * cosFactor; 
+        setVolumetricFlux(phi, velocityModel);
 
         fvScalarMatrix psiEqn
         (
@@ -108,6 +102,7 @@ int main(int argc, char *argv[])
         reportErrors(errorFile, psi, psi0, alpha, alpha0);
 
         runTime.write();
+        runTime.printExecutionTime(Info);
     }
 
     psi.write();
