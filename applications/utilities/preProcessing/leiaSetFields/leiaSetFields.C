@@ -47,7 +47,6 @@ void setField
     const auto& cellCenters = mesh.C();
     forAll(psi, cellI)
         psi[cellI] = surf->value(cellCenters[cellI]);
-        
     
     const auto& Cf = mesh.Cf();
     const auto& CfBoundaryField = Cf.boundaryField(); 
@@ -68,6 +67,8 @@ void setField
             }
         }
     }
+    
+    psi.correctBoundaryConditions();
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
