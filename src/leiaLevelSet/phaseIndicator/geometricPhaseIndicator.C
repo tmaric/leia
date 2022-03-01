@@ -111,15 +111,12 @@ void geometricPhaseIndicator::calcPhaseIndicator
             }
         }
     }
-    //Debugging, remove
-    narrowBand.write();
 
     // ** An alternative simple second-order accurate extrapolation-based linear 
     // approximation of psi.** 
     // - Using \nabla \psi for the normal approximation is succeptible to small 
     //   oscillations in \psi, this is only OK for the first estimate. TM. 
-    // Debugging, comment out.
-    volVectorField nc ("nc", fvc::grad(psi));
+    // volVectorField nc ("nc", fvc::grad(psi));
     // volScalarField dc ("dc", psi - (nc & mesh.C()));
     
     // A LLSQ approximation of psi 
@@ -256,7 +253,7 @@ void geometricPhaseIndicator::calcPhaseIndicator
                                 LLSQ(3,col) += cellCenter[col];
 
                             // MPI faceJ-adjacent cell contrib to the dc coeff.
-                            LLSQ(3,3) += 1;
+                            //LLSQ(3,3) += 1;
 
                             // - source contrib for cellI
                             LLSQsource[3] += psiValue;
@@ -279,9 +276,6 @@ void geometricPhaseIndicator::calcPhaseIndicator
                 planeCoeffs[3]
             );
             
-            // FIXME: Debugging, remove
-            nc[cellI] = cutPlane.normal();
-
             // TODO: Use the cutPlane to test for intersection and do not
             //       intersect cells that do not require intersection. TM. 
             auto cellIntersection = intersectCell(cellI, mesh, cutPlane); 
@@ -289,8 +283,6 @@ void geometricPhaseIndicator::calcPhaseIndicator
         }
     }
     alpha.correctBoundaryConditions();
-    //FIXME: Debugging, remove
-    nc.write();
 }
 
 } // End namespace Foam
