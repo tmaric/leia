@@ -140,11 +140,14 @@ class shear2D
 
         virtual ~shear2D() = default;
 
-        virtual vector velocity(const vector& x) const
+        virtual vector velocity(const vector& p) const
         {
+            const scalar& x = p[0];
+            const scalar& y = p[1];
+
             return vector(
-                Foam::sin(2*M_PI*x[1])*Foam::sqr(Foam::sin(M_PI * x[0])),  
-                -Foam::sin(2*M_PI*x[0])*Foam::sqr(Foam::sin(M_PI * x[1])),  
+                Foam::sin(2*M_PI*y)*Foam::sqr(Foam::sin(M_PI * x)),  
+                -Foam::sin(2*M_PI*x)*Foam::sqr(Foam::sin(M_PI * y)),  
                 0
             );
         } 
@@ -167,9 +170,9 @@ class deformation3D
 
         virtual vector velocity(const vector& p) const
         {
-            const scalar x = p[0];
-            const scalar y = p[1];
-            const scalar z = p[2];
+            const scalar& x = p[0];
+            const scalar& y = p[1];
+            const scalar& z = p[2];
             return vector(
                 2*sin(2*M_PI*y)*pow(sin(M_PI*x),2)*sin(2*M_PI*z),
                 -sin(2*M_PI*x)*pow(sin(M_PI*y),2)*sin(2*M_PI*z),
@@ -180,6 +183,56 @@ class deformation3D
 
 defineTypeNameAndDebug(deformation3D, 0);
 addToRunTimeSelectionTable(velocityModel, deformation3D, dictionary);
+
+class shear3D 
+:
+    public velocityModel
+{
+    //Liovic, P., Rudman, M., Liow, J. L., Lakehal, D., & Kothe, D. (2006). A 3D
+    //unsplit-advection volume tracking algorithm with planarity-preserving
+    //interface reconstruction. Computers and Fluids, 35(10), 1011–1032.
+    //https://doi.org/10.1016/j.compfluid.2005.09.003
+
+    scalar R, Umax, x0, y0; 
+
+    public: 
+
+        //- Runtime type information
+        TypeName("shear3D");
+        
+        shear3D() = default;
+
+        shear3D(const dictionary& dict) 
+        : 
+            velocityModel(dict), 
+            R(dict.getOrDefault<scalar>("R", 0.5)), 
+            Umax(dict.getOrDefault<scalar>("Umax", 1.)), 
+            x0(dict.getOrDefault<scalar>("x0", 0.5)),
+            y0(dict.getOrDefault<scalar>("y0", 0.5))
+        {}; 
+
+        virtual ~shear3D() = default;
+
+        virtual vector velocity(const vector& p) const
+        {
+            const scalar& x = p[0];
+            const scalar& y = p[1];
+
+            const scalar r = Foam::sqrt(
+                Foam::sqr(x - x0) + 
+                Foam::sqr(y - y0) 
+            );
+
+            return vector(
+                Foam::sin(2*M_PI*y)*Foam::sqr(Foam::sin(M_PI * x)),  
+                -Foam::sin(2*M_PI*x)*Foam::sqr(Foam::sin(M_PI * y)),  
+                Umax * Foam::sqr(1 - (r / R))
+            );
+        } 
+};
+
+defineTypeNameAndDebug(shear3D, 0);
+addToRunTimeSelectionTable(velocityModel, shear3D, dictionary);
 
 class rotation 
 :
@@ -249,6 +302,7 @@ void setVolumetricFlux(
 
     forAll(meshBoundary, patchI)
     {
+        // TODO: Check, overrides all patch values currently. TM
         /*const fvPatch& patch = meshBoundary[patchI]; */
         /*if (isA<processorFvPatch>(patch))*/
         /*{*/
