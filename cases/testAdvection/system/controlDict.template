@@ -23,19 +23,21 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         7;
+endTime         @!END_TIME!@;
 
-deltaT          #calc "1.0 / @!N_CELLS!@";
+timeStep #calc "1. / @!N_CELLS!@"; 
+
+deltaT          $timeStep; 
 
 writeControl    timeStep;
 
-writeInterval   50;
+writeInterval   #calc "floor(0.1 * @!END_TIME!@ / $timeStep)";
 
 purgeWrite      0;
 
 writeFormat     ascii;
 
-writePrecision  7;
+writePrecision  12;
 
 writeCompression off;
 
@@ -44,6 +46,5 @@ timeFormat      general;
 timePrecision   6;
 
 runTimeModifiable true;
-
 
 // ************************************************************************* //
