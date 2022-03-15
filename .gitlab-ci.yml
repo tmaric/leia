@@ -1,4 +1,4 @@
-image: "tmaric/openfoam-v2012_ubuntu-focal:latest"
+image: "registry.gitlab.com/leia-methods/argo/openfoam-v2112_ubuntu-focal:2021-10-27-SMCIA-R1"
 
 stages:
   - building
