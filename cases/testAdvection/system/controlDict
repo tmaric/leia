@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         3;
 
-deltaT          #calc "1. / 256";
+deltaT          #calc "1. / 64";
 
 writeControl    timeStep;
 

@@ -25,8 +25,11 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "doubleFloat.H"
 #include "levelSetImplicitSurfaces.H"
 #include "addToRunTimeSelectionTable.H"
+#include <cmath>
+#include "scalarField.H"
 
 namespace Foam {
 
@@ -204,6 +207,101 @@ scalar implicitSphere::radius() const
 scalar implicitSphere::curvature(const vector& x) const
 {
     return 1 / radius_;
+}
+
+// * * * * * * * * * * * * Class implicitSlottedSphere * * * * * * * * * * * //
+
+// * * * * * * * * * * * * * * Static Members * * * * * * * * * * * * * //
+
+defineTypeNameAndDebug(implicitSlottedSphere, false);
+addToRunTimeSelectionTable(implicitSurface, implicitSlottedSphere, dictionary);
+
+// * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+implicitSlottedSphere::implicitSlottedSphere(
+    vector center, 
+    scalar radius, 
+    vector minSlotCorner, 
+    vector maxSlotCorner
+)
+    : 
+        center_(center), 
+        radius_(radius), 
+        minSlotCorner_(minSlotCorner),
+        maxSlotCorner_(maxSlotCorner)
+{}
+
+implicitSlottedSphere::implicitSlottedSphere(dictionary const& dict)
+    : 
+        /*
+        Enright, D., Fedkiw, R. P., Ferziger, J., & Mitchell, I. (2002). A Hybrid
+        Particle Level Set Method for Improved Interface Capturing. Journal of
+        Computational Physics (Vol. 183). https://doi.org/10.1006/jcph.2002.7166
+        */
+        center_(dict.getOrDefault<vector>("center", vector(0.5, 0.5, 0.75))),
+        radius_(dict.getOrDefault<scalar>("radius", 0.15)), 
+        minSlotCorner_(dict.getOrDefault<vector>("minSlotCorner", vector(0.2, 0.46, 0.2))),
+        maxSlotCorner_(dict.getOrDefault<vector>("maxSlotCorner", vector(0.8, 0.54, 0.735)))
+{}
+
+// * * * * * * * * * * * * * Member Functions * * * * * * * * * * * * * //
+
+scalar implicitSlottedSphere::value(const vector& p) const
+{
+    vector e1 (1.,0.,0.);
+    vector e2 (0.,1.,0.);
+    vector e3 (0.,0.,1.);
+
+    return 
+    -Foam::max(
+        Foam::mag(p - center_) - radius_,
+        Foam::min(
+            Foam::min(
+                Foam::min(
+                    (e1 &  (p - minSlotCorner_)), 
+                    (-e1 & (p - maxSlotCorner_)) 
+                ),
+                Foam::min(
+                    (e2 &  (p - minSlotCorner_)), 
+                    (-e2 & (p - maxSlotCorner_)) 
+                )
+            ),
+            Foam::min(
+                (e3 &  (p - minSlotCorner_)), 
+                (-e3 & (p - maxSlotCorner_)) 
+            )
+        )
+    );
+}
+
+vector implicitSlottedSphere::grad(const vector& x) const
+{
+    return vector(NAN, NAN, NAN);
+}
+
+vector implicitSlottedSphere::center() const
+{
+    return center_; 
+}
+
+scalar implicitSlottedSphere::radius() const
+{
+    return radius_; 
+}
+
+vector implicitSlottedSphere::minSlotCorner() const
+{
+    return minSlotCorner_; 
+}
+
+vector implicitSlottedSphere::maxSlotCorner() const
+{
+    return maxSlotCorner_; 
+}
+
+scalar implicitSlottedSphere::curvature(const vector& x) const
+{
+    return scalar(NAN); 
 }
 
 // * * * * * * * * * * * * Class implicitEllipsoid * * * * * * * * * * * //

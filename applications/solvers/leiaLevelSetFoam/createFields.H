@@ -29,6 +29,22 @@ surfaceScalarField phi
     dimensionedScalar ("phi", dimVolume / dimTime, 0)
 );
 
+// Velocity 
+Info<< "Initializing field U (visualization)\n" << endl;
+volVectorField U 
+(
+    IOobject
+    (
+        "U",
+        runTime.timeName(),
+        mesh,
+        IOobject::NO_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh,
+    dimensionedVector("U", dimVelocity, vector(0,0,0))
+);
+
 // Phase-indicator  
 volScalarField alpha 
 (
@@ -75,3 +91,9 @@ autoPtr<velocityModel> velocityModel =
 // Set initial volumetric flux and velocity
 setVolumetricFlux(phi, velocityModel); 
 phi.write(); 
+
+// phi is used for transport, U for visualization 
+setVelocity(U, velocityModel);
+U.write();
+
+

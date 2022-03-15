@@ -86,6 +86,7 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         setVolumetricFlux(phi, velocityModel);
+        setVelocity(U, velocityModel);
 
         fvScalarMatrix psiEqn
         (
@@ -99,7 +100,14 @@ int main(int argc, char *argv[])
         
         phaseInd->calcPhaseIndicator(alpha, psi);
 
-        reportErrors(errorFile, psi, psi0, alpha, alpha0);
+        reportErrors(
+            errorFile, 
+            psi, 
+            psi0, 
+            alpha, 
+            alpha0, 
+            CoNum
+        );
 
         runTime.write();
         runTime.printExecutionTime(Info);

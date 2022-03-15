@@ -152,6 +152,51 @@ namespace Foam {
             scalar radius() const;
     };
 
+    class implicitSlottedSphere : public implicitSurface
+    {
+        /*
+        Enright, D., Fedkiw, R. P., Ferziger, J., & Mitchell, I. (2002). A Hybrid
+        Particle Level Set Method for Improved Interface Capturing. Journal of
+        Computational Physics (Vol. 183). https://doi.org/10.1006/jcph.2002.7166
+        */
+
+        vector center_; 
+        scalar radius_; 
+        vector minSlotCorner_; 
+        vector maxSlotCorner_;
+
+        public:
+
+            TypeName ("slottedSphere");
+
+            implicitSlottedSphere() = default;
+
+            implicitSlottedSphere(
+                vector center, 
+                scalar radius,
+                vector minSlotCorner, 
+                vector maxSlotCorner
+            );
+
+            implicitSlottedSphere(const dictionary& dict);
+
+            virtual ~implicitSlottedSphere() = default;
+
+            virtual scalar value(const vector& x) const;
+
+            virtual vector grad(const vector& x) const;
+
+            virtual scalar curvature(const vector& x) const;
+
+            vector center() const;
+
+            scalar radius() const;
+
+            vector minSlotCorner() const;
+
+            vector maxSlotCorner() const;
+    };   
+
     class implicitEllipsoid : public implicitSurface
     {
         vector center_; 

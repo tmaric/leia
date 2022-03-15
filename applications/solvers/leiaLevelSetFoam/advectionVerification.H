@@ -321,6 +321,18 @@ void setVolumetricFlux(
     }
 }
 
+
+void setVelocity(
+    volVectorField& U, 
+    const autoPtr<velocityModel>& velocityModelPtr
+)
+{
+    const fvMesh& mesh = U.mesh();
+    const auto& cellCenters = mesh.C(); 
+    
+    forAll(U, cellI)
+        U[cellI] = velocityModelPtr->velocity(cellCenters[cellI]);
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam

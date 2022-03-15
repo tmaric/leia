@@ -5,7 +5,8 @@ void reportErrors
     const volScalarField& psi,
     const volScalarField& psi0,
     const volScalarField& alpha, 
-    const volScalarField& alpha0
+    const volScalarField& alpha0,
+    scalar maxCoNum
 )
 {
     // Compute the level set advection error. 
@@ -81,6 +82,7 @@ void reportErrors
             << alphaGeomErr << ","
             << alphaGeomErrRel << ","
             << alphaBoundErr << "," 
-            << runTime.elapsedCpuTime() << "\n"; 
+            << runTime.elapsedCpuTime() << "," 
+            << maxCoNum << "\n";
     }
 }
