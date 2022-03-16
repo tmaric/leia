@@ -4,5 +4,6 @@
 
 ./bulkrun 3Drotation_00 "cp system/blockMeshDict3Drotation system/blockMeshDict && \
                       cp system/fvSolution3Drotation system/fvSolution && \
-                      cp system/controlDict3Drotation system/controlDict" 
+                      cp system/controlDict3Drotation system/controlDict && \ 
+                      cp system/decomposeParDict3Drotation system/decomposeParDict" 
 
