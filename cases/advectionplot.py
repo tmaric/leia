@@ -28,6 +28,8 @@ def agglomerate_dframe(csv_filename="",study_pattern="",dframe_name=""):
 def plot_advection_errors(advection_dframe, R, study=""): 
 
     resolutions = advection_dframe["DELTA_X"].unique()
+
+
     Evmax = []
     for resolution in resolutions:
         advection_data = advection_dframe[advection_dframe["DELTA_X"] == resolution]
@@ -42,6 +44,7 @@ def plot_advection_errors(advection_dframe, R, study=""):
     plt.title(title)
     plt.xlabel("time in seconds")
     plt.ylabel("$E_v$")
+    plt.legend()
     plt.savefig("%s-volume-conservation-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.show()
 
@@ -57,8 +60,10 @@ def plot_advection_errors(advection_dframe, R, study=""):
     plt.semilogy()
     plt.ylabel("$\max(Ev)$")
     plt.xlabel("$h$")
+    plt.legend()
     plt.savefig("%s-volume-conservation-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.show()
+
 
     Eg = []
     for resolution in resolutions:
@@ -68,7 +73,7 @@ def plot_advection_errors(advection_dframe, R, study=""):
     plt.title("%s Eg" % study)
     plt.ylabel("$E_g$")
     plt.xlabel("$h$")
-    plt.plot(resolutions, Eg, label="resolution 1 / %d" % (1 / resolution))
+    plt.plot(resolutions, Eg)
 
     Eg_error2nd_01 = [Eg[0], Eg[0]*(h_01[1]/h_01[0])**2]
     Eg_error1st_01 = [Eg[0], Eg[0]*(h_01[1]/h_01[0])]
@@ -76,7 +81,21 @@ def plot_advection_errors(advection_dframe, R, study=""):
     plt.plot(h_01,Eg_error2nd_01,"k--",label="second-order")
     plt.plot(h_01,Eg_error1st_01,"r:",label="first-order")
 
+    plt.savefig("%s-geometric-error-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
+    plt.legend()
     plt.show()
 
 
-
+    maxCFL = []
+    for resolution in resolutions:
+        advection_data = advection_dframe[advection_dframe["DELTA_X"] == resolution]
+        maxCFL.append(advection_data["MAX_CFL"].iloc[-1])
+        plt.plot(advection_data["TIME"], advection_data["MAX_CFL"], 
+                 label="%d cells / radius" % (R * (1 / resolution)))
+    
+    plt.title("%s CFL" % study)
+    plt.ylabel("$CFL$")
+    plt.xlabel("time in seconds")
+    plt.legend()
+    plt.savefig("%s-CFL-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
+    plt.show()
