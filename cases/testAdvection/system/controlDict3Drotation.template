@@ -25,7 +25,9 @@ stopAt          endTime;
 
 endTime         @!END_TIME!@;
 
-deltaTinitial   #calc "@!END_TIME!@ / floor(@!END_TIME!@ / ( 0.5 / @!N_CELLS!@))"; 
+// Maximal velocity in the rotation around an axis for a unit-cube domain is sqrt(0.5^2 + 0.5^2)
+// A global CFL is set based on this maximal global velocity 
+deltaTinitial   #calc "@!END_TIME!@ / floor(@!END_TIME!@ / ( @!CFL!@ / (@!N_CELLS!@ * 0.7071067811865476)))"; 
 
 writeInterval   #calc "floor(0.1 * ($endTime / $deltaTinitial))";
 

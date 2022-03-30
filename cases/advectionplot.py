@@ -30,12 +30,15 @@ def plot_advection_errors(advection_dframe, R, study=""):
     resolutions = advection_dframe["DELTA_X"].unique()
 
 
+    if (not os.path.exists("figures")):
+        os.mkdir("figures")
+
     Evmax = []
     for resolution in resolutions:
         advection_data = advection_dframe[advection_dframe["DELTA_X"] == resolution]
         Evmax.append(advection_data["E_VOL_ALPHA"].max())
         plt.plot(advection_data["TIME"], advection_data["E_VOL_ALPHA"], 
-                 label="%d cells / radius" % (R * (1 / resolution)))
+                 label="%d cells / diameter " % (2*R* (1 / resolution)))
 
     # First and last h values for convergence-order computation.
     h_01 = [advection_dframe["DELTA_X"].iloc[0],advection_dframe["DELTA_X"].iloc[-1]]
@@ -46,6 +49,7 @@ def plot_advection_errors(advection_dframe, R, study=""):
     plt.ylabel("$E_v$")
     plt.legend()
     plt.savefig("%s-volume-conservation-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
+    plt.savefig("./figures/%s-volume-conservation-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.show()
 
     plt.title(title)
@@ -82,6 +86,7 @@ def plot_advection_errors(advection_dframe, R, study=""):
     plt.plot(h_01,Eg_error1st_01,"r:",label="first-order")
 
     plt.savefig("%s-geometric-error-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
+    plt.savefig("./figures/%s-geometric-error-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.legend()
     plt.show()
 
@@ -91,7 +96,7 @@ def plot_advection_errors(advection_dframe, R, study=""):
         advection_data = advection_dframe[advection_dframe["DELTA_X"] == resolution]
         maxCFL.append(advection_data["MAX_CFL"].iloc[-1])
         plt.plot(advection_data["TIME"], advection_data["MAX_CFL"], 
-                 label="%d cells / radius" % (R * (1 / resolution)))
+                 label="%d cells / diameter " % (2*R * (1 / resolution)))
     
     plt.title("%s CFL" % study)
     plt.ylabel("$CFL$")
