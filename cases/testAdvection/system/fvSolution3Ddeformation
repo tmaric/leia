@@ -38,11 +38,6 @@ velocityModel
 {
     type deformation3D; 
     oscillation on;
-    
-    //type rotation; 
-    //omega (0 0 1);
-    //point (0.5 0.5 0.5);
-    //oscillation off;
 }
 
 levelSet
@@ -50,8 +45,7 @@ levelSet
     implicitSurface 
     {
         type implicitSphere; 
-        center (0.35 0.35 0.35); // deformation3D
-        //center (0.5 0.75 0.); // shear2D 
+        center (0.35 0.35 0.35); 
         radius 0.15;
     }
 

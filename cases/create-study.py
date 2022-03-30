@@ -52,5 +52,6 @@ if __name__ == "__main__":
     # Generate parameter study simulation cases 
     call(["pyFoamRunParameterVariation.py", "--no-execute-solver", "--no-server-process", 
           "--no-mesh-create", "--no-case-setup", "--cloned-case-prefix=%s" % options.studyname, 
+          "--parameter-file=default.parameter",
           "--every-variant-one-case-execution",
           "--create-database", options.casedir, options.paramfile])

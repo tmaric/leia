@@ -36,19 +36,17 @@ PISO
 
 velocityModel
 {
-    type rotation; 
-    omega (1 0 0);
-    point (0.5 0.5 0.5);
-    oscillation off;
+    type deformation3D; 
+    oscillation on;
 }
 
 levelSet
 {
     implicitSurface 
     {
-        type slottedSphere; 
-        minSlotCorner (0.2 0.475 0.2);
-        maxSlotCorner (0.8 0.525 0.735);
+        type implicitSphere; 
+        center (0.35 0.35 0.35); 
+        radius 0.15;
     }
 
     phaseIndicator

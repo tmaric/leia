@@ -1,0 +1,17 @@
+values
+{
+    solver (leiaLevelSetFoam);
+
+    END_TIME (3.0);
+
+    CFL (0.5);
+
+    MAX_CELL_SIZE // cfmesh
+    (
+        0.021 // ~270kCells
+
+        0.015 // ~700kCells
+
+        0.008 // ~1.7MCells
+    );
+}

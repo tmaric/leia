@@ -1,0 +1,2 @@
+MAX_CELL_SIZE none; // cfmesh pMesh (polyhedral mesh) not used
+N_CELLS       none; // blockMesh not used   
