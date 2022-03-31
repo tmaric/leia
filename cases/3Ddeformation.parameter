@@ -4,8 +4,6 @@ values
 
     END_TIME (3.0);
 
-    CFL (0.5);
-
     N_CELLS
     (
         64 128 256

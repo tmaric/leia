@@ -5,6 +5,8 @@ from matplotlib import pyplot as plt
 import os
 from math import pi, log
 from matplotlib import rcParams
+from numpy import polyfit
+
 rcParams["text.usetex"] = True
 rcParams["figure.dpi"] = 200
 rcParams["font.size"] = 18
@@ -61,7 +63,7 @@ def plot_advection_errors(advection_dframe, R, study=""):
     plt.plot(h_01,Ev_error2nd_01,"k--",label="second-order")
     plt.plot(h_01,Ev_error1st_01,"r:",label="first-order")
 
-    plt.semilogy()
+    plt.loglog()
     plt.ylabel("$\max(Ev)$")
     plt.xlabel("$h$")
     plt.legend()
@@ -74,10 +76,15 @@ def plot_advection_errors(advection_dframe, R, study=""):
         advection_data = advection_dframe[advection_dframe["DELTA_X"] == resolution]
         Eg.append(advection_data["E_GEOM_ALPHA"].iloc[-1])
     
+    plt.loglog()
     plt.title("%s Eg" % study)
     plt.ylabel("$E_g$")
     plt.xlabel("$h$")
-    plt.plot(resolutions, Eg)
+    plt.plot(resolutions, Eg, 'x-')
+
+
+    convergence_coeffs = polyfit(np.log(resolutions), np.log(Eg), 1)
+    print("Convergence order = %f " % convergence_coeffs[0])
 
     Eg_error2nd_01 = [Eg[0], Eg[0]*(h_01[1]/h_01[0])**2]
     Eg_error1st_01 = [Eg[0], Eg[0]*(h_01[1]/h_01[0])]

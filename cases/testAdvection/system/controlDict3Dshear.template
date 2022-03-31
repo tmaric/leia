@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         @!END_TIME!@;
 
-timeStep #calc "@!CFL!@ / (2 * @!N_CELLS!@)"; 
+timeStep #calc "@!CFL!@ / (2. * @!N_CELLS!@)"; 
 
 deltaT          $timeStep; 
 
