@@ -17,7 +17,7 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 maxCellSize     @!MAX_CELL_SIZE!@;
-surfaceFile     "box-edges.stl";
+surfaceFile     @!SURFACE_FILE!@;
 
 renameBoundary
 {

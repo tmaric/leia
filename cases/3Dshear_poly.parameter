@@ -8,15 +8,15 @@ values
 
     MAX_CELL_SIZE // cfmesh
     (
-        0.021 // ~270kCells
+        0.02 // ~500kCells
 
-        0.015 // ~700kCells
+        0.01  // ~
 
-        0.008 // ~1.7MCells
+        0.005 // ~
     );
 
     SURFACE_FILE
     (
-        box-edges.stl
+        box-shear-edges.stl
     );
 }
