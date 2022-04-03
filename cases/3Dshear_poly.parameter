@@ -8,11 +8,11 @@ values
 
     MAX_CELL_SIZE // cfmesh
     (
-        0.02 // ~500kCells
+        0.04  // ~
 
-        0.01  // ~
+        0.02 // ~600kCells
 
-        0.005 // ~
+        0.01 // ~
     );
 
     SURFACE_FILE
