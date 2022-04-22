@@ -16,9 +16,10 @@ errorFile << "TIME,"
     << "E_GEOM_ALPHA_REL,"
     << "E_BOUND_ALPHA,"
     << "ELAPSED_CPU_TIME,"
-    << "MAX_CFL\n";
+    << "MAX_CFL,"
+    << "MAX_ABS_SUM_VOL_FLUXES\n";
     
 #include "CourantNo.H"
 
 // Report initial errors 
-reportErrors(errorFile, psi, psi0, alpha, alpha0, CoNum);
+reportErrors(errorFile, psi, psi0, alpha, alpha0, phi, CoNum);

@@ -106,6 +106,7 @@ int main(int argc, char *argv[])
             psi0, 
             alpha, 
             alpha0, 
+            phi,
             CoNum
         );
 

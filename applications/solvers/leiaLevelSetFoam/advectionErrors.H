@@ -6,6 +6,7 @@ void reportErrors
     const volScalarField& psi0,
     const volScalarField& alpha, 
     const volScalarField& alpha0,
+    const surfaceScalarField& phi,
     scalar maxCoNum
 )
 {
@@ -71,6 +72,8 @@ void reportErrors
         )()
     );
 
+    scalar maxSumVolFlux = gMax(mag(fvc::surfaceSum(phi))());
+
     // The main MPI process writes into the error file.
     if (Pstream::myProcNo() == 0)
     {
@@ -83,6 +86,7 @@ void reportErrors
             << alphaGeomErrRel << ","
             << alphaBoundErr << "," 
             << runTime.elapsedCpuTime() << "," 
-            << maxCoNum << "\n";
+            << maxCoNum << ","
+            << maxSumVolFlux << "\n";
     }
 }
