@@ -92,7 +92,7 @@ def plot_advection_errors(study_pattern,
     plt.xlabel("time in seconds")
     plt.ylabel("$E_v$")
     plt.legend()
-    plt.savefig("%s-volume-conservation-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
+    #plt.savefig("%s-volume-conservation-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.savefig("./figures/%s-volume-conservation-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.show()
 
@@ -109,7 +109,7 @@ def plot_advection_errors(study_pattern,
     plt.ylabel("$\max(Ev)$")
     plt.xlabel("$h$")
     plt.legend()
-    plt.savefig("%s-volume-conservation-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
+    plt.savefig("./figures/%s-volume-conservation-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.show()
 
 
@@ -134,7 +134,6 @@ def plot_advection_errors(study_pattern,
     plt.plot(h_01,Eg_error2nd_01,"k--",label="second-order")
     plt.plot(h_01,Eg_error1st_01,"r:",label="first-order")
 
-    plt.savefig("%s-geometric-error-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.savefig("./figures/%s-geometric-error-convergence.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.legend()
     plt.show()
@@ -151,5 +150,5 @@ def plot_advection_errors(study_pattern,
     plt.ylabel("$CFL$")
     plt.xlabel("time in seconds")
     plt.legend()
-    plt.savefig("%s-CFL-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
+    plt.savefig("./figures/%s-CFL-evolution.pdf" % study.replace(" ", "") , bbox_inches='tight')
     plt.show()
