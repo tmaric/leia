@@ -17,4 +17,9 @@ values
     (
         box-shear-edges.stl
     );
+
+    CFL
+    (
+    	0.25
+    );
 }

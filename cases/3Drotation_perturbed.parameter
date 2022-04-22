@@ -1,0 +1,16 @@
+values
+{
+    solver (leiaLevelSetFoam);
+
+    END_TIME (6.283185307179586);
+
+    CFL
+    (
+    	0.25 
+    );
+
+    N_CELLS
+    (
+        64 128 256
+    );
+}

@@ -2,7 +2,9 @@ values
 {
     solver (leiaLevelSetFoam);
 
-    END_TIME (6.283185307179586);
+    END_TIME (3.0);
+
+    CFL (0.1);
 
     MAX_CELL_SIZE // cfmesh pMesh 
     (
@@ -16,10 +18,5 @@ values
     SURFACE_FILE
     (
         box-edges.stl
-    );
-
-    CFL
-    (
-	0.1
     );
 }

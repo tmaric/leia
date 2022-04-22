@@ -24,7 +24,7 @@ License
 Description
     Computes average unstructured finite volume discretization length `h`
     preturbs internal cell-corner-points by `\alpha h`, where `\alpha` is a
-    user-defined factor (defaults to 0.2).
+    user-defined factor (defaults to 0.1).
 
 Author
     Tomislav Maric
@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
         )
     );
 
-    const auto alpha = args.getOrDefault<scalar>("alpha", 0.2);
+    const auto alpha = args.getOrDefault<scalar>("alpha", 0.1);
 
     const auto meshPoints = mesh.points();
     auto newPoints (meshPoints);

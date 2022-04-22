@@ -4,13 +4,13 @@ values
 
     END_TIME (6.283185307179586);
 
-    MAX_CELL_SIZE // cfmesh pMesh 
+    MAX_CELL_SIZE // cfmesh tetMesh 
     (
-        0.021 // ~270kCells
+        0.021 
 
-        0.015 // ~700kCells
+        0.015
 
-        0.008 // ~1.7MCells
+        0.008 
     );
 
     SURFACE_FILE
@@ -20,6 +20,6 @@ values
 
     CFL
     (
-	0.1
+    	0.05
     );
 }
