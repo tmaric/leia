@@ -13,6 +13,22 @@ volScalarField psi
     mesh
 );
 
+// Phase-indicator  
+// FIXME: Use phase indicator name from transport properties. TM. 
+Info<< "Reading field alpha\n" << endl;
+volScalarField alpha
+(
+    IOobject
+    (
+        "alpha",
+        runTime.timeName(),
+        mesh,
+        IOobject::MUST_READ,
+        IOobject::AUTO_WRITE
+    ),
+    mesh
+);
+
 // Volumetric flux
 Info<< "Reading field phi\n" << endl;
 surfaceScalarField phi 
@@ -45,20 +61,6 @@ volVectorField U
     dimensionedVector("U", dimVelocity, vector(0,0,0))
 );
 
-// Phase-indicator  
-volScalarField alpha 
-(
-    IOobject
-    (
-        "alpha",
-        runTime.timeName(),
-        mesh,
-        IOobject::NO_READ,
-        IOobject::AUTO_WRITE
-    ),
-    mesh, 
-    dimensionedScalar("alpha", dimless, 0)
-);
 
 // Runtime Type Selection 
 const fvSolution& fvSolution (mesh);

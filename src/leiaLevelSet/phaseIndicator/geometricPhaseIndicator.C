@@ -73,16 +73,18 @@ void geometricPhaseIndicator::calcPhaseIndicator
             alpha[cellID] = 0;
     }
 
-    // Select the cells in the narrow band.
     const auto& own = mesh.owner();  
     const auto& nei = mesh.neighbour(); 
     volScalarField narrowBand("narrowBand", psi);  
+    narrowBand = dimensionedScalar("narrowBand", narrowBand.dimensions(), 0.);
+
+    // Select the cells in the narrow band using face-connectivity.
     forAll(own, faceI)
     {
         // FIXME: If a cell is clipped by the interface at one of its corners,
         // and the surrounding cell centers do not switch the iso-sign, it 
         // may not be picked up by this. May cause numerical inconsistency. TM. 
-        if (psi[own[faceI]] * psi[nei[faceI]] < 0)
+        if (psi[own[faceI]] * psi[nei[faceI]] <= 0)
         {
             narrowBand[own[faceI]] = 1;
             narrowBand[nei[faceI]] = 1;
@@ -104,29 +106,24 @@ void geometricPhaseIndicator::calcPhaseIndicator
             forAll(psiPatchNeiField, faceI)
             {
                 label faceJ = faceI + patch.start(); // Global face label.
-                if (psi[faceOwner[faceJ]] * psiPatchNeiField[faceI] < 0)
+                if (psi[faceOwner[faceJ]] * psiPatchNeiField[faceI] <= 0)
                 {
                     narrowBand[faceOwner[faceJ]] = 1;
                 }
             }
         }
     }
-
-    // ** An alternative simple second-order accurate extrapolation-based linear 
-    // approximation of psi.** 
-    // - Using \nabla \psi for the normal approximation is succeptible to small 
-    //   oscillations in \psi, this is only OK for the first estimate. TM. 
-    // volVectorField nc ("nc", fvc::grad(psi));
-    // volScalarField dc ("dc", psi - (nc & mesh.C()));
+    
+    // Debugging
+    //volVectorField nc ("nc", fvc::grad(psi));
+    //nc = dimensionedVector ("nc", nc.dimensions(), vector(0,0,0));
+    //volScalarField dc ("dc", psi);
+    //dc = dimensionedScalar("dc", dc.dimensions(), 0.);
     
     // A LLSQ approximation of psi 
-    // FIXME: Parallel implementation of the LLSQ approximation. 
-    // - If a cell-face belongs to the MPI process boundary, fetch the patch-
-    //   neighbor internal values, and include them into the LLSQ. 
     // TODO: Include boundary conditions into the LLSQ approximation. 
     // - In boundary cells, use BCs to enforce the normal orientation, then use
     //   the extrapolation-based approximation outlined above for the cutPlane. 
-    // TODO: Profile the code with HPCToolkit and isolate bottlenecks. 
     const auto& cellCells = mesh.cellCells(); 
     const auto& cellCenters = mesh.C();
     // Compute the phase indicator in the narrow band.
@@ -169,13 +166,11 @@ void geometricPhaseIndicator::calcPhaseIndicator
                 {
                     // - nc coefficient contrib from cellK
                     for(char col = 0; col < 3; ++col)
-                        LLSQ(row,col) += 
-                            cellCenters[Nc[cellK]][col]*cellCenters[Nc[cellK]][row];
+                        LLSQ(row,col) += cellCenters[Nc[cellK]][col]*cellCenters[Nc[cellK]][row];
                     // - dc coefficient contrib from cellK
                     LLSQ(row, 3) += cellCenters[Nc[cellK]][row];
                     // - source contrib from cellK
-                    LLSQsource[row] += 
-                        psi[Nc[cellK]]*cellCenters[Nc[cellK]][row];
+                    LLSQsource[row] += psi[Nc[cellK]]*cellCenters[Nc[cellK]][row];
                 }
             }
             // equation 3
@@ -195,7 +190,7 @@ void geometricPhaseIndicator::calcPhaseIndicator
                 // source term
                 LLSQsource[3] += psi[Nc[cellK]];
             }
-            // - dc coefficient is |Nc|: in OpenFOAM |Nc| + 1 (for cellI)
+            // - dc coefficient is |Nc|: in OpenFOAM it is |Nc| + 1 (for cellI)
             LLSQ(3,3) = Nc.size() + 1;
             
             // Contributions from face-adjacent cells from MPI boundaries 
@@ -208,56 +203,64 @@ void geometricPhaseIndicator::calcPhaseIndicator
                 if (! mesh.isInternalFace(faceJ))
                 {
                     // Find the patch faceJ belongs to.
+                    // - patch label.
+                    label patchL = -1; 
+                    // - face index local to the patch
+                    label faceP = -1;
+
                     forAll(patches, patchI)
                     {
                         const fvPatch& patch = patches[patchI];
-                        if (isA<processorFvPatch>(patch) && // MPI patch 
-                            (faceJ >= patch.start()) && 
-                            (faceJ < patch.start() + patch.size())) // faceJ belongs to it
+                        const polyPatch& ppatch = patch.patch();
+                        faceP = ppatch.whichFace(faceJ);
+                        // Patch is an MPI patch and the face faceP belongs to it.
+                        if (isA<processorFvPatch>(patch) && (faceP >= 0) && (faceP < patch.size())) 
+                            patchL = patchI;
+                    }
+                    // If faceJ (faceP) belongs to the patchL MPI patch.
+                    if ((patchL != -1) && (faceP >= 0)) 
+                    {
+                        // The face belongs to the MPI process-boundary. 
+                        // Fetch the cell center of the cell.  
+                        const auto& cellCentersPatchField = cellCentersBdryField[patchL]; 
+                        auto cellCentersPatchNeiFieldTmp = cellCentersPatchField.patchNeighbourField();
+                        const auto& cellCentersPatchNeiField = cellCentersPatchNeiFieldTmp();
+                        const auto& cellCenter = cellCentersPatchNeiField[faceP];
+
+                        // Fetch the psi value of the cell.  
+                        const auto& psiPatchField = psiBdryField[patchL]; 
+                        auto psiPatchNeiFieldTmp = psiPatchField.patchNeighbourField();
+                        const auto& psiPatchNeiField = psiPatchNeiFieldTmp();
+                        const auto& psiValue = psiPatchNeiField[faceP];
+                        
+                        // equations 0,1,2 contrib from MPI faceJ-adjacent cell
+                        // \frac{\partial e^{lsq}_c} {\partial n_{c,cmpt}} = 0 
+                        for (char row = 0; row < 3; ++row)
                         {
-                            // The face belongs to the MPI process-boundary. 
-                            // Fetch the cell center of the cell.  
-                            const auto& cellCentersPatchField = cellCentersBdryField[patchI]; 
-                            auto cellCentersPatchNeiFieldTmp = 
-                                cellCentersPatchField.patchNeighbourField();
-                            const auto& cellCentersPatchNeiField = cellCentersPatchNeiFieldTmp();
-                            const auto& cellCenter = cellCentersPatchNeiField[faceJ - patch.start()];
-
-                            // Fetch the psi value of the cell.  
-                            const auto& psiPatchField = psiBdryField[patchI]; 
-                            auto psiPatchNeiFieldTmp = 
-                                psiPatchField.patchNeighbourField();
-                            const auto& psiPatchNeiField = psiPatchNeiFieldTmp();
-                            const auto& psiValue = psiPatchNeiField[faceJ - patch.start()];
-                            
-                            // equations 0,1,2 contrib from MPI faceJ-adjacent cell
-                            // \frac{\partial e^{lsq}_c} {\partial n_{c,cmpt}} = 0 
-                            for (char row = 0; row < 3; ++row)
-                            {
-                                // - nc coefficient contrib from cellI
-                                for(char col = 0; col < 3; ++col)
-                                    LLSQ(row,col) += 
-                                        cellCenter[col]*cellCenter[row];
-                                // - dc coefficient contrib from cellI 
-                                LLSQ(row, 3) += cellCenter[row];
-                                // - source contrib from cellI
-                                LLSQsource[row] += psiValue*cellCenter[row];
-
-                                // dc contributions from MPI faceJ-adjacent cell 
-                            }
-                            
-                            // equation 3 contrib from MPI faceJ-adjacent cell
-                            // \frac{\partial e^{lsq}_c}{\partial d_c} = 0 
-                            // - nc coefficient contrib from cellI
+                            // - nc coefficient contrib from MPI faceJ-adjacent cell 
                             for(char col = 0; col < 3; ++col)
-                                LLSQ(3,col) += cellCenter[col];
+                                LLSQ(row,col) += cellCenter[col]*cellCenter[row];
 
-                            // MPI faceJ-adjacent cell contrib to the dc coeff.
-                            //LLSQ(3,3) += 1;
+                            // - dc coefficient contrib from MPI faceJ-adjacent cell 
+                            LLSQ(row, 3) += cellCenter[row];
 
-                            // - source contrib for cellI
-                            LLSQsource[3] += psiValue;
+                            // - source contrib from MPI faceJ-adjacent cell 
+                            LLSQsource[row] += psiValue*cellCenter[row];
                         }
+
+                        // equation 3 contrib from MPI faceJ-adjacent cell
+                        // \frac{\partial e^{lsq}_c}{\partial d_c} = 0 
+                        
+                        // - nc coefficient contrib 
+                        for(char col = 0; col < 3; ++col)
+                              LLSQ(3,col) += cellCenter[col];
+
+                        // - dc coeff contrib 
+                        // FIXME: Nc is serial: that's why Nc+1 works in serial!
+                        LLSQ(3,3) += 1;
+                        
+                        // - source term contrib
+                        LLSQsource[3] += psiValue;
                     }
                 }
             }
@@ -269,19 +272,36 @@ void geometricPhaseIndicator::calcPhaseIndicator
             //Foam::LUsolve(LLSQ, LLSQsource);
             scalarField& source = LLSQ.source(); 
             source = LLSQsource;
-            planeCoeffs = LLSQ.solve(); // TODO: Improve: Gauss substitution. TM.
+            planeCoeffs = LLSQ.solve(); // TODO: Improve this. Gauss substitution. TM.
             
+            // Debugging 
+            //nc[cellI] = vector(planeCoeffs[0], planeCoeffs[1], planeCoeffs[2]);
+            //dc[cellI] = planeCoeffs[3];
+         
+            // Ensure unit-normals  
             hesseNormalPlane cutPlane(
-                vector(planeCoeffs[0], planeCoeffs[1], planeCoeffs[2]), 
+                vector (planeCoeffs[0], planeCoeffs[1], planeCoeffs[2]),
                 planeCoeffs[3]
             );
-            
+
             // TODO: Use the cutPlane to test for intersection and do not
             //       intersect cells that do not require intersection. TM. 
             auto cellIntersection = intersectCell(cellI, mesh, cutPlane); 
-            alpha[cellI] = cellIntersection.volume() / mesh.V()[cellI];
+
+            // TODO: Check intersection when the plane overlaps with the face. TM.
+            //       - Bounding cell intersection volume is a quick fix. 
+            alpha[cellI] = max(cellIntersection.volume(), 0.) / mesh.V()[cellI];
         }
     }
+
+    // Debugging
+    //if (narrowBand.time().writeTime() || (narrowBand.timeIndex() == 0))
+    //{
+        //narrowBand.write();    
+        //nc.write(); 
+        //dc.write();
+    //}
+
     alpha.correctBoundaryConditions();
 }
 

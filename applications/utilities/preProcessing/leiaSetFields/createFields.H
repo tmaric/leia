@@ -1,3 +1,4 @@
+Info<< "Reading field psi\n" << endl;
 volScalarField psi
 (
     IOobject
@@ -11,19 +12,18 @@ volScalarField psi
     mesh
 );
 
-// Heaviside model
-volScalarField alpha 
+Info<< "Reading field alpha\n" << endl;
+volScalarField alpha
 (
     IOobject
     (
         "alpha",
         runTime.timeName(),
         mesh,
-        IOobject::NO_READ,
+        IOobject::MUST_READ,
         IOobject::AUTO_WRITE
     ),
-    mesh, 
-    dimensionedScalar("alpha", dimless, 0)
+    mesh
 );
 
 const fvSolution& fvSolution (mesh);
