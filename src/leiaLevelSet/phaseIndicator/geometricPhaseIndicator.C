@@ -255,8 +255,7 @@ void geometricPhaseIndicator::calcPhaseIndicator
                         for(char col = 0; col < 3; ++col)
                               LLSQ(3,col) += cellCenter[col];
 
-                        // - dc coeff contrib 
-                        // FIXME: Nc is serial: that's why Nc+1 works in serial!
+                        // - dc coeff contrib for faceJ (faceP) neighbor
                         LLSQ(3,3) += 1;
                         
                         // - source term contrib
