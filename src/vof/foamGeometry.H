@@ -195,7 +195,7 @@ Intersection intersectCell
         { 
             const auto& faceCentersB = faceCenters.boundaryField();
             const auto& patches = mesh.boundary();
-            // TODO: Remove
+            // TODO: Improve pseudo 2D intersection, OpenFOAM. TM. 
             forAll(faceCentersB, patchI)
             {
                 const fvPatch& patch = patches[patchI];
@@ -241,7 +241,6 @@ Intersection intersectCell
             
             if (!triangleOutside)
             {
-
                 bool triangleInside = 
                     (psiValues[0] < -2*SMALL) && 
                     (psiValues[1] < -2*SMALL) &&  
@@ -277,7 +276,6 @@ Intersection intersectCell
                         std::swap(psiValues[1], psiValues[2]);
                     }
                     std::vector<point> triangleCut; 
-                    //std::vector<point> cutPoints;
                     std::set<size_t> cutSet;
                     // Iterate over triangle points and intersect the triangle 
                     for(label tp0 = 0; tp0 < 3; ++tp0)
@@ -294,7 +292,6 @@ Intersection intersectCell
                         {
                             triangleCut.push_back(triangle[tp0]);
                             cutSet.insert(triangleCut.size() - 1);
-                            //cutPoints.push_back(triangle[tp0]);
                         }
                         else // Intersect the edge 
                         { 
@@ -302,11 +299,15 @@ Intersection intersectCell
 
                             scalar lambda = psiValues[tp0] / 
                                 (psiValues[tp0] - psiValues[tp1]);
-                            if (std::isnan(lambda)) // Both tp0 and tp1 are on the plane.
+
+                            //if (std::isnan(lambda)) // Both tp0 and tp1 are on the plane.
+                            // If both tp0 and tp1 are on the plane.
+                            if (std::isnan(lambda) || 
+                                ((mag(psiValues[tp0]) <= 2*SMALL) && 
+                                (mag(psiValues[tp0]) <= 2*SMALL))) 
                             {
                                triangleCut.push_back(triangle[tp0]); 
                                cutSet.insert(triangleCut.size() - 1);
-                               //cutPoints.push_back(triangle[tp0]);
                             }
                             else if ((lambda > 2*SMALL) && (lambda < 1-2*SMALL))
                             {
@@ -314,7 +315,6 @@ Intersection intersectCell
                                     lambda * (triangle[tp1] - triangle[tp0]); 
                                 triangleCut.push_back(cutPoint); 
                                 cutSet.insert(triangleCut.size() - 1);
-                                //cutPoints.push_back(cutPoint);
                             }
                             sigFpe::set(); // Enable OpenFOAM's SIGFPE trapping 
                         }
@@ -384,31 +384,31 @@ Intersection intersectCell
         using sizeType = decltype(capPolygon.size()); 
         for(sizeType k = 0; k < capPolygonSize / 2; ++k)
         {
-            sizeType c0 = 2*k;
-            sizeType c1 = (c0 + 1) % capPolygonSize;
+            sizeType e0 = 2*k;
+            sizeType e1 = (e0 + 1) % capPolygonSize;
 
-            // Edge centroid in a global coordinate system. 
-            vector xeDash = 0.5*(capPolygon[c0] + capPolygon[c1]) - capPolygon[0];
-
-            // Edge centroid in the E01 coordinate system.
-            xeDash = vector(
-                xeDash & i0dash, 
-                xeDash & j0dash, 
-                xeDash & k0dash
-            );
-
-            // Edge normal in the global coordinate system.
-            // Should be pointing outward from the cap polygon.
-            vector neDash = (capPolygon[c1] - capPolygon[c0])^ k0dash;  
-
-            // Edge normal in the E01 coordinate system.
+            // Edge unit vector in global coordinates. 
+            vector neDash = (capPolygon[e1] - capPolygon[e0]);
+            const scalar edgeMag = mag(neDash);
+            neDash /= edgeMag; 
+            // Edge-normal unit vector in global coordinates.
+            neDash = neDash ^ k0dash;  
+            // Edge-normal unit vector in local coordinates.
             neDash = vector(
                 neDash & i0dash, 
                 neDash & j0dash, 
                 neDash & k0dash
             );
 
-            capPolygonArea += (xeDash & neDash);
+            // First edge point in local coordinates.
+            vector xe0dash = capPolygon[e0] - capPolygon[0];
+            xe0dash = vector(
+                xe0dash & i0dash, 
+                xe0dash & j0dash, 
+                xe0dash & k0dash
+            );
+
+            capPolygonArea += edgeMag * (neDash & xe0dash);
         }
         capPolygonArea *= 0.5; // Cap polygon is oriented into the cut volume.
         // Add the volume contribution from the cap polygon.

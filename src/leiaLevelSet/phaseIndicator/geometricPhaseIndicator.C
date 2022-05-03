@@ -255,7 +255,7 @@ void geometricPhaseIndicator::calcPhaseIndicator
                         for(char col = 0; col < 3; ++col)
                               LLSQ(3,col) += cellCenter[col];
 
-                        // - dc coeff contrib for faceJ (faceP) neighbor
+                        // - dc coeff contrib for faceJ (faceP) MPI neighbor-cell
                         LLSQ(3,3) += 1;
                         
                         // - source term contrib
