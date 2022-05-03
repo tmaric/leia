@@ -1,3 +1,0 @@
-myCubic/myCubic.C
-
-LIB = $(FOAM_USER_LIBBIN)/libleiaSurfaceInterpolation
