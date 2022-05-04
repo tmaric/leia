@@ -61,11 +61,65 @@ leia> ./Allwmake
 
 ## How to setup and run example cases
 
-**TODO**
+The template case used for advection verification is in `cases/testAdvection`. The case is set up for the 3D deformation advection. The case is a unit domain box discretized with 100x100x100 finite volumes, so serial execution is relatively slow. You can change the mesh resolution in `testAdvection/system/blockMeshDict`.  
 
-## Examples 
+### Serial execution
 
-**TODO**
+Create the mesh and initialize the fields with 
+
+```
+testAdvection> ./Allrun.init.serial
+```
+
+run the advection solver in serial  
+
+```
+testAdvection> leiaLevelSetFoam  
+```
+
+### Parallel execution
+
+Create the mesh and initialize the fields with 
+
+```
+testAdvection> ./Allrun.init.parallel
+```
+
+run the advection solver in parallel 
+
+```
+testAdvection> mpirun -np 4 leiaLevelSetFoam -parallel 
+```
+
+### Alternative advection verification cases  
+
+The velocity field for an alternative advection case can be set in `testAdvection/system/fvSolution`
+
+```
+velocityModel
+{
+    type deformation3D; 
+    oscillation on;
+}
+```
+
+Enter `test` ater `type` to get a list of available velocity models. Initial interface shape is also set in `testAdvection/system/fvSolution`
+
+
+```
+levelSet
+{
+    implicitSurface 
+    {
+        type implicitSphere; 
+        center (0.35 0.35 0.35); 
+        radius 0.15;
+    }
+
+    ...
+```
+
+Enter `test` after `type` to get a list of available types and their parameters.
 
 ## Contributing
 
