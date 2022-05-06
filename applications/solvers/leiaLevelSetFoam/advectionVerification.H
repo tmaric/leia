@@ -31,7 +31,12 @@ Description
 #ifndef advectionVerification_H 
 #define advectionVerification_H 
 
+#include "IOobject.H"
+#include "dimensionSets.H"
+#include "dimensionedScalarFwd.H"
+#include "fvcSurfaceIntegrate.H"
 #include "processorFvsPatchField.H"
+#include "surfaceFieldsFwd.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "runTimeSelectionTables.H"
@@ -321,6 +326,54 @@ void setVolumetricFlux(
     }
 }
 
+void correctFlux(
+    surfaceScalarField& phi
+)
+{
+    const fvMesh& mesh = phi.mesh();
+    const Time& runTime = phi.time();
+    
+    volScalarField Evol = fvc::div(phi);
+    
+    Info << "gMax(fvc::div(phi)) = " << gMax(Evol) << endl; 
+    Info << "gAverage(fvc::div(phi)) = " << gAverage(Evol) << endl; 
+
+    // Projection method enforcement of div(phi) = 0.
+    volScalarField p
+    (
+        IOobject
+        (
+            "p",
+            runTime.timeName(), 
+            mesh, 
+            IOobject::NO_READ, 
+            IOobject::AUTO_WRITE
+        ),
+        mesh,
+        dimensionedScalar("p", dimArea / dimTime, 0),
+        "zeroGradient"
+    );
+
+    // https://en.wikipedia.org/wiki/Projection_method_(fluid_dynamics)
+    // v = v_sol + v_irrot  
+    // v = v_sol + \grad p / div 
+    // \laplace p = \div v 
+    // v_sol = v - \grad p
+    fvScalarMatrix pEqn
+    (
+        fvm::laplacian(p) == fvc::div(phi)
+    );
+    pEqn.solve(); 
+    phi = phi - pEqn.flux();
+    Evol = fvc::div(phi);
+
+    Info << "Projection, gMax(fvc::div(phi)) = " << gMax(Evol) << endl; 
+    Info << "Projection, gAverage(fvc::div(phi)) = " << gAverage(Evol) << endl; 
+
+    if (runTime.writeTime())
+        Evol.write();
+
+}
 
 void setVelocity(
     volVectorField& U, 

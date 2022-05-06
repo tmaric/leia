@@ -64,6 +64,12 @@ int main(int argc, char *argv[])
     (
         "Level set equation solver."
     );
+    
+    argList::addBoolOption
+    (
+        "fluxCorrection", 
+        "Use Helmholz decomposition to enforce a div-free volumetric flux."
+    );
 
     #include "addCheckCaseOptions.H"
     #include "setRootCaseLists.H"
@@ -86,6 +92,8 @@ int main(int argc, char *argv[])
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
         setVolumetricFlux(phi, velocityModel);
+        if (args.found("fluxCorrection"))
+            correctFlux(phi);
         setVelocity(U, velocityModel);
 
         fvScalarMatrix psiEqn
