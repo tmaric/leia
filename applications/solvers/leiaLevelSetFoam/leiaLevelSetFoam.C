@@ -80,9 +80,12 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+    Info<< "\nCalculating scalar transport\n" << endl;
+
     #include "errorCalculation.H"
 
-    Info<< "\nCalculating scalar transport\n" << endl;
+    if (args.found("fluxCorrection"))
+        correctFlux(phi);
     
     while (runTime.run())
     {
@@ -91,10 +94,15 @@ int main(int argc, char *argv[])
         ++runTime;
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        setVolumetricFlux(phi, velocityModel);
-        if (args.found("fluxCorrection"))
-            correctFlux(phi);
-        setVelocity(U, velocityModel);
+        if (velocityModel->isOscillating())
+        {
+            const scalar cosFactor = Foam::cos(M_PI * runTime.timeOutputValue() / 
+                runTime.endTime().value()
+            );
+            
+            phi == phi0 * cosFactor;
+            U == U0 * cosFactor;
+        }
 
         fvScalarMatrix psiEqn
         (

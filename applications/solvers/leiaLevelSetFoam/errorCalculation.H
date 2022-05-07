@@ -1,5 +1,6 @@
 // Initialize fields for error analysis 
 surfaceScalarField phi0 ("phi0", phi);
+volVectorField U0("U0", U);
 volScalarField psi0 ("psi0", psi);
 volScalarField alpha0 ("alpha0", alpha);
 

@@ -92,6 +92,8 @@ autoPtr<velocityModel> velocityModel =
 
 // Set initial volumetric flux and velocity
 setVolumetricFlux(phi, velocityModel); 
+if (args.found("fluxCorrection"))
+    correctFlux(phi);
 phi.write(); 
 
 // phi is used for transport, U for visualization 

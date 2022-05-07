@@ -296,8 +296,7 @@ void setVolumetricFlux(
 
     forAll (Cf, faceID)
     {
-        phi[faceID] = 
-            (velocityModelPtr->velocity(Cf[faceID]) & Sf[faceID]) * cosFactor;
+        phi[faceID] = (velocityModelPtr->velocity(Cf[faceID]) & Sf[faceID]); 
     }
 
     const auto& CfBoundaryField = Cf.boundaryField(); 

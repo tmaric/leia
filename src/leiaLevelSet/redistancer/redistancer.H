@@ -96,8 +96,7 @@ public:
         volScalarField& psi 
     ) 
     {
-        WarningIn("redistancer::redistance") 
-            << "No redistancing. " << endl;
+        Info  << "No redistancing. " << endl;
     }
     
 };
