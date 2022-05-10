@@ -307,9 +307,9 @@ void setVolumetricFlux(
     forAll(meshBoundary, patchI)
     {
         // TODO: Check, overrides all patch values currently. TM
-        /*const fvPatch& patch = meshBoundary[patchI]; */
-        /*if (isA<processorFvPatch>(patch))*/
-        /*{*/
+        const fvPatch& patch = meshBoundary[patchI]; 
+        if (isA<processorFvPatch>(patch))
+        {
             const auto& CfPatchField = CfBoundaryField[patchI];
             const auto& SfPatchField = SfBoundaryField[patchI];
             auto& phiPatchField = phiBoundaryField[patchI]; 
@@ -321,7 +321,7 @@ void setVolumetricFlux(
                     SfPatchField[faceI]
                 ) * cosFactor;
             }
-        /*}*/
+        }
     }
 }
 
