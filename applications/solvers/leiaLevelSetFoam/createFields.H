@@ -91,13 +91,13 @@ autoPtr<velocityModel> velocityModel =
     velocityModel::New(velocityType, velocityDict); 
 
 // Set initial volumetric flux and velocity
-setVolumetricFlux(phi, velocityModel); 
+velocityModel->setVolumetricFlux(phi); 
 if (args.found("fluxCorrection"))
     correctFlux(phi);
 phi.write(); 
 
 // phi is used for transport, U for visualization 
-setVelocity(U, velocityModel);
+velocityModel->setVelocity(U);
 U.write();
 
 

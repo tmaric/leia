@@ -101,6 +101,52 @@ class velocityModel
             notImplemented("Foam::velocityModel::velocity"); 
             return vector(0,0,0);
         } 
+
+        virtual void setVelocity(volVectorField& U) const 
+        {
+            const fvMesh& mesh = U.mesh();
+            const auto& cellCenters = mesh.C(); 
+            
+            forAll(U, cellI)
+                U[cellI] = velocity(cellCenters[cellI]);
+        }
+
+        virtual void setVolumetricFlux(surfaceScalarField& phi) const 
+        {
+            const fvMesh& mesh = phi.mesh();
+            const surfaceVectorField& Sf = mesh.Sf();
+            const surfaceVectorField& Cf = mesh.Cf();
+
+            forAll(Cf, faceID)
+            {
+                phi[faceID] = (velocity(Cf[faceID]) & Sf[faceID]); 
+            }
+
+            const auto& CfBoundaryField = Cf.boundaryField(); 
+            const auto& SfBoundaryField = Sf.boundaryField(); 
+            auto& phiBoundaryField = phi.boundaryFieldRef();  
+            const auto& meshBoundary = mesh.boundary(); 
+
+            forAll(meshBoundary, patchI)
+            {
+                // TODO: Check, overrides all patch values currently. TM
+                const fvPatch& patch = meshBoundary[patchI]; 
+                if (isA<processorFvPatch>(patch))
+                {
+                    const auto& CfPatchField = CfBoundaryField[patchI];
+                    const auto& SfPatchField = SfBoundaryField[patchI];
+                    auto& phiPatchField = phiBoundaryField[patchI]; 
+                    forAll(phiPatchField, faceI)
+                    {
+                        phiPatchField[faceI] = 
+                        (
+                            velocity(CfPatchField[faceI]) & 
+                            SfPatchField[faceI]
+                        ); 
+                    }
+                }
+            }
+        }
 };
     
 defineTypeNameAndDebug(velocityModel, 0);
@@ -266,6 +312,35 @@ class rotation
         {
             return omega_ ^ (p - point_);
         } 
+
+        virtual void setVolumetricFlux(surfaceScalarField& phi) const 
+        {
+            velocityModel::setVolumetricFlux(phi);
+
+            const fvMesh& mesh = phi.mesh();
+            const surfaceVectorField& Sf = mesh.Sf();
+            const surfaceVectorField& Cf = mesh.Cf();
+            const auto& CfBoundaryField = Cf.boundaryField(); 
+            const auto& SfBoundaryField = Sf.boundaryField(); 
+            auto& phiBoundaryField = phi.boundaryFieldRef();  
+            const auto& meshBoundary = mesh.boundary(); 
+
+            forAll(meshBoundary, patchI)
+            {
+                // Set rotation velocity on all mesh boundary patches. 
+                const auto& CfPatchField = CfBoundaryField[patchI];
+                const auto& SfPatchField = SfBoundaryField[patchI];
+                auto& phiPatchField = phiBoundaryField[patchI]; 
+                forAll(phiPatchField, faceI)
+                {
+                    phiPatchField[faceI] = 
+                    (
+                        velocity(CfPatchField[faceI]) & 
+                        SfPatchField[faceI]
+                    ); 
+                }
+            }
+        }
 };
 
 defineTypeNameAndDebug(rotation, 0);
@@ -274,56 +349,6 @@ addToRunTimeSelectionTable(velocityModel, rotation, dictionary);
 /*---------------------------------------------------------------------------*\    
                     Function templates for advection 
 \*---------------------------------------------------------------------------*/    
-
-void setVolumetricFlux(
-    surfaceScalarField& phi,
-    const autoPtr<velocityModel>& velocityModelPtr
-)
-{
-    const fvMesh& mesh = phi.mesh();
-    const surfaceVectorField& Sf = mesh.Sf();
-    const surfaceVectorField& Cf = mesh.Cf();
-
-    const auto& runTime = mesh.time(); 
-
-    scalar cosFactor = 1;
-    if (velocityModelPtr->isOscillating())
-    {
-        cosFactor = Foam::cos(M_PI * runTime.timeOutputValue() / 
-            runTime.endTime().value()
-        );
-    }
-
-    forAll (Cf, faceID)
-    {
-        phi[faceID] = (velocityModelPtr->velocity(Cf[faceID]) & Sf[faceID]); 
-    }
-
-    const auto& CfBoundaryField = Cf.boundaryField(); 
-    const auto& SfBoundaryField = Sf.boundaryField(); 
-    auto& phiBoundaryField = phi.boundaryFieldRef();  
-    const auto& meshBoundary = mesh.boundary(); 
-
-    forAll(meshBoundary, patchI)
-    {
-        // TODO: Check, overrides all patch values currently. TM
-        const fvPatch& patch = meshBoundary[patchI]; 
-        if (isA<processorFvPatch>(patch))
-        {
-            const auto& CfPatchField = CfBoundaryField[patchI];
-            const auto& SfPatchField = SfBoundaryField[patchI];
-            auto& phiPatchField = phiBoundaryField[patchI]; 
-            forAll(phiPatchField, faceI)
-            {
-                phiPatchField[faceI] = 
-                (
-                    velocityModelPtr->velocity(CfPatchField[faceI]) & 
-                    SfPatchField[faceI]
-                ) * cosFactor;
-            }
-        }
-    }
-}
 
 void correctFlux(
     surfaceScalarField& phi
@@ -374,17 +399,6 @@ void correctFlux(
 
 }
 
-void setVelocity(
-    volVectorField& U, 
-    const autoPtr<velocityModel>& velocityModelPtr
-)
-{
-    const fvMesh& mesh = U.mesh();
-    const auto& cellCenters = mesh.C(); 
-    
-    forAll(U, cellI)
-        U[cellI] = velocityModelPtr->velocity(cellCenters[cellI]);
-}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
