@@ -129,21 +129,16 @@ class velocityModel
 
             forAll(meshBoundary, patchI)
             {
-                // TODO: Check, overrides all patch values currently. TM
-                const fvPatch& patch = meshBoundary[patchI]; 
-                if (isA<coupledFvPatch>(patch))
+                const auto& CfPatchField = CfBoundaryField[patchI];
+                const auto& SfPatchField = SfBoundaryField[patchI];
+                auto& phiPatchField = phiBoundaryField[patchI]; 
+                forAll(phiPatchField, faceI)
                 {
-                    const auto& CfPatchField = CfBoundaryField[patchI];
-                    const auto& SfPatchField = SfBoundaryField[patchI];
-                    auto& phiPatchField = phiBoundaryField[patchI]; 
-                    forAll(phiPatchField, faceI)
-                    {
-                        phiPatchField[faceI] = 
-                        (
-                            velocity(CfPatchField[faceI]) & 
-                            SfPatchField[faceI]
-                        ); 
-                    }
+                    phiPatchField[faceI] = 
+                    (
+                        velocity(CfPatchField[faceI]) & 
+                        SfPatchField[faceI]
+                    ); 
                 }
             }
         }

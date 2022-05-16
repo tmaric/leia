@@ -1,9 +1,3 @@
 #!/usr/bin/env bash
 
-./create-study.py -c testAdvection/ -p 3Ddeformation.parameter -s 3Ddeformation 
-
-./bulkrun 3Ddeformation_00 "cp system/blockMeshDict3Ddeformation system/blockMeshDict && \
-                      cp system/fvSolution3Ddeformation system/fvSolution && \
-                      cp system/controlDict3Ddeformation system/controlDict && \
-                      cp system/decomposeParDict3Ddeformation system/decomposeParDict" 
-
+./create-study.py -c 3Ddeformation -p 3Ddeformation.parameter -s 3Ddeformation 

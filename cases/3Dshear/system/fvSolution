@@ -1,0 +1,76 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    psi 
+    {
+        solver          PBiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0;
+    }
+
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-12;
+        relTol          0.;
+    }
+}
+
+PISO
+{
+    nCorrectors     -1; // Disables p-v coupling.
+    nNonOrthogonalCorrectors 0;
+    pRefCell        0;
+    pRefValue       0;
+}
+
+velocityModel
+{
+    type shear3D; 
+    oscillation on;
+}
+
+levelSet
+{
+    implicitSurface 
+    { 
+        //Liovic, P., Rudman, M., Liow, J. L., Lakehal, D., & Kothe, D. (2006).
+        //A 3D unsplit-advection volume tracking algorithm with
+        //planarity-preserving interface reconstruction. Computers and Fluids,
+        //35(10), 1011–1032. https://doi.org/10.1016/j.compfluid.2005.09.003
+        type implicitSphere; 
+        radius 0.15;
+        center (0.35 0.75 0.25); 
+    }
+
+    phaseIndicator
+    {
+        type geometric;
+    }
+
+    redistancer 
+    {
+        type noRedistancing;
+    }
+}
+
+
+// ************************************************************************* //

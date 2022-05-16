@@ -1,0 +1,12 @@
+functions    
+{    
+    volumeConservation     
+    {    
+	// Mandatory entries (unmodifiable)    
+	type        continuityError;    
+	libs        (fieldFunctionObjects);    
+
+	// Optional entries (runtime modifiable)    
+	phi         phi;    
+    }    
+}  
