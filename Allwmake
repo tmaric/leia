@@ -2,7 +2,8 @@
 
 WITH_BEAR=$1
 
-wmake $WITH_BEAR all src 
+wmake $WITH_BEAR src/levelSetImplicitSurfaces 
+wmake $WITH_BEAR src/leiaLevelSet
 
 wmake $WITH_BEAR all applications
 
