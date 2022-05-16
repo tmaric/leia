@@ -90,14 +90,14 @@ void geometricPhaseIndicator::calcPhaseIndicator
             narrowBand[nei[faceI]] = 1;
         }
     }
-    // Set narrow band values across MPI process boundaries. 
+    // Set narrow band values across coupled process boundaries. 
     const auto& psiBdryField = psi.boundaryField(); // needed for Nc LLSQ contribs
     const auto& patches = mesh.boundary(); // needed for Nc LLSQ contribs
     const auto& faceOwner = mesh.faceOwner();
     forAll(psiBdryField, patchI)
     {
         const fvPatch& patch = patches[patchI];
-        if (isA<processorFvPatch>(patch)) // MPI patch 
+        if (isA<coupledFvPatch>(patch)) // coupled patch 
         {
             const auto& psiPatchField = psiBdryField[patchI]; 
             auto psiPatchNeiFieldTmp = 
@@ -193,7 +193,7 @@ void geometricPhaseIndicator::calcPhaseIndicator
             // - dc coefficient is |Nc|: in OpenFOAM it is |Nc| + 1 (for cellI)
             LLSQ(3,3) = Nc.size() + 1;
             
-            // Contributions from face-adjacent cells from MPI boundaries 
+            // Contributions from face-adjacent cells from coupled boundaries 
             const auto& nBandCell = mesh.cells()[cellI];
             const auto& cellCentersBdryField = cellCenters.boundaryField();
             forAll(nBandCell, faceI)
@@ -213,14 +213,14 @@ void geometricPhaseIndicator::calcPhaseIndicator
                         const fvPatch& patch = patches[patchI];
                         const polyPatch& ppatch = patch.patch();
                         faceP = ppatch.whichFace(faceJ);
-                        // Patch is an MPI patch and the face faceP belongs to it.
-                        if (isA<processorFvPatch>(patch) && (faceP >= 0) && (faceP < patch.size())) 
+                        // Patch is a coupled patch and the face faceP belongs to it.
+                        if (isA<coupledFvPatch>(patch) && (faceP >= 0) && (faceP < patch.size())) 
                             patchL = patchI;
                     }
-                    // If faceJ (faceP) belongs to the patchL MPI patch.
+                    // If faceJ (faceP) belongs to the patchL coupled patch.
                     if ((patchL != -1) && (faceP >= 0)) 
                     {
-                        // The face belongs to the MPI process-boundary. 
+                        // The face belongs to the coupled boundary. 
                         // Fetch the cell center of the cell.  
                         const auto& cellCentersPatchField = cellCentersBdryField[patchL]; 
                         auto cellCentersPatchNeiFieldTmp = cellCentersPatchField.patchNeighbourField();
@@ -233,29 +233,29 @@ void geometricPhaseIndicator::calcPhaseIndicator
                         const auto& psiPatchNeiField = psiPatchNeiFieldTmp();
                         const auto& psiValue = psiPatchNeiField[faceP];
                         
-                        // equations 0,1,2 contrib from MPI faceJ-adjacent cell
+                        // equations 0,1,2 contrib from coupled faceJ-adjacent cell
                         // \frac{\partial e^{lsq}_c} {\partial n_{c,cmpt}} = 0 
                         for (char row = 0; row < 3; ++row)
                         {
-                            // - nc coefficient contrib from MPI faceJ-adjacent cell 
+                            // - nc coefficient contrib from coupled faceJ-adjacent cell 
                             for(char col = 0; col < 3; ++col)
                                 LLSQ(row,col) += cellCenter[col]*cellCenter[row];
 
-                            // - dc coefficient contrib from MPI faceJ-adjacent cell 
+                            // - dc coefficient contrib from coupled faceJ-adjacent cell 
                             LLSQ(row, 3) += cellCenter[row];
 
-                            // - source contrib from MPI faceJ-adjacent cell 
+                            // - source contrib from coupled faceJ-adjacent cell 
                             LLSQsource[row] += psiValue*cellCenter[row];
                         }
 
-                        // equation 3 contrib from MPI faceJ-adjacent cell
+                        // equation 3 contrib from coupled faceJ-adjacent cell
                         // \frac{\partial e^{lsq}_c}{\partial d_c} = 0 
                         
                         // - nc coefficient contrib 
                         for(char col = 0; col < 3; ++col)
                               LLSQ(3,col) += cellCenter[col];
 
-                        // - dc coeff contrib for faceJ (faceP) MPI neighbor-cell
+                        // - dc coeff contrib for faceJ (faceP) coupled neighbor-cell
                         LLSQ(3,3) += 1;
                         
                         // - source term contrib
@@ -266,7 +266,7 @@ void geometricPhaseIndicator::calcPhaseIndicator
 
             //LUscalarMatrix LU (LLSQ); 
             // Crashes in parallel, uses PStream::parRun() even if the linear  
-            // system solution is local to the MPI process. TM. 
+            // system solution is local to the coupled process. TM. 
             //LU.solve(planeCoeffs, LLSQsource);
             //Foam::LUsolve(LLSQ, LLSQsource);
             scalarField& source = LLSQ.source(); 

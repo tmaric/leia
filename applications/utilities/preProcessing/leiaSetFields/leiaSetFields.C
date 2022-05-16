@@ -53,11 +53,11 @@ void setField
     auto& psiBoundaryField = psi.boundaryFieldRef();  
     const auto& meshBoundary = mesh.boundary(); 
 
-    // Prescribe values at MPI process domain boundaries.
+    // Prescribe values at coupled boundary patches.
     forAll(meshBoundary, patchI)
     {
         const fvPatch& patch = meshBoundary[patchI]; 
-        if (isA<processorFvPatch>(patch))
+        if (isA<coupledFvPatch>(patch))
         {
             const auto& CfPatchField = CfBoundaryField[patchI];
             auto& psiPatchField = psiBoundaryField[patchI]; 

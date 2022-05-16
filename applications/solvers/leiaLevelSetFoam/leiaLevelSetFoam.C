@@ -84,9 +84,6 @@ int main(int argc, char *argv[])
 
     #include "errorCalculation.H"
 
-    if (args.found("fluxCorrection"))
-        correctFlux(phi);
-    
     while (runTime.run())
     {
         #include "CourantNo.H"

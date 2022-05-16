@@ -131,7 +131,7 @@ class velocityModel
             {
                 // TODO: Check, overrides all patch values currently. TM
                 const fvPatch& patch = meshBoundary[patchI]; 
-                if (isA<processorFvPatch>(patch))
+                if (isA<coupledFvPatch>(patch))
                 {
                     const auto& CfPatchField = CfBoundaryField[patchI];
                     const auto& SfPatchField = SfBoundaryField[patchI];
@@ -284,6 +284,62 @@ class shear3D
 
 defineTypeNameAndDebug(shear3D, 0);
 addToRunTimeSelectionTable(velocityModel, shear3D, dictionary);
+
+class translation 
+:
+    public velocityModel
+{
+    vector velocity_; 
+
+    public: 
+
+        //- Runtime type information
+        TypeName("translation");
+        
+        translation() = default;
+
+        translation(const dictionary& dict) 
+        : 
+            velocityModel(dict),
+            velocity_(dict.get<vector>("velocity"))
+        {}; 
+
+        virtual ~translation() = default;
+
+        virtual vector velocity(const vector& p) const
+        {
+            return velocity_; 
+        } 
+
+        virtual void setVolumetricFlux(surfaceScalarField& phi) const 
+        {
+            velocityModel::setVolumetricFlux(phi);
+
+            const fvMesh& mesh = phi.mesh();
+            const surfaceVectorField& Sf = mesh.Sf();
+            const auto& SfBoundaryField = Sf.boundaryField(); 
+            auto& phiBoundaryField = phi.boundaryFieldRef();  
+            const auto& meshBoundary = mesh.boundary(); 
+
+            forAll(meshBoundary, patchI)
+            {
+                // Set translation velocity on all mesh boundary patches. 
+                const auto& SfPatchField = SfBoundaryField[patchI];
+                auto& phiPatchField = phiBoundaryField[patchI]; 
+                forAll(phiPatchField, faceI)
+                {
+                    phiPatchField[faceI] = 
+                    (
+                        velocity_ & 
+                        SfPatchField[faceI]
+                    ); 
+                }
+            }
+        }
+};
+
+defineTypeNameAndDebug(translation, 0);
+addToRunTimeSelectionTable(velocityModel, translation, dictionary);
 
 class rotation 
 :
