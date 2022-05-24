@@ -92,7 +92,6 @@ boundary
             (3 7 6 2)
         );
     }
-
 );
 
 mergePatchPairs
