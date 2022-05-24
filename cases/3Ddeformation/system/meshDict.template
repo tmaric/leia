@@ -21,8 +21,39 @@ surfaceFile     @!SURFACE_FILE!@;
 
 renameBoundary
 {
-    defaultName wall;
-    defaultType wall;
+    newPatchNames
+    {
+        VisualizationToolkitgeneratedSLAFile_0
+        {
+            newName left; 
+            type patch;
+        }
+        VisualizationToolkitgeneratedSLAFile_1
+        {
+            newName right; 
+            type patch;
+        }
+        VisualizationToolkitgeneratedSLAFile_2
+        {
+            newName front; 
+            type patch;
+        }
+        VisualizationToolkitgeneratedSLAFile_3
+        {
+            newName back; 
+            type patch;
+        }
+        VisualizationToolkitgeneratedSLAFile_4
+        {
+            newName bottom; 
+            type patch;
+        }
+        VisualizationToolkitgeneratedSLAFile_5
+        {
+            newName top; 
+            type patch;
+        }
+    }
 }
 
 // ************************************************************************* //
