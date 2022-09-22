@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-./create-study.py -c testAdvection/ -p 3Dshear_tet.parameter -s 3Dshear_tet
+STUDY=$1
 
-./bulkrun 3Dshear_tet_00 "cp system/blockMeshDict3Dshear system/blockMeshDict && \
-                      cp system/fvSolution3Dshear system/fvSolution && \
-                      cp system/controlDict3Dshear system/controlDict && \
-                      cp system/decomposeParDict3Dshear system/decomposeParDict" 
+if [ -z $STUDY ]; 
+then 
+    STUDY=3Dshear
+else
+    STUDY=3Dshear-$STUDY
+fi
 
+./create-study.py -c 3Dshear -p 3Dshear.parameter -s $STUDY 

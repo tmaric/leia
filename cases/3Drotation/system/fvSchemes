@@ -29,7 +29,8 @@ gradSchemes
 divSchemes
 {
     default         none;
-    div(phi,psi)    Gauss linear; 
+    // div(phi,psi)    Gauss linear; // Equidistant mesh.
+    div(phi,psi)    Gauss QUICK; // Perturbed mesh. 
 }
 
 laplacianSchemes

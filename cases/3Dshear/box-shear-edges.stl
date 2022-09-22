@@ -1,0 +1,96 @@
+solid VisualizationToolkitgeneratedSLAFile_0
+ facet normal -1 0 0
+  outer loop
+   vertex 0 0 0
+   vertex 0 0 2
+   vertex 0 1 0
+  endloop
+ endfacet
+ facet normal -1 -0 -0
+  outer loop
+   vertex 0 1 2
+   vertex 0 1 0
+   vertex 0 0 2
+  endloop
+ endfacet
+endsolid VisualizationToolkitgeneratedSLAFile_0
+solid VisualizationToolkitgeneratedSLAFile_1
+ facet normal 1 0 0
+  outer loop
+   vertex 1 0 0
+   vertex 1 1 0
+   vertex 1 0 2
+  endloop
+ endfacet
+ facet normal 1 0 0
+  outer loop
+   vertex 1 1 2
+   vertex 1 0 2
+   vertex 1 1 0
+  endloop
+ endfacet
+endsolid VisualizationToolkitgeneratedSLAFile_1
+solid VisualizationToolkitgeneratedSLAFile_2
+ facet normal 0 -1 0
+  outer loop
+   vertex 0 0 0
+   vertex 1 0 0
+   vertex 0 0 2
+  endloop
+ endfacet
+ facet normal -0 -1 -0
+  outer loop
+   vertex 1 0 2
+   vertex 0 0 2
+   vertex 1 0 0
+  endloop
+ endfacet
+endsolid VisualizationToolkitgeneratedSLAFile_2
+solid VisualizationToolkitgeneratedSLAFile_3
+ facet normal 0 1 0
+  outer loop
+   vertex 0 1 0
+   vertex 0 1 2
+   vertex 1 1 0
+  endloop
+ endfacet
+ facet normal 0 1 0
+  outer loop
+   vertex 1 1 2
+   vertex 1 1 0
+   vertex 0 1 2
+  endloop
+ endfacet
+endsolid VisualizationToolkitgeneratedSLAFile_3
+solid VisualizationToolkitgeneratedSLAFile_4
+ facet normal 0 0 -1
+  outer loop
+   vertex 0 0 0
+   vertex 0 1 0
+   vertex 1 0 0
+  endloop
+ endfacet
+ facet normal -0 -0 -1
+  outer loop
+   vertex 1 1 0
+   vertex 1 0 0
+   vertex 0 1 0
+  endloop
+ endfacet
+endsolid VisualizationToolkitgeneratedSLAFile_4
+solid VisualizationToolkitgeneratedSLAFile_5
+ facet normal 0 0 1
+  outer loop
+   vertex 0 0 2
+   vertex 1 0 2
+   vertex 0 1 2
+  endloop
+ endfacet
+ facet normal 0 0 1
+  outer loop
+   vertex 1 1 2
+   vertex 0 1 2
+   vertex 1 0 2
+  endloop
+ endfacet
+endsolid VisualizationToolkitgeneratedSLAFile_5

@@ -10,9 +10,9 @@ functions
 	phi         phi;    
     }    
 
-    writeIsoSurfaceTopo 
-    {
-        type writeIsoSurfaceTopo;
-        libs (leiaFunctionObjects);
-    }
+    //writeIsoSurfaceTopo 
+    //{
+    //    type writeIsoSurfaceTopo;
+    //    libs (leiaFunctionObjects);
+    //}
 }  

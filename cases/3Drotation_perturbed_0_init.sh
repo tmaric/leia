@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
-./create-study.py -c testAdvection/ -p 3Drotation_perturbed.parameter -s 3Drotation_perturbed
+STUDY=$1
 
-./bulkrun 3Drotation_perturbed_00 "cp system/blockMeshDict3Drotation system/blockMeshDict && \
-                      cp system/fvSolution3Drotation system/fvSolution && \
-                      cp system/controlDict3Drotation system/controlDict && \
-                      cp system/decomposeParDict3Drotation system/decomposeParDict" 
+if [ -z $STUDY ]; 
+then 
+    STUDY=3Drotation-perturbed
+else
+    STUDY=3Drotation-perturbed-$STUDY
+fi
 
+./create-study.py -c 3Drotation -p 3Drotation_perturbed.parameter -s $STUDY

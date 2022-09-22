@@ -1,7 +1,14 @@
 #!/usr/bin/env bash
 
-./bulkrun 3Dshear_000 "foamJob eval '\
+STUDY=$1
+
+if [ -z $STUDY ];
+then
+    STUDY=3Dshear_000
+fi
+
+./bulkrun $STUDY "foamJob eval '\
 	blockMesh && decomposePar -force && mpirun -np 4 leiaSetFields -parallel && \
 	mpirun -np 4 leiaLevelSetFoam -parallel'" 
 
-echo 3Dshear >> ACTIVE_STUDIES
+echo $STUDY >> ACTIVE_STUDIES
