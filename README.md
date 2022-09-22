@@ -31,9 +31,7 @@ Meshing
 
 * [cfmesh](https://cfmesh.com/cfmesh/), available as OpenFOAM sub-module, used for automatic generation of unstructured volume meshes
 
-OpenFOAM
-
-`argo` is based on OpenFOAM, git tag OpenFOAM-v2112
+OpenFOAM-v2112
 
 To install OpenFOAM follow the [instructions on installing OpenFOAM from sources](https://develop.openfoam.com/Development/openfoam/). 
 
