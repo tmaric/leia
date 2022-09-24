@@ -4,7 +4,7 @@ STUDY=$1
 
 if [ -z $STUDY ];
 then
-    STUDY=3Drotation_000
+    STUDY=3Drotation_perturbed_000
 fi
 
 ./bulkrun $STUDY "foamJob eval '\
@@ -12,4 +12,4 @@ fi
 	rm -rf 0/polyMesh && decomposePar -force && mpirun -np 4 leiaSetFields -parallel && \
 	mpirun -np 4 leiaLevelSetFoam -fluxCorrection -parallel'" 
 
-echo $STUDY >> ACTIVE_STUDIES
+echo $(date) $STUDY >> ACTIVE_STUDIES

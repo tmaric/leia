@@ -31,7 +31,7 @@ deltaT          $timeStep;
 
 writeControl    timeStep;
 
-writeInterval   #calc "floor(0.1 * @!END_TIME!@ / $timeStep)";
+writeInterval   #calc "(0.1 * @!END_TIME!@ / $timeStep)";
 
 purgeWrite      0;
 

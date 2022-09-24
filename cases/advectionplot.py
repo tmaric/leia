@@ -89,9 +89,13 @@ def plot_advection_errors(study_pattern,
 
     # Ev OVER TIME PLOT
     Evmax = []
+    time_min = 1e06 
+    time_max = 0.
     for resolution in resolutions:
         advection_data = advection_dframe[advection_dframe["DELTA_X"] == resolution]
         Evmax.append(advection_data["E_VOL_ALPHA"].max())
+        time_min = min(time_min, advection_data["TIME"].min())
+        time_max = max(time_max, advection_data["TIME"].max())
         ax.plot(advection_data["TIME"], advection_data["E_VOL_ALPHA"], 
                 label="%d cells / diameter " % (2*radius* (1. / resolution)))
 
@@ -101,7 +105,7 @@ def plot_advection_errors(study_pattern,
     title = "%s $Ev$" % study
     plt.title(title)
     ax.semilogy()
-    ax.hlines(1e-03, advection_data["TIME"].iloc[0], advection_data["TIME"].iloc[-1]) 
+    ax.hlines(1e-03, time_min, time_max) 
     plt.xlabel("time in seconds")
     plt.ylabel("$E_v$")
     ax.legend()

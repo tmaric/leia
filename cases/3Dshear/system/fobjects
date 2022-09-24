@@ -9,4 +9,10 @@ functions
 	// Optional entries (runtime modifiable)    
 	phi         phi;    
     }    
+
+    writeIsoSurfaceTopo 
+    {
+        type writeIsoSurfaceTopo;
+        libs (leiaFunctionObjects);
+    }
 }  

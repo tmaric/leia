@@ -6,7 +6,7 @@ if [ -z $STUDY ];
 then 
     STUDY=3Drotation
 else
-    STUDY=3Drotation-$STUDY
+    STUDY=3Drotation_$STUDY
 fi
 
 ./create-study.py -c 3Drotation -p 3Drotation.parameter -s $STUDY 

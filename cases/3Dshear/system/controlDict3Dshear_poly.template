@@ -11,45 +11,41 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSchemes;
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
-{
-    default         CrankNicolson 1;
-}
+application     leiaLevelSetFoam;
 
-gradSchemes
-{
-    default         Gauss linear;
-    grad(p)         Gauss linear;
-}
+startFrom       startTime;
 
-divSchemes
-{
-    default         none;
-    div(phi,psi)    Gauss linear;
-}
+startTime       0;
 
-laplacianSchemes
-{
-    default         Gauss linear orthogonal;
-}
+stopAt          endTime;
 
-interpolationSchemes
-{
-    default         linear;
-}
+endTime         @!END_TIME!@;
 
-snGradSchemes
-{
-    default         orthogonal;
-}
+timeStep #calc  "@!CFL!@ * @!MAX_CELL_SIZE!@ / 2."; 
 
-fluxRequired
-{
-    p;
-}
+deltaT          $timeStep; 
 
+writeControl    timeStep;
+
+writeInterval   #calc "floor(0.1 * @!END_TIME!@ / $timeStep)";
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+#include "fobjects";
 // ************************************************************************* //

@@ -11,4 +11,4 @@ fi
 	blockMesh && decomposePar -force && mpirun -np 4 leiaSetFields -parallel && \
 	mpirun -np 4 leiaLevelSetFoam -parallel'" 
 
-echo $STUDY >> ACTIVE_STUDIES
+echo $(date) $STUDY >> ACTIVE_STUDIES

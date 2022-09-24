@@ -11,45 +11,43 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      fvSchemes;
+    object      controlDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
-{
-    default         CrankNicolson 1;
-}
+application     leiaLevelSetFoam;
 
-gradSchemes
-{
-    default         Gauss linear;
-    grad(p)         Gauss linear;
-}
+startFrom       startTime;
 
-divSchemes
-{
-    default         none;
-    div(phi,psi)    Gauss linear;
-}
+startTime       0;
 
-laplacianSchemes
-{
-    default         Gauss linear orthogonal;
-}
+stopAt          endTime;
 
-interpolationSchemes
-{
-    default         linear;
-}
+endTime         @!END_TIME!@;
 
-snGradSchemes
-{
-    default         orthogonal;
-}
+// Maximal velocity in the rotation around an axis for a unit-cube domain is sqrt(0.5^2 + 0.5^2)
+// A global CFL is set based on this maximal global velocity 
+deltaTinitial   #calc "@!END_TIME!@ / floor(@!END_TIME!@ / ( @!CFL!@ * @!MAX_CELL_SIZE!@ / 0.7071067811865476))"; 
 
-fluxRequired
-{
-    p;
-}
+writeInterval   #calc "floor(0.1 * ($endTime / $deltaTinitial))";
 
+deltaT          #calc "$endTime / (10 * $writeInterval)"; 
+
+writeControl    timeStep;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+#include "fobjects";
 // ************************************************************************* //

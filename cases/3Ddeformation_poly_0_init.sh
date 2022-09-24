@@ -6,7 +6,7 @@ if [ -z $STUDY ];
 then 
     STUDY=3Ddeformation_poly
 else
-    STUDY=3Ddeformation_poly-$STUDY
+    STUDY=3Ddeformation_poly_$STUDY
 fi
 
 ./create-study.py -c 3Ddeformation -p 3Ddeformation_poly.parameter \

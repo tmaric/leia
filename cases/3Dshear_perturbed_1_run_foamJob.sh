@@ -12,4 +12,4 @@ fi
 	rm -rf 0/polyMesh && decomposePar -force && mpirun -np 4 leiaSetFields -parallel && \
 	mpirun -np 4 leiaLevelSetFoam -fluxCorrection -parallel'" 
 
-echo $STUDY >> ACTIVE_STUDIES
+echo $(date) $STUDY >> ACTIVE_STUDIES
