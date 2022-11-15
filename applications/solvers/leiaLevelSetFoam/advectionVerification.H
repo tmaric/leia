@@ -109,6 +109,21 @@ class velocityModel
             
             forAll(U, cellI)
                 U[cellI] = velocity(cellCenters[cellI]);
+            
+            const auto& Cf = mesh.Cf();
+            auto& UboundaryField = U.boundaryFieldRef(); 
+            const auto& CfBoundaryField = Cf.boundaryField(); 
+            const auto& meshBoundary = mesh.boundary(); 
+
+            forAll(meshBoundary, patchI)
+            {
+                const auto& CfPatchField = CfBoundaryField[patchI];
+                auto& UpatchField = UboundaryField[patchI]; 
+                forAll(UpatchField, faceI)
+                {
+                    UpatchField[faceI] = velocity(CfPatchField[faceI]); 
+                }
+            }
         }
 
         virtual void setVolumetricFlux(surfaceScalarField& phi) const 
@@ -305,32 +320,6 @@ class translation
         {
             return velocity_; 
         } 
-
-        virtual void setVolumetricFlux(surfaceScalarField& phi) const 
-        {
-            velocityModel::setVolumetricFlux(phi);
-
-            const fvMesh& mesh = phi.mesh();
-            const surfaceVectorField& Sf = mesh.Sf();
-            const auto& SfBoundaryField = Sf.boundaryField(); 
-            auto& phiBoundaryField = phi.boundaryFieldRef();  
-            const auto& meshBoundary = mesh.boundary(); 
-
-            forAll(meshBoundary, patchI)
-            {
-                // Set translation velocity on all mesh boundary patches. 
-                const auto& SfPatchField = SfBoundaryField[patchI];
-                auto& phiPatchField = phiBoundaryField[patchI]; 
-                forAll(phiPatchField, faceI)
-                {
-                    phiPatchField[faceI] = 
-                    (
-                        velocity_ & 
-                        SfPatchField[faceI]
-                    ); 
-                }
-            }
-        }
 };
 
 defineTypeNameAndDebug(translation, 0);
@@ -363,35 +352,6 @@ class rotation
         {
             return omega_ ^ (p - point_);
         } 
-
-        virtual void setVolumetricFlux(surfaceScalarField& phi) const 
-        {
-            velocityModel::setVolumetricFlux(phi);
-
-            const fvMesh& mesh = phi.mesh();
-            const surfaceVectorField& Sf = mesh.Sf();
-            const surfaceVectorField& Cf = mesh.Cf();
-            const auto& CfBoundaryField = Cf.boundaryField(); 
-            const auto& SfBoundaryField = Sf.boundaryField(); 
-            auto& phiBoundaryField = phi.boundaryFieldRef();  
-            const auto& meshBoundary = mesh.boundary(); 
-
-            forAll(meshBoundary, patchI)
-            {
-                // Set rotation velocity on all mesh boundary patches. 
-                const auto& CfPatchField = CfBoundaryField[patchI];
-                const auto& SfPatchField = SfBoundaryField[patchI];
-                auto& phiPatchField = phiBoundaryField[patchI]; 
-                forAll(phiPatchField, faceI)
-                {
-                    phiPatchField[faceI] = 
-                    (
-                        velocity(CfPatchField[faceI]) & 
-                        SfPatchField[faceI]
-                    ); 
-                }
-            }
-        }
 };
 
 defineTypeNameAndDebug(rotation, 0);

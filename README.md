@@ -4,7 +4,8 @@ The "leia" project is an [OpenFOAM](https://develop.openfoam.com/Development/ope
 
 ## Author
 
-* **Tomislav Maric** [MMA, TU Darmstadt](https://www.mma.tu-darmstadt.de/index/mitarbeiter_3/mitarbeiter_details_mma_43648.en.jsp)
+* **Tomislav Maric** [ORCID](https://orcid.org/0000-0001-8970-1185)
+* **Julian Reizel** [ORCID](https://orcid.org/0000-0002-3787-0283)
 
 ## Publications 
 
@@ -31,7 +32,7 @@ Meshing
 
 * [cfmesh](https://cfmesh.com/cfmesh/), available as OpenFOAM sub-module, used for automatic generation of unstructured volume meshes
 
-OpenFOAM-v2112
+OpenFOAM-v2206
 
 To install OpenFOAM follow the [instructions on installing OpenFOAM from sources](https://develop.openfoam.com/Development/openfoam/). 
 
@@ -39,7 +40,7 @@ To install OpenFOAM follow the [instructions on installing OpenFOAM from sources
 2. Check out the git tag and build
 
 ```
-    ?> git checkout OpenFOAM-v2112
+    ?> git checkout OpenFOAM-v2206
     ?> ./Allwmake
 ```
 
