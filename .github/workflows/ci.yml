@@ -1,0 +1,9 @@
+name: Build Tests
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: tmaric/openfoam-v2206_ubuntu-focal
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - run: ./Allwmake
