@@ -60,18 +60,21 @@ class geometricPhaseIndicator
 :
     public phaseIndicator
 {
+    
+protected:
+
+    tmp<volScalarField> narrowBandTmp_;
 
 public:
 
     // Static Data Members
-
+    
     TypeName ("geometric");
 
     // Constructors
 
-    geometricPhaseIndicator();
-
-    geometricPhaseIndicator(const dictionary& dict);
+    //- Construct from components
+    geometricPhaseIndicator(const fvMesh& mesh);
 
     //- Destructor
     virtual ~geometricPhaseIndicator() = default;
@@ -82,6 +85,11 @@ public:
         volScalarField& alpha, 
         const volScalarField& psi 
     ); 
+    
+    tmp<volScalarField> narrowBand() const
+    {
+       return narrowBandTmp_; 
+    }
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

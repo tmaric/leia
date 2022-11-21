@@ -25,6 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "IOobject.H"
 #include "geometricPhaseIndicator.H"
 #include "addToRunTimeSelectionTable.H"
 #include "processorFvPatch.H"
@@ -43,14 +44,27 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(geometricPhaseIndicator, false);
-addToRunTimeSelectionTable(phaseIndicator, geometricPhaseIndicator, Dictionary);
+addToRunTimeSelectionTable(phaseIndicator, geometricPhaseIndicator, Mesh);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-geometricPhaseIndicator::geometricPhaseIndicator()
-{}
-
-geometricPhaseIndicator::geometricPhaseIndicator(const dictionary& dict)
+geometricPhaseIndicator::geometricPhaseIndicator(const fvMesh& mesh)
+    :
+        phaseIndicator(mesh),
+        narrowBandTmp_(new volScalarField
+            (
+                IOobject
+                (
+                    "narrowBand",
+                    mesh.time().timeName(), 
+                    mesh,
+                    IOobject::NO_READ, 
+                    IOobject::AUTO_WRITE
+                ),
+                mesh, 
+                dimensionedScalar("narrowBand", dimless, 0)
+            )
+        )
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //

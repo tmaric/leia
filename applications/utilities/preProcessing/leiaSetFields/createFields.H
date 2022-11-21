@@ -39,11 +39,5 @@ autoPtr<implicitSurface> implSurf = implicitSurface::New
 );
 
 //- RTS of the phase indicator model.
-const dictionary& phaseIndDict = levelSetDict.subDict("phaseIndicator");
-const word phaseIndType = phaseIndDict.getOrDefault<word>("type", "geometric");
-autoPtr<phaseIndicator> phaseInd = phaseIndicator::New
-(
-    phaseIndType,
-    phaseIndDict
-);
+autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh);
 

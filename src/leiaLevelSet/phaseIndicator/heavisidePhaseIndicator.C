@@ -36,18 +36,14 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(heavisidePhaseIndicator, false);
-addToRunTimeSelectionTable(phaseIndicator, heavisidePhaseIndicator, Dictionary);
+addToRunTimeSelectionTable(phaseIndicator, heavisidePhaseIndicator, Mesh);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-heavisidePhaseIndicator::heavisidePhaseIndicator()
-    : 
-        nCells_(2)
-{}
-
-heavisidePhaseIndicator::heavisidePhaseIndicator(const dictionary& dict)
+heavisidePhaseIndicator::heavisidePhaseIndicator(const fvMesh& mesh)
     :
-        nCells_(dict.getOrDefault<label>("nCells", 2))
+        phaseIndicator(mesh),
+        nCells_(phaseIndDict_.getOrDefault<label>("nCells", 2))
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
