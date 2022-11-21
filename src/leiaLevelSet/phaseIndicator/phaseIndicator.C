@@ -33,37 +33,42 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(phaseIndicator, false);
-defineRunTimeSelectionTable(phaseIndicator, Dictionary);
+defineRunTimeSelectionTable(phaseIndicator, Mesh);
+
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+phaseIndicator::phaseIndicator(const fvMesh& mesh)
+    :
+        fvSolution_(mesh),
+        levelSetDict_(fvSolution_.subDict("levelSet")),
+        phaseIndDict_(levelSetDict_.subDict("phaseIndicator"))
+{}
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::phaseIndicator>
-Foam::phaseIndicator::New(
-    const word modelType, 
-    const dictionary& dict
-)
+autoPtr<Foam::phaseIndicator> phaseIndicator::New(const fvMesh& mesh)
 {
-    auto* ctorPtr = DictionaryConstructorTable(modelType);
+    const fvSolution& fvSolution (mesh);
+    const dictionary& levelSetDict = fvSolution.subDict("levelSet");
+    const dictionary& phaseIndDict = levelSetDict.subDict("phaseIndicator");
+    const word& modelType = phaseIndDict.getOrDefault<word>("type", "geometric");
+    auto* ctorPtr = MeshConstructorTable(modelType);
 
     if (!ctorPtr)
     {
         FatalIOErrorInLookup
         (
-            dict,
+            fvSolution,
             "phaseIndicator",
             modelType,
-            *DictionaryConstructorTablePtr_
+            *MeshConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 
     // Construct the model and return the autoPtr to the object. 
-    return autoPtr<phaseIndicator>(ctorPtr(dict));
+    return autoPtr<phaseIndicator>(ctorPtr(mesh));
 }
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-phaseIndicator::phaseIndicator(const dictionary& dict)
-{}
 
 // ************************************************************************* //
 

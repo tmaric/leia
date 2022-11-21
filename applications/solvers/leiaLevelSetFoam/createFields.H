@@ -61,42 +61,23 @@ volVectorField U
     dimensionedVector("U", dimVelocity, vector(0,0,0))
 );
 
+// Leve Set re-distancing model
+autoPtr<redistancer> redist = redistancer::New(mesh);
 
-// Runtime Type Selection 
-const fvSolution& fvSolution (mesh);
-const dictionary& levelSetDict = fvSolution.subDict("levelSet");
+// Level Set phase-indicator model
+autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh); 
 
-// Level Set Method
-//- redistancer selection
-const dictionary& redistDict = levelSetDict.subDict("redistancer");
-const word& redistType = 
-    redistDict.getOrDefault<word>("type", "noRedistancing");
-autoPtr<redistancer> redist = redistancer::New(redistType, redistDict);
-
-//- phase-indicator selection
-const dictionary& phaseIndDict = levelSetDict.subDict("phaseIndicator");
-const word& phaseIndType = 
-    phaseIndDict.getOrDefault<word>("type", "geometric");
-autoPtr<phaseIndicator> phaseInd = 
-    phaseIndicator::New(phaseIndType, phaseIndDict); 
-
-//- compute and write initial phase-indicator.
 phaseInd->calcPhaseIndicator(alpha, psi);
 alpha.write();
 
-// Advection Velocity 
-const dictionary& velocityDict = fvSolution.subDict("velocityModel");
-const word velocityType = velocityDict.getOrDefault<word>("type", "none");
-autoPtr<velocityModel> velocityModel = 
-    velocityModel::New(velocityType, velocityDict); 
+// Advection velocity model
+autoPtr<velocityModel> velocityModel = velocityModel::New(mesh); 
 
-// Set initial volumetric flux and velocity
 velocityModel->setVolumetricFlux(phi); 
 if (args.found("fluxCorrection"))
     correctFlux(phi);
 phi.write(); 
 
-// phi is used for transport, U for visualization 
 velocityModel->setVelocity(U);
 U.write();
 

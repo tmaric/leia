@@ -27,6 +27,7 @@ License
 
 #include "lsqRedistancer.H"
 #include "addToRunTimeSelectionTable.H"
+#include "messageStream.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "fvcGrad.H"
@@ -37,25 +38,25 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(lsqRedistancer, false);
-addToRunTimeSelectionTable(redistancer, lsqRedistancer, dictionary);
+addToRunTimeSelectionTable(redistancer, lsqRedistancer, Mesh);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-lsqRedistancer::lsqRedistancer()
-{}
-
-lsqRedistancer::lsqRedistancer(const dictionary& dict)
+lsqRedistancer::lsqRedistancer(const fvMesh& mesh)
+    :
+        redistancer(mesh)
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void lsqRedistancer::redistance
-(
-    volScalarField& psi
-) 
+void lsqRedistancer::redistance(volScalarField& psi) 
 {
+    WarningInFunction << "TODO(TM,JR): implement least-squares re-distancing." 
+        << endl;
+
     Info << "Linear Least Squares Redistancing, field: "  << psi.name() << endl;
 
+    // TODO: (TM: move into an attribute) 
     volVectorField nc = fvc::grad(psi);
     //nc /= Foam::mag(nc);
 
@@ -81,7 +82,6 @@ void lsqRedistancer::redistance
             psi[nei[faceI]] = min(psi[nei[faceI]], psiRedist[nei[faceI]]);
         }
     }
-
 
     /*
 

@@ -37,18 +37,14 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(sharpJumpPhaseIndicator, false);
-addToRunTimeSelectionTable(phaseIndicator, sharpJumpPhaseIndicator, Dictionary);
+addToRunTimeSelectionTable(phaseIndicator, sharpJumpPhaseIndicator, Mesh);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-sharpJumpPhaseIndicator::sharpJumpPhaseIndicator()
+sharpJumpPhaseIndicator::sharpJumpPhaseIndicator(const fvMesh& mesh)
 :
-    nAverages_(0)
-{}
-
-sharpJumpPhaseIndicator::sharpJumpPhaseIndicator(const dictionary& dict)
-:
-        nAverages_(dict.getOrDefault<label>("nCells", 0))
+        phaseIndicator(mesh),
+        nAverages_(phaseIndDict_.getOrDefault<label>("nAverages", 0))
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //

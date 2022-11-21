@@ -60,19 +60,15 @@ public:
 
     // Constructors
 
-    lsqRedistancer();
-
-    lsqRedistancer(const dictionary& dict);
+    //- Construct from components
+    lsqRedistancer(const fvMesh& mesh);
 
     //- Destructor
     virtual ~lsqRedistancer() = default;
 
     // Member Functions
     
-    virtual void redistance 
-    (
-        volScalarField& psi
-    ); 
+    virtual void redistance(volScalarField& psi); 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -34,39 +34,44 @@ namespace Foam
 {
 
 defineTypeNameAndDebug(redistancer, false);
-defineRunTimeSelectionTable(redistancer, dictionary);
-addToRunTimeSelectionTable(redistancer, redistancer, dictionary);
+defineRunTimeSelectionTable(redistancer, Mesh);
+addToRunTimeSelectionTable(redistancer, redistancer, Mesh);
+
+// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
+
+redistancer::redistancer(const fvMesh& mesh)
+    :
+        fvSolution_(mesh),
+        levelSetDict_(fvSolution_.subDict("levelSet")),
+        redistDict_(levelSetDict_.subDict("redistancer"))
+{}
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
-Foam::autoPtr<Foam::redistancer>
-Foam::redistancer::New
-(
-    const word& modelType,
-    const dictionary& dict
-)
+autoPtr<Foam::redistancer> redistancer::New(const fvMesh& mesh)
 {
+    const fvSolution& fvSolution (mesh);
+    const dictionary& levelSetDict = fvSolution.subDict("levelSet");
+    const dictionary& redistDict = levelSetDict.subDict("redistancer");
+    const word& modelType = redistDict.getOrDefault<word>("type", "noRedistancing");
+    
     // Find the constructor pointer for the model in the constructor table.
-    auto* ctorPtr = dictionaryConstructorTable(modelType);
+    auto* ctorPtr = MeshConstructorTable(modelType);
 
     // If the constructor pointer is not found in the table.
     if (!ctorPtr) 
     {
         FatalIOErrorInLookup
         (
-            dict,
+            fvSolution,
             "redistancer",
             modelType,
-            *dictionaryConstructorTablePtr_
+            *MeshConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 
-    return autoPtr<redistancer>(ctorPtr(dict));
+    return autoPtr<redistancer>(ctorPtr(mesh));
 }
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-redistancer::redistancer(const dictionary& dict) {}
 
 // ************************************************************************* //
 

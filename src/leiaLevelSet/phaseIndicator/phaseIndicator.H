@@ -53,6 +53,11 @@ namespace Foam
 
 class phaseIndicator
 {
+protected:
+
+    const fvSolution& fvSolution_;
+    const dictionary& levelSetDict_;
+    const dictionary& phaseIndDict_; 
 
 public:
 
@@ -64,29 +69,22 @@ public:
     (
         autoPtr,
         phaseIndicator, 
-        Dictionary, 
+        Mesh, 
         (
-            const dictionary& dict 
+            const fvMesh& mesh  
         ), 
-        (dict)
+        (mesh)
     );
 
     // Constructors
-
-        //- Default construct
-        phaseIndicator() = default;
-
-        phaseIndicator(const dictionary& dict);
+    
+        //- Construct from components
+        phaseIndicator(const fvMesh& mesh);
 
     // Selectors
 
         //- Select default constructed
-        static autoPtr<phaseIndicator> 
-        New
-        (
-            const word modelType, 
-            const dictionary& fvSolutionDict
-        );
+        static autoPtr<phaseIndicator> New(const fvMesh& mesh);
 
     //- Destructor
     virtual ~phaseIndicator() = default;

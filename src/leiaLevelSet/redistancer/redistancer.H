@@ -36,6 +36,7 @@ SourceFiles
 #ifndef redistancer_H
 #define redistancer_H
 
+#include "dictionary.H"
 #include "messageStream.H"
 #include "typeInfo.H"
 #include "autoPtr.H"
@@ -54,6 +55,12 @@ namespace Foam
 
 class redistancer
 {
+    
+protected:
+
+    const fvSolution& fvSolution_;
+    const dictionary& levelSetDict_;
+    const dictionary& redistDict_;
 
 public:
 
@@ -66,35 +73,29 @@ public:
     (
         autoPtr,
         redistancer, 
-        dictionary, 
+        Mesh, 
         (
-            const dictionary& dict 
+            const fvMesh& mesh 
         ), 
-        (dict)
+        (mesh)
     );
 
     // Constructors
 
-        //- Default construct
-        redistancer() = default;
-
-        redistancer(const dictionary& dict);
+        //- Construct from components 
+        redistancer(const fvMesh& mesh);
 
     // Selectors
 
         //- Select default constructed
-        static autoPtr<redistancer> 
-        New(const word& modelType, const dictionary& dict);
+        static autoPtr<redistancer> New(const fvMesh& mesh);
 
     //- Destructor
     virtual ~redistancer() = default;
 
     // Member Functions
 
-    virtual void redistance
-    (
-        volScalarField& psi 
-    ) 
+    virtual void redistance(volScalarField& psi) 
     {
         Info  << "No redistancing. " << endl;
     }

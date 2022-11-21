@@ -54,7 +54,11 @@ namespace Foam
 
 class velocityModel
 {
-    Switch isOscillating_; 
+    protected:
+
+        const fvSolution& fvSolution_;
+        const dictionary& velocityDict_; 
+        Switch isOscillating_; 
 
     public: 
         
@@ -67,27 +71,30 @@ class velocityModel
             (
                 autoPtr,
                 velocityModel,
-                dictionary,
+                Mesh,
                 (
-                    const dictionary& dict
+                    const fvMesh& mesh 
                 ),
-                (dict)
+                (mesh)
             );
             
             
         //- Return a reference to the selected viscosity model
-        static autoPtr<velocityModel> New
-        (
-            const word& name, 
-            const dictionary& dict
-        );
+        static autoPtr<velocityModel> New(const fvMesh& mesh);
 
-        velocityModel() = default;
-        
-        velocityModel(const dictionary& dict)
+        velocityModel(const fvMesh& mesh)
         :
-            isOscillating_(dict.getOrDefault<Switch>("oscillation", "on"))
-        {} 
+            fvSolution_(mesh),
+            velocityDict_(fvSolution_.subDict("velocityModel")),
+            isOscillating_
+            (
+                velocityDict_.getOrDefault<Switch>
+                (
+                    "oscillation", 
+                    "on"
+                )
+            )
+        {}
 
         Switch isOscillating() const
         {
@@ -108,7 +115,9 @@ class velocityModel
             const auto& cellCenters = mesh.C(); 
             
             forAll(U, cellI)
+            {
                 U[cellI] = velocity(cellCenters[cellI]);
+            }
             
             const auto& Cf = mesh.Cf();
             auto& UboundaryField = U.boundaryFieldRef(); 
@@ -160,30 +169,29 @@ class velocityModel
 };
     
 defineTypeNameAndDebug(velocityModel, 0);
-defineRunTimeSelectionTable(velocityModel, dictionary);
+defineRunTimeSelectionTable(velocityModel, Mesh);
 
-autoPtr<velocityModel> velocityModel::New
-(
-    const word& modelType, 
-    const dictionary& dict
-)
+autoPtr<velocityModel> velocityModel::New(const fvMesh& mesh)
 {
+    const fvSolution& fvSolution (mesh);
+    const dictionary& velocityDict = fvSolution.subDict("velocityModel");
+    const word modelType = velocityDict.getOrDefault<word>("type", "none");
     Info<< "Selecting advection velocity " << modelType << endl;
 
-    auto* ctorPtr = dictionaryConstructorTable(modelType);
+    auto* ctorPtr = MeshConstructorTable(modelType);
 
     if (!ctorPtr)
     {
         FatalIOErrorInLookup
         (
-            dict,
+            fvSolution,
             "viscosityModel",
             modelType,
-            *dictionaryConstructorTablePtr_
+            *MeshConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 
-    return autoPtr<velocityModel>(ctorPtr(dict));
+    return autoPtr<velocityModel>(ctorPtr(mesh));
 }
 
 class shear2D 
@@ -194,10 +202,8 @@ class shear2D
 
         //- Runtime type information
         TypeName("shear2D");
-        
-        shear2D() = default;
 
-        shear2D(const dictionary& dict) : velocityModel(dict) {}; 
+        shear2D(const fvMesh& mesh) : velocityModel(mesh) {}; 
 
         virtual ~shear2D() = default;
 
@@ -223,9 +229,7 @@ class deformation3D
         //- Runtime type information
         TypeName("deformation3D");
         
-        deformation3D() = default;
-
-        deformation3D(const dictionary& dict) : velocityModel(dict) {}; 
+        deformation3D(const fvMesh& mesh) : velocityModel(mesh) {}; 
 
         virtual ~deformation3D() = default;
 
@@ -243,7 +247,7 @@ class deformation3D
 };
 
 defineTypeNameAndDebug(deformation3D, 0);
-addToRunTimeSelectionTable(velocityModel, deformation3D, dictionary);
+addToRunTimeSelectionTable(velocityModel, deformation3D, Mesh);
 
 class shear3D 
 :
@@ -260,16 +264,14 @@ class shear3D
 
         //- Runtime type information
         TypeName("shear3D");
-        
-        shear3D() = default;
 
-        shear3D(const dictionary& dict) 
+        shear3D(const fvMesh& mesh) 
         : 
-            velocityModel(dict), 
-            R(dict.getOrDefault<scalar>("R", 0.5)), 
-            Umax(dict.getOrDefault<scalar>("Umax", 1.)), 
-            x0(dict.getOrDefault<scalar>("x0", 0.5)),
-            y0(dict.getOrDefault<scalar>("y0", 0.5))
+            velocityModel(mesh), 
+            R(velocityDict_.getOrDefault<scalar>("R", 0.5)), 
+            Umax(velocityDict_.getOrDefault<scalar>("Umax", 1.)), 
+            x0(velocityDict_.getOrDefault<scalar>("x0", 0.5)),
+            y0(velocityDict_.getOrDefault<scalar>("y0", 0.5))
         {}; 
 
         virtual ~shear3D() = default;
@@ -293,7 +295,7 @@ class shear3D
 };
 
 defineTypeNameAndDebug(shear3D, 0);
-addToRunTimeSelectionTable(velocityModel, shear3D, dictionary);
+addToRunTimeSelectionTable(velocityModel, shear3D, Mesh);
 
 class translation 
 :
@@ -308,11 +310,11 @@ class translation
         
         translation() = default;
 
-        translation(const dictionary& dict) 
+        translation(const fvMesh& mesh) 
         : 
-            velocityModel(dict),
-            velocity_(dict.get<vector>("velocity"))
-        {}; 
+            velocityModel(mesh),
+            velocity_(velocityDict_.get<vector>("velocity"))
+        {};
 
         virtual ~translation() = default;
 
@@ -323,7 +325,7 @@ class translation
 };
 
 defineTypeNameAndDebug(translation, 0);
-addToRunTimeSelectionTable(velocityModel, translation, dictionary);
+addToRunTimeSelectionTable(velocityModel, translation, Mesh);
 
 class rotation 
 :
@@ -336,14 +338,12 @@ class rotation
 
         //- Runtime type information
         TypeName("rotation");
-        
-        rotation() = default;
 
-        rotation(const dictionary& dict) 
+        rotation(const fvMesh& mesh) 
         : 
-            velocityModel(dict),
-            point_(dict.get<vector>("point")),
-            omega_(dict.get<vector>("omega"))
+            velocityModel(mesh),
+            point_(velocityDict_.get<vector>("point")),
+            omega_(velocityDict_.get<vector>("omega"))
         {}; 
 
         virtual ~rotation() = default;
@@ -355,15 +355,13 @@ class rotation
 };
 
 defineTypeNameAndDebug(rotation, 0);
-addToRunTimeSelectionTable(velocityModel, rotation, dictionary);
+addToRunTimeSelectionTable(velocityModel, rotation, Mesh);
 
 /*---------------------------------------------------------------------------*\    
                     Function templates for advection 
 \*---------------------------------------------------------------------------*/    
 
-void correctFlux(
-    surfaceScalarField& phi
-)
+void correctFlux(surfaceScalarField& phi)
 {
     const fvMesh& mesh = phi.mesh();
     const Time& runTime = phi.time();

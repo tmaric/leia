@@ -61,9 +61,8 @@ public:
 
     // Constructors
 
-    sharpJumpPhaseIndicator();
-
-    sharpJumpPhaseIndicator(const dictionary& dict);
+    //- Construct from components
+    sharpJumpPhaseIndicator(const fvMesh& mesh);
 
     //- Destructor
     virtual ~sharpJumpPhaseIndicator() = default;

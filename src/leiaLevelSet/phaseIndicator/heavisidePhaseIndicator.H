@@ -60,10 +60,9 @@ public:
     TypeName ("heaviside");
 
     // Constructors
-
-    heavisidePhaseIndicator();
-
-    heavisidePhaseIndicator(const dictionary& dict);
+    
+    //- Construct from components
+    heavisidePhaseIndicator(const fvMesh& mesh);
 
     //- Destructor
     virtual ~heavisidePhaseIndicator() = default;
