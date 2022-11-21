@@ -31,19 +31,8 @@ volScalarField alpha
 );
 
 // RTS 
-const fvSolution& fvSolution (mesh);
-const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-
-// Level Set Method
 //- redistancer selection
-const dictionary& redistDict = levelSetDict.subDict("redistancer");
-const word& redistType = 
-    redistDict.getOrDefault<word>("type", "noRedistancing");
-autoPtr<redistancer> redist = redistancer::New(redistType, redistDict);
+autoPtr<redistancer> redist = redistancer::New(mesh);
 
 //- phase-indicator selection
-const dictionary& phaseIndDict = levelSetDict.subDict("phaseIndicator");
-const word& phaseIndType = 
-    redistDict.getOrDefault<word>("type", "geometric");
-autoPtr<phaseIndicator> phaseInd = 
-    phaseIndicator::New(phaseIndType, phaseIndDict); 
+autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh); 
