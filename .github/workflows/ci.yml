@@ -2,7 +2,8 @@ name: Build Tests
 on: [push]
 jobs:
   Build-Opt:
-    runs-on: tmaric/openfoam-v2206_ubuntu-focal
+    runs-on: ubuntu-latest
+    container: tmaric/openfoam-v2206_ubuntu-focal
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
