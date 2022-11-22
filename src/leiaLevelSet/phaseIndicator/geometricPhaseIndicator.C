@@ -89,7 +89,7 @@ void geometricPhaseIndicator::calcPhaseIndicator
 
     const auto& own = mesh.owner();  
     const auto& nei = mesh.neighbour(); 
-    volScalarField narrowBand("narrowBand", psi);  
+    volScalarField& narrowBand = narrowBandTmp_.ref();
     narrowBand = dimensionedScalar("narrowBand", narrowBand.dimensions(), 0.);
 
     // Select the cells in the narrow band using face-connectivity.
