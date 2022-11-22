@@ -4,6 +4,9 @@ jobs:
   Build-OpenFOAM-v2206-Opt:
     runs-on: ubuntu-latest
     container: tmaric/openfoam-v2206_ubuntu-focal
+    defaults:
+        run:
+            shell: bash
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
