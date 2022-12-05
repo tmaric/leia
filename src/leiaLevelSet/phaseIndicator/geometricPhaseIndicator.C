@@ -26,9 +26,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "IOobject.H"
+#include "dimensionedScalarFwd.H"
 #include "geometricPhaseIndicator.H"
 #include "addToRunTimeSelectionTable.H"
 #include "processorFvPatch.H"
+#include "pTraits.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "fvcGrad.H"
@@ -36,6 +38,7 @@ License
 #include "foamGeometry.H"
 #include "simpleMatrix.H"
 #include "processorFvPatch.H"
+#include "volFieldsFwd.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -63,6 +66,34 @@ geometricPhaseIndicator::geometricPhaseIndicator(const fvMesh& mesh)
                 ),
                 mesh, 
                 dimensionedScalar("narrowBand", dimless, 0)
+            )
+        ),
+        ncTmp_(new volVectorField
+            (
+                IOobject
+                (
+                    "nc",
+                    mesh.time().timeName(), 
+                    mesh,
+                    IOobject::NO_READ, 
+                    IOobject::AUTO_WRITE // FIXME(TM): readable IOOptions.
+                ),
+                mesh, 
+                dimensionedVector("nc", dimless, vector(0,0,0))
+            )
+        ),
+        dcTmp_(new volScalarField 
+            (
+                IOobject
+                (
+                    "dc",
+                    mesh.time().timeName(), 
+                    mesh,
+                    IOobject::NO_READ, 
+                    IOobject::AUTO_WRITE // FIXME(TM): readable IOOptions.
+                ),
+                mesh, 
+                dimensionedScalar("dc", dimless, 0)
             )
         )
 {}
@@ -128,16 +159,13 @@ void geometricPhaseIndicator::calcPhaseIndicator
         }
     }
     
-    // Debugging
-    //volVectorField nc ("nc", fvc::grad(psi));
-    //nc = dimensionedVector ("nc", nc.dimensions(), vector(0,0,0));
-    //volScalarField dc ("dc", psi);
-    //dc = dimensionedScalar("dc", dc.dimensions(), 0.);
-    
-    // A LLSQ approximation of psi 
-    // TODO: Include boundary conditions into the LLSQ approximation. 
-    // - In boundary cells, use BCs to enforce the normal orientation, then use
-    //   the extrapolation-based approximation outlined above for the cutPlane. 
+    // Linear Least-Squares Approximation of \Psi
+    // \psi(x,y,z)= nc_x x  + nc_y y + nc_z z + dc
+    volVectorField& nc_ = ncTmp_.ref();
+    nc_ = dimensionedVector("nc", nc_.dimensions(), vector(0,0,0));
+    volScalarField& dc_ = dcTmp_.ref();
+    dc_ = dimensionedScalar("dc", dc_.dimensions(), 0.);
+   
     const auto& cellCells = mesh.cellCells(); 
     const auto& cellCenters = mesh.C();
     // Compute the phase indicator in the narrow band.
@@ -288,8 +316,8 @@ void geometricPhaseIndicator::calcPhaseIndicator
             planeCoeffs = LLSQ.solve(); // TODO: Improve this. Gauss substitution. TM.
             
             // Debugging 
-            //nc[cellI] = vector(planeCoeffs[0], planeCoeffs[1], planeCoeffs[2]);
-            //dc[cellI] = planeCoeffs[3];
+            nc_[cellI] = vector(planeCoeffs[0], planeCoeffs[1], planeCoeffs[2]);
+            dc_[cellI] = planeCoeffs[3];
          
             // Ensure unit-normals  
             hesseNormalPlane cutPlane(
@@ -307,14 +335,8 @@ void geometricPhaseIndicator::calcPhaseIndicator
         }
     }
 
-    // Debugging
-    //if (narrowBand.time().writeTime() || (narrowBand.timeIndex() == 0))
-    //{
-        //narrowBand.write();    
-        //nc.write(); 
-        //dc.write();
-    //}
-
+    nc_.correctBoundaryConditions();
+    dc_.correctBoundaryConditions();
     alpha.correctBoundaryConditions();
 }
 
