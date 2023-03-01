@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
+    Copyright (C) 2022 AUTHOR,AFFILIATION
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,86 +24,81 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::phaseIndicator
+    Foam::interfaceBand
 
 Description
 
 SourceFiles
-    phaseIndicator.C
+    interfaceBandI.H
+    interfaceBand.C
+    interfaceBandIO.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef phaseIndicator_H
-#define phaseIndicator_H
+#ifndef interfaceBand_H
+#define interfaceBand_H
 
 #include "typeInfo.H"
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
-#include "fvSolution.H"
-#include "volFields.H"
 #include "fvMesh.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
+
+
 /*---------------------------------------------------------------------------*\
-                         Class phaseIndicator Declaration
+                         Class interfaceBand Declaration
 \*---------------------------------------------------------------------------*/
 
-class phaseIndicator
+class interfaceBand
 {
 protected:
-
-    const fvSolution& fvSolution_;
-    const dictionary& levelSetDict_;
-    const dictionary& phaseIndDict_; 
+    const fvMesh& mesh_;
+    volScalarField interfaceBandField_;
+    const volScalarField& psi_;
 
 public:
-
-    // Static Data Members
 
     TypeName("none");
 
     declareRunTimeSelectionTable
     (
         autoPtr,
-        phaseIndicator, 
+        interfaceBand, 
         Mesh, 
         (
-            const fvMesh& mesh  
+            const fvMesh& mesh, const volScalarField& psi
         ), 
-        (mesh)
+        (mesh, psi)
     );
 
-    // Constructors
-    
-        //- Construct from components
-        phaseIndicator(const fvMesh& mesh);
+    interfaceBand(const fvMesh& mesh, const volScalarField& psi);
 
-    // Selectors
+    static autoPtr<interfaceBand> New(const fvMesh& mesh, const volScalarField& psi);
 
-        //- Select default constructed
-        static autoPtr<phaseIndicator> New(const fvMesh& mesh);
+    virtual ~interfaceBand() = default;
 
-    //- Destructor
-    virtual ~phaseIndicator() = default;
 
     // Member Functions
 
-    virtual void calcPhaseIndicator
-    (
-        volScalarField& alpha, 
-        const volScalarField& psi 
-    )
+    const fvMesh& mesh()
     {
-        WarningIn("phaseIndicator::calcPhaseIndicator") 
-            << "Phase indicator not used. " << endl;
-    } 
-    
-};
+        return mesh_;
+    }
 
+    virtual void calc()
+    {}
+
+    void write()
+    {
+        interfaceBandField_.write();
+    }
+};
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
