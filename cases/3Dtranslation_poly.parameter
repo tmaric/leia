@@ -1,0 +1,44 @@
+values
+{
+    solver (leiaLevelSetFoam);
+
+    END_TIME (3.0);
+
+    CFL (0.5);
+
+    MAX_CELL_SIZE // cfmesh
+    (
+        0.04  // ~
+
+        0.02 // ~600kCells
+
+        0.01 // ~
+    );
+
+    SURFACE_FILE
+    (
+        box-translation-edges.stl
+    );
+    
+		BC
+		(
+		    zeroGradient 
+		);
+		
+		SDPLS_SOURCE
+		(
+		    noSource 
+		);
+		
+		DIV
+		(   
+		    linear 
+		    $LinearUpwind
+		    vanLeer
+		);
+
+    PROFILE
+    (
+      	signedDistance tanh
+    );
+}

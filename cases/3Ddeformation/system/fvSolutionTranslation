@@ -50,6 +50,8 @@ velocityModel
 
 levelSet
 {
+	interfaceBand	signChange;
+
     implicitSurface 
     {
         type implicitSphere; 

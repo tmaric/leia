@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     leiaLevelSetFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         1.0;
+
+writeControl    timeStep;
+
+CFL							0.5;
+vmax						0.2;
+n_cells					200;
+
+deltaTinitial   #calc "$endTime / floor($endTime / ( $CFL / ($n_cells * $vmax)))"; 
+writeInterval   #calc "floor(0.1 * ($endTime / $deltaTinitial))";
+deltaT          #calc "$endTime / (10 * $writeInterval)"; 
+
+//deltaT          #calc "$CFL * 1. / $n_cells / $vmax";
+//writeInterval   #calc "(0.1 * $endTime / $deltaT)";
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+#include "fobjects";
+// ************************************************************************* //

@@ -1,0 +1,19 @@
+values
+{
+    solver (leiaLevelSetFoam);
+
+		N_CELLS
+		(
+				100 200 400
+		);
+
+		SDPLS_SOURCE
+		(
+				noSource explicit simpleLinearImplicit strictNegativeSpLinearImplicit
+		);
+		
+		PROFILE
+		(
+				signedDistance tanh
+		);
+}

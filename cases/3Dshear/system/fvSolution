@@ -50,6 +50,8 @@ velocityModel
 
 levelSet
 {
+	interfaceBand	signChange;
+
     implicitSurface 
     { 
         //Liovic, P., Rudman, M., Liow, J. L., Lakehal, D., & Kothe, D. (2006).
@@ -69,6 +71,12 @@ levelSet
     redistancer 
     {
         type noRedistancing;
+    }
+
+    SDPLSSourceTerm
+    {
+            discretization noSource;
+						narrowBand off;
     }
 }
 
