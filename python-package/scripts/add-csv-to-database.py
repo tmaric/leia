@@ -77,8 +77,8 @@ def main():
 
 
     except FileNotFoundError:
-        print("Database file not found.")
-        print("Create new database.csv")
+        print(f"{args.database} file not found.")
+        print(f"Creating new {args.database_csv}")
         database_df = pd.DataFrame()
 
     database_df = pd.concat(

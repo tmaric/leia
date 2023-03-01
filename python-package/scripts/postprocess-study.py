@@ -53,37 +53,18 @@ def main():
     parser.add_argument("variationfile",
                         help="Variationfile where pyFoam stores mapping of study variation number to parameter vector.",
                         )
-    
-    # parser.add_argument("caseparamfile",
-    #                     help="Caseparamfile where mapping of case to sto parameter vector is stored. Similar to `pyFoamRunParameterVariation.py --list variation`.",
-    #                     )
-
-    # parser.add_argument("-t", "--templatecase",
-    #                     help="Template case, like 3Ddeformation, with `.template` files for pyFoam.",
-    #                     required=True,
-    #                     dest="templatecase")
-    
-    # parser.add_argument("-p", "--parameterfile",
-    #                     help="Parameterfile `.parameter` for pyFoam. Corresponds to templatecase.",
-    #                     required=True,
-    #                     dest="parameterfile")
 
     parser.add_argument("-l", "--casesfile",
                         help="Casesfile where each case basename is stored in a separated line.",
                         required=True,
                         dest="casesfile")
-
-    # parser.add_argument("-v", "--variationfile",
-    #                     help="Variationfile where pyFoam stores mapping of study variation number to parameter vector.",
-    #                     required=False,
-    #                     default=f"tmp_variation.txt",
-    #                     dest="variationfile")
     
-    # parser.add_argument("-c", "--caseparamfile",
-    #                     help="Caseparamfile where mapping of case to sto parameter vector is stored. Similar to `pyFoamRunParameterVariation.py --list variation`.",
-    #                     required=False,
-    #                     default=f"tmp_case-parameter.txt",
-    #                     dest="caseparamfile")
+    parser.add_argument("--skip-convergence",
+                    action='store_true',
+                    help="Skipping calculation of convergence columns.",
+                    required=False,
+                    )
+
 
     parser.add_argument("-s", "--study-csv",
                         help="Study-CSV file where the whole study postprocessing data will be stored. Convergencerates will be added as columns.",
@@ -98,41 +79,46 @@ def main():
 
     args = parser.parse_args()
 
-    # default=f"study_{args.templatecase}_variation.txt",
-    # default=f"study_{args.templatecase}_case-parameter.txt",
-    # default=f'study_{args.templatecase}_datbase.csv',
     if args.database_csv is None:
-         args.database_csv = f'study_database.csv'
+        cwd = os.path.abspath(os.getcwd())
+        parents = cwd.split('/')
+        for parent in reversed(parents):
+            if parent.startswith("study_"):
+                args.database_csv = f"{parent}_database.csv"
+                print(f"Using inferred study database name: {args.database_csv}")
+                break
+        else:
+            args.database_csv = f'study_database.csv'
+            print(f"Using study database default name: {args.database_csv}")
+             
 
     #---------------------------------------------------------------------------
 
     merge_csv = ['leiaLevelSetFoam.csv', 'gradPsiError.csv', 'TVerror.csv']
 
-
-    # with open(args.variationfile, 'w') as variationfile:
-    #     cmd_str_pyfoam = f"pyFoamRunParameterVariation.py --list-variation {quote(args.templatecase)} {quote(args.parameterfile)}" 
-    #     run(cmd_str_pyfoam, check=True, shell=True, stdout=variationfile)
-    # with open(args.caseparamfile, 'w') as caseparamfile: 
-    #     cmd_str_caseparam = f"case-parameter.py -t {quote(args.templatecase)} -p {quote(args.parameterfile)} -l {quote(args.casesfile)}"
-    #     run(cmd_str_caseparam, check=True, shell=True, stdout=caseparamfile)
-
+    print("Merge all postprocessing CSV in all concrete cases.")
     merged_csv_str = merge_csv_in_cases(args.casesfile, merge_csv)
+
 
     with open(args.casesfile, 'r', encoding='utf-8') as file:
             firstcase = file.readline().removesuffix('\n')
     instance_case_csv = os.path.join(firstcase, merged_csv_str)
 
+    print("Gather merged.csv from concrete cases and assemble one big CSV.")
     cmd_str_gather = f"gather-study-data.py -v {quote(args.variationfile)} -f {quote(args.study_csv.removesuffix('.csv'))} {instance_case_csv}"
     run(cmd_str_gather, check=True, shell=True)
 
+    print("Sort big CSV according to case folder names and TIME.")
     cmd_str_sort = f"sort-csv.py -i {quote(args.study_csv)}"
     run(cmd_str_sort, check=True, shell=True)
 
     refinementparameter = database.get_refinementparameter(pd.read_csv(args.study_csv))
-    if refinementparameter is not None:
+    if not args.skip_convergence and refinementparameter is not None:
+        print("Study investigates refinemenet. Calculate convergence rates and add to CSV.")
         cmd_str_conver = f"convergencerates.py --write -r {refinementparameter} {quote(args.study_csv)}"
         run(cmd_str_conver, check=True, shell=True)
     
+    print(f"Set up 2-level column structure and concatenate to {args.database_csv}")
     cmd_str_add = f"add-csv-to-database.py {quote(args.study_csv)} {quote(args.database_csv)}"
     run(cmd_str_add, check=True, shell=True)
 
