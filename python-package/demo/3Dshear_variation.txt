@@ -1,0 +1,82 @@
+
+===============================
+72 variations with 4 parameters
+===============================
+
+
+==================
+Listing variations
+==================
+
+Variation 0 : {'DIV': 'linear', 'SDPLS_SOURCE': 'noSource', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 1 : {'DIV': 'linear', 'SDPLS_SOURCE': 'noSource', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 2 : {'DIV': 'linear', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 3 : {'DIV': 'linear', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 4 : {'DIV': 'linear', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 5 : {'DIV': 'linear', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 6 : {'DIV': 'linear', 'SDPLS_SOURCE': 'explicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 7 : {'DIV': 'linear', 'SDPLS_SOURCE': 'explicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 8 : {'DIV': 'linear', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 9 : {'DIV': 'linear', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 10 : {'DIV': 'linear', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 11 : {'DIV': 'linear', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 12 : {'DIV': 'linear', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 13 : {'DIV': 'linear', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 14 : {'DIV': 'linear', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 15 : {'DIV': 'linear', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 16 : {'DIV': 'linear', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 17 : {'DIV': 'linear', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 18 : {'DIV': 'linear', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 19 : {'DIV': 'linear', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 20 : {'DIV': 'linear', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 21 : {'DIV': 'linear', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 22 : {'DIV': 'linear', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 23 : {'DIV': 'linear', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 24 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'noSource', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 25 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'noSource', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 26 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 27 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 28 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 29 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 30 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'explicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 31 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'explicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 32 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 33 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 34 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 35 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 36 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 37 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 38 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 39 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 40 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 41 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 42 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 43 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 44 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 45 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 46 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 47 : {'DIV': 'linearUpwind', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 48 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'noSource', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 49 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'noSource', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 50 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 51 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 52 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 53 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'noSource', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 54 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'explicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 55 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'explicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 56 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 57 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 58 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 59 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'explicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 60 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 61 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 62 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 63 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 64 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 65 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'simpleLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
+Variation 66 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 32}
+Variation 67 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'zeroGradient', 'N_CELLS': 64}
+Variation 68 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 32}
+Variation 69 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitGradient', 'N_CELLS': 64}
+Variation 70 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 32}
+Variation 71 : {'DIV': 'vanLeer', 'SDPLS_SOURCE': 'strictNegativeSpLinearImplicit', 'BC': 'explicitMag1Gradient', 'N_CELLS': 64}
