@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
+    Copyright (C) 2022 AUTHOR,AFFILIATION
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,24 +24,22 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::phaseIndicator
+    Foam::geometricNarrowBand
 
 Description
 
 SourceFiles
-    phaseIndicator.C
+    geometricNarrowBandI.H
+    geometricNarrowBand.C
+    geometricNarrowBandIO.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef phaseIndicator_H
-#define phaseIndicator_H
+#ifndef geometricNarrowBand_H
+#define geometricNarrowBand_H
 
-#include "typeInfo.H"
-#include "autoPtr.H"
-#include "runTimeSelectionTables.H"
-#include "fvSolution.H"
-#include "volFields.H"
-#include "fvMesh.H"
+#include "narrowBand.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -49,61 +47,22 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class phaseIndicator Declaration
+                         Class geometricNarrowBand Declaration
 \*---------------------------------------------------------------------------*/
 
-class phaseIndicator
+class geometricNarrowBand
+    : public narrowBand
 {
-protected:
-
-    const fvSolution& fvSolution_;
-    const dictionary& levelSetDict_;
-    const dictionary& phaseIndDict_; 
-
 public:
 
-    // Static Data Members
+    TypeName("geometric");
+    geometricNarrowBand(const fvMesh& mesh);
 
-    TypeName("none");
+    virtual ~geometricNarrowBand() = default;
 
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        phaseIndicator, 
-        Mesh, 
-        (
-            const fvMesh& mesh  
-        ), 
-        (mesh)
-    );
+    virtual const volScalarField& getField();
 
-    // Constructors
-    
-        //- Construct from components
-        phaseIndicator(const fvMesh& mesh);
-
-    // Selectors
-
-        //- Select default constructed
-        static autoPtr<phaseIndicator> New(const fvMesh& mesh);
-
-    //- Destructor
-    virtual ~phaseIndicator() = default;
-
-    // Member Functions
-
-    virtual void calcPhaseIndicator
-    (
-        volScalarField& alpha, 
-        const volScalarField& psi 
-    )
-    {
-        WarningIn("phaseIndicator::calcPhaseIndicator") 
-            << "Phase indicator not used. " << endl;
-    } 
-    
 };
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam

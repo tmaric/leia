@@ -70,6 +70,11 @@ autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh);
 phaseInd->calcPhaseIndicator(alpha, psi);
 alpha.write();
 
+// Level Set interfaceBand model (optional)
+autoPtr<interfaceBand> interfaceBand = interfaceBand::New(mesh, psi); 
+interfaceBand->calc();
+interfaceBand->write();
+
 // Advection velocity model
 autoPtr<velocityModel> velocityModel = velocityModel::New(mesh); 
 
@@ -80,5 +85,4 @@ phi.write();
 
 velocityModel->setVelocity(U);
 U.write();
-
 

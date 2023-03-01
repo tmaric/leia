@@ -53,7 +53,13 @@ Description
 #include "advectionErrors.H"
 #include "phaseIndicator.H"
 #include "redistancer.H"
+#include "interfaceBand.H"
+#include "SDPLSSourceScheme.H"
 #include "advectionVerification.H"
+
+// tmp
+#include "fileName.H"
+#include "uncollatedFileOperation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -93,18 +99,15 @@ int main(int argc, char *argv[])
 
         if (velocityModel->isOscillating())
         {
-            const scalar cosFactor = Foam::cos(M_PI * runTime.timeOutputValue() / 
-                runTime.endTime().value()
-            );
-            
-            phi == phi0 * cosFactor;
-            U == U0 * cosFactor;
+            velocityModel->oscillateVelocity(U, U0, phi, phi0, runTime);
         }
 
         fvScalarMatrix psiEqn
         (
             fvm::ddt(psi)
           + fvm::div(phi, psi)
+          ==
+            fvm::SDPLSSource(psi, U)
         );
 
         psiEqn.solve();
@@ -112,6 +115,8 @@ int main(int argc, char *argv[])
         redist->redistance(psi);
         
         phaseInd->calcPhaseIndicator(alpha, psi);
+
+        interfaceBand->calc();
 
         reportErrors(
             errorFile, 

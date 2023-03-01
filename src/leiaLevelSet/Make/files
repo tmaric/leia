@@ -6,4 +6,12 @@ phaseIndicator/geometricPhaseIndicator.C
 redistancer/redistancer.C
 redistancer/lsqRedistancer.C
 
+SDPLSSourceScheme/SDPLSSourceScheme.C
+SDPLSSourceScheme/explicitSDPLSSourceScheme.C
+SDPLSSourceScheme/simpleLinearImplicit.C
+SDPLSSourceScheme/strictNegativeSpLinearImplicit.C
+
+interfaceBand/interfaceBand.C
+interfaceBand/signChangeInterfaceBand.C
+
 LIB = $(FOAM_USER_LIBBIN)/libleiaLevelSet
