@@ -52,6 +52,8 @@ velocityModel
 
 levelSet
 {
+	interfaceBand	signChange;
+
     implicitSurface 
     {
         type implicitSphere;
@@ -67,6 +69,11 @@ levelSet
     redistancer 
     {
         type noRedistancing;
+    }
+
+    SDPLSSourceTerm
+    {
+            discretization noSource;
     }
 }
 

@@ -1,0 +1,60 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     leiaLevelSetFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         1;
+
+// Maximal velocity 0.2
+// A global CFL is set based on this maximal global velocity 
+// CFL = 0.5
+// N cells in coordinate axis direction (unit domain) = 64 
+
+// Does not work in this case. endTime to small. ZeroDivisionError
+//deltaTinitial   #calc "$endTime / floor($endTime / ( 0.5 / (50 * 0.2)))"; 
+//
+//writeInterval   #calc "floor(0.1 * ($endTime / $deltaTinitial))";
+//
+//deltaT          #calc "$endTime / (10 * $writeInterval)"; 
+
+// Set values according to CFL=0.5
+deltaT					5e-2;
+writeInterval		0.1;
+writeControl    runTime;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+#include "fobjects";
+// ************************************************************************* //

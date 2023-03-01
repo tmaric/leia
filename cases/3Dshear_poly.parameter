@@ -19,4 +19,26 @@ values
     (
         box-shear-edges.stl
     );
+    
+		BC
+		(
+		    zeroGradient 
+		);
+		
+		SDPLS_SOURCE
+		(
+		    noSource 
+		);
+		
+		DIV
+		(   
+		    linear 
+		    $LinearUpwind
+		    vanLeer
+		);
+
+    PROFILE
+    (
+      	signedDistance tanh
+    );
 }

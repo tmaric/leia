@@ -20,6 +20,28 @@ values
 
     CFL
     (
-	0.1
+				0.1
+    );
+    
+     BC
+     (
+         zeroGradient 
+     );
+ 
+     SDPLS_SOURCE
+     (
+         noSource 
+     );
+     
+     DIV
+     (   
+         linear 
+         $LinearUpwind
+         vanLeer
+     );
+
+    PROFILE
+    (
+      	signedDistance tanh
     );
 }

@@ -4,13 +4,36 @@ values
 
     END_TIME (3.0);
 
-    N_CELLS
-    (
-        16 32 64 128 
-    );
-
     CFL
     (
     	0.5
     );
+
+    N_CELLS
+    (
+        32 64 128
+    );
+
+		BC
+		(
+		    zeroGradient 
+		);
+		
+		SDPLS_SOURCE
+		(
+		    noSource 
+		);
+		
+		DIV
+		(   
+		    linear 
+		    $LinearUpwind
+		    vanLeer
+		);
+
+    PROFILE
+    (
+      	signedDistance tanh
+    );
+
 }

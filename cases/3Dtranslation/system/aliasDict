@@ -1,0 +1,12 @@
+// # Alias Dictionary 
+// ==================
+// 
+// Use this dictionary to specify alias for parameters which should be treated as sinlge paramter but have whitespaces in it.
+// Using alias for these paramters is a solution to the inability of PyFoamRunParameterVariation.py treating them as one parameter.
+// See https://github.com/CRC-1194/zinf
+
+// # Schemes
+
+// ## Convection schemes
+
+LinearUpwind			linearUpwind grad(U);

@@ -49,5 +49,7 @@ timePrecision   6;
 
 runTimeModifiable true;
 
+libs ("libleiafiniteVolume.so");
+
 #include "fobjects";
 // ************************************************************************* //
