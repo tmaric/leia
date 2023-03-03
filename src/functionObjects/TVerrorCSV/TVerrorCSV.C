@@ -62,7 +62,7 @@ Foam::functionObjects::TVerrorCSV::TVerrorCSV
             csvFile_ << "TIME,"
                 << "TV,"
                 << "E_TV,"
-                << "E_TV_ABS\n";
+                << "E_TV_REL\n";
     }
     TV_initial_ = calcTV();
     Info << "TotalVariation initial value: " << TV_initial_ << nl << endl;
@@ -76,15 +76,15 @@ bool Foam::functionObjects::TVerrorCSV::write()
     const Time& runTime = mesh.time();
 
     scalar TV = calcTV();
-    scalar E_TV = 1 - TV / TV_initial_; // - E_REL
-    scalar E_TV_ABS = TV_initial_ - TV; // - E_ABS 
+    scalar E_TV = TV - TV_initial_; // - E_ABS
+    scalar E_TV_REL = (TV - TV_initial_) / TV_initial_; // - E_REL 
 
     if (Pstream::myProcNo() == 0)
     {
         csvFile_ << runTime.timeOutputValue() << ","
             << TV << ","
             << E_TV << ","
-            << E_TV_ABS << "\n";
+            << E_TV_REL << "\n";
     }
     return true;
 }
