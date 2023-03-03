@@ -34,7 +34,7 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    meta_name = args.studydir
+    meta_name = os.path.basename(os.path.abspath(args.studydir))
 
     os.chdir(args.studydir)
 
