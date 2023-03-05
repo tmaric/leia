@@ -34,68 +34,69 @@ Description
 #include "fvCFD.H"
 #include "levelSetImplicitSurfaces.H"
 #include "phaseIndicator.H"
+#include "profile.H"
 #include "processorFvPatchField.H"
 #include <math.h>
 
-template<typename Surface> 
-scalar signedDistance_profile(Surface const& surf, vector point)
-{
-    return surf->value(point);
-}
+// template<typename Surface> 
+// scalar signedDistance_profile(Surface const& surf, vector point)
+// {
+//     return surf->value(point);
+// }
 
-template<typename Surface> 
-scalar tanh_profile(Surface const& surf, vector point)
-{
-    scalar const eps = 1.0;
-    scalar const limit = 0.2; 
-    return limit * Foam::tanh(1/limit * signedDistance_profile(surf, point)/eps);
-}
+// template<typename Surface> 
+// scalar tanh_profile(Surface const& surf, vector point)
+// {
+//     scalar const eps = 1.0;
+//     scalar const limit = 0.2; 
+//     return limit * Foam::tanh(1/limit * signedDistance_profile(surf, point)/eps);
+// }
 
 
-template<typename Surface>  
+// template<typename Surface>  
 void setField
 (
     volScalarField& psi, 
-    Surface const& surf
+    profile const& LSprofile
 )
 {
     const auto& mesh = psi.mesh();
     const auto& cellCenters = mesh.C();
 
-    const fvSolution& fvSolution (mesh);
-    const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-    const word& profile_word = 
-        levelSetDict.getOrDefault<word>("profile", "signedDistance");
+    // const fvSolution& fvSolution (mesh);
+    // const dictionary& levelSetDict = fvSolution.subDict("levelSet");
+    // const word& profile_word = 
+    //     levelSetDict.getOrDefault<word>("profile", "signedDistance");
 
-    scalar (*profile)(Surface const&, vector);
+    // scalar (*profile)(Surface const&, vector);
 
-    if (profile_word == "tanh")
-    {
-        profile = &tanh_profile;
-        Info << "Level-set profile tanh\n";
-    }
-    else //(profile_word == "signedDistance")
-    {
-        profile = &signedDistance_profile;
-            Info << "Level-set profile signed-distance\n";
-    }
-    // else
+    // if (profile_word == "tanh")
     // {
-    //     InfoErr << "Wrong level-set profile selected.\n";
-    //     exit();
-    //             // FatalIOErrorInLookup
-    //     // (
-    //     //     levelSetDict,
-    //     //     "profile",
-    //     //     systemType,
-    //     //     *dictionaryConstructorTablePtr_
-    //     // ) << exit(FatalIOError);
+    //     profile = &tanh_profile;
+    //     Info << "Level-set profile tanh\n";
     // }
+    // else //(profile_word == "signedDistance")
+    // {
+    //     profile = &signedDistance_profile;
+    //         Info << "Level-set profile signed-distance\n";
+    // }
+    // // else
+    // // {
+    // //     InfoErr << "Wrong level-set profile selected.\n";
+    // //     exit();
+    // //             // FatalIOErrorInLookup
+    // //     // (
+    // //     //     levelSetDict,
+    // //     //     "profile",
+    // //     //     systemType,
+    // //     //     *dictionaryConstructorTablePtr_
+    // //     // ) << exit(FatalIOError);
+    // // }
 
 
 
     forAll(psi, cellI)
-        psi[cellI] = profile(surf, cellCenters[cellI]);
+        psi[cellI] = LSprofile.value(cellCenters[cellI]);
     
     const auto& Cf = mesh.Cf();
     const auto& CfBoundaryField = Cf.boundaryField(); 
@@ -112,7 +113,7 @@ void setField
             auto& psiPatchField = psiBoundaryField[patchI]; 
             forAll(psiPatchField, faceI)
             {
-                psiPatchField[faceI] = profile(surf,CfPatchField[faceI]);
+                psiPatchField[faceI] = LSprofile.value(CfPatchField[faceI]);
             }
         // }
     }
@@ -130,7 +131,7 @@ int main(int argc, char *argv[])
 
     #include "createFields.H"
 
-    setField(psi, implSurf);
+    setField(psi, LSprofile);
     phaseInd->calcPhaseIndicator(alpha, psi);
 
     psi.write();
