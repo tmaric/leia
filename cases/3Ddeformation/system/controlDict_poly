@@ -25,13 +25,13 @@ stopAt          endTime;
 
 endTime         3;
 
-timeStep #calc "2.0 * 0.021 / 2.0"; 
+timeStep #eval "2.0 * 0.021 / 2.0"; 
 
 deltaT          $timeStep; 
 
 writeControl    timeStep;
 
-writeInterval   #calc "floor(0.1 * $endTime / $timeStep)";
+writeInterval   #eval "floor(0.1 * $endTime / $timeStep)";
 
 purgeWrite      0;
 

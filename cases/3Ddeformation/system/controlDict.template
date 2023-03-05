@@ -25,13 +25,13 @@ stopAt          endTime;
 
 endTime         @!END_TIME!@;
 
-timeStep #calc "@!CFL!@ * max(@!MAX_CELL_SIZE!@, 1. / @!N_CELLS!@) / 2."; 
+timeStep #eval "@!CFL!@ * max(@!MAX_CELL_SIZE!@, 1. / @!N_CELLS!@) / 2."; 
 
 deltaT          $timeStep; 
 
 writeControl    timeStep;
 
-writeInterval   #calc "(0.1 * @!END_TIME!@ / $timeStep)";
+writeInterval   #eval "(0.1 * @!END_TIME!@ / $timeStep)";
 
 purgeWrite      0;
 
