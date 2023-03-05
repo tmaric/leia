@@ -95,16 +95,14 @@ def convergenceplot(study_df, struct):
         leg_label = detox_label(leg_label)
         ax.plot(resolutions, values, marker='x',label=leg_label)
     
-    # REPRESENTATIVE_GROUP = convergence_df
-    # h_01 = [REPRESENTATIVE_GROUP[('case',"DELTA_X")].iloc[0],REPRESENTATIVE_GROUP[('case',"DELTA_X")].iloc[-1]]
     h_01 = [np.max(study_resolutions), np.min(study_resolutions)]
     Ev_error2nd_01 = [convergence_ref, convergence_ref*(h_01[1]/h_01[0])**2]
     Ev_error1st_01 = [convergence_ref, convergence_ref*(h_01[1]/h_01[0])]
     ax.plot(h_01,Ev_error2nd_01,"k--",label="second-order")
     ax.plot(h_01,Ev_error1st_01,"r:",label="first-order")
     
-    ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
-    # ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
+    # ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
     return fig
 
 #-- START function block: Splitting many lines on multiple plots -----------------------------------
