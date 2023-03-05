@@ -71,7 +71,7 @@ def main():
     
     assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
 
-    savedir = os.path.dirname(study_csv)
+    savedir = os.path.abspath(os.path.dirname(study_csv))
     # savedir = f"/home/julian/Masterthesis/meetings/next/{study}"
     # savedir = f"/home/julian/.local/share/Trash/files/{study}"
 
@@ -87,7 +87,7 @@ def runall(study_df, structs, savedir):
     timeplot(study_df, structs, savedir)
     nsmallest_table(study_df, structs, savedir)
     convergenceplot(study_df, structs, savedir)
-    # best_convergenceplot(study_df, structs, savedir)
+    best_convergenceplot(study_df, structs, savedir)
 
 
 def timeplot(study_df, structs, savedir):
@@ -153,28 +153,32 @@ def convergenceplot(study_df, structs, savedir):
                 fig.savefig(os.path.join(savedir, f'{struct[3]}_convergence_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
                 plt.close(fig)
 
-# def best_convergenceplot(study_df, structs, savedir):
-#     nbest = 10
+def best_convergenceplot(study_df, structs, savedir):
+    nbest = 10
 
-#     ## nsmallest CSV table
-#     for struct in structs:
-#         if isRefinementStudy(study_df):
-#             columns = [
-#                 struct[0][1],
-#                 f"O({struct[0][1]})",
-#                 f"O_LOCAL({struct[0][1]})",
-#             ]
-#         else:
-#             columns = [ 
-#                     struct[0][1],
-#                 ]
-            
-#         error_df = database.df_represantive_error_rows(study_df, struct[0])
-#         result_df = database.database_smallest(error_df, columns, len(error_df))
+    ## Convergence Plot
+    refinement_label = studycsv.get_refinementlabel(study_df)
 
-#         # result_df.drop_duplicates([('database','CASE'),('database','M_TIME')], inplace=True)
+    if refinement_label is None:
+        return None
+    mi = study_df.columns
+    studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
+    studyparameters.remove(refinement_label)
+    for struct in structs:
+        ref_gb_ls = studycsv.smallest_refinement_gb(study_df, by=struct[0])
+        if len(ref_gb_ls) > nbest:
+            ref_gb_ls = ref_gb_ls[:nbest]
 
-#         list_ = list(zip(result_df[('database','CASE')], result_df[('database','M_TIME')]))
+        best_study_df = pd.concat(map(lambda item: item[1], ref_gb_ls), ignore_index=False)
+        
+        fig = plot.convergenceplot(best_study_df, struct) 
+        fig.savefig(os.path.join(savedir, f'{struct[3]}_best-convergence.jpg'), bbox_inches='tight')
+        fig.savefig(os.path.join(savedir, f'{struct[3]}_best-convergence.pdf'), bbox_inches='tight')
+        plt.close(fig)
+
+
+
+
 
 
 if __name__ == '__main__':

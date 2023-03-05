@@ -53,7 +53,7 @@ def main():
     
     assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
 
-    savedir = os.path.dirname(study_csv)
+    savedir = os.path.abspath(os.path.dirname(study_csv))
     # savedir = f"/home/julian/Masterthesis/meetings/next/{study}"
     # savedir = f"/home/julian/.local/share/Trash/files/{study}"
 
