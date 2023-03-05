@@ -31,12 +31,12 @@ CFL							0.5;
 vmax						0.2;
 n_cells					200;
 
-deltaTinitial   #calc "$endTime / floor($endTime / ( $CFL / (@!N_CELLS!@ * $vmax)))"; 
-writeInterval   #calc "floor(0.1 * ($endTime / $deltaTinitial))";
-deltaT          #calc "$endTime / (10 * $writeInterval)"; 
+deltaTinitial   #eval "$endTime / floor($endTime / ( $CFL / (@!N_CELLS!@ * $vmax)))"; 
+writeInterval   #eval "floor(0.1 * ($endTime / $deltaTinitial))";
+deltaT          #eval "$endTime / (10 * $writeInterval)"; 
 
-//deltaT          #calc "$CFL * 1. / $n_cells / $vmax";
-//writeInterval   #calc "(0.1 * $endTime / $deltaT)";
+//deltaT          #eval "$CFL * 1. / $n_cells / $vmax";
+//writeInterval   #eval "(0.1 * $endTime / $deltaT)";
 
 purgeWrite      0;
 

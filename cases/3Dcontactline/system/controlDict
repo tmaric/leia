@@ -31,11 +31,11 @@ endTime         1;
 // N cells in coordinate axis direction (unit domain) = 64 
 
 // Does not work in this case. endTime to small. ZeroDivisionError
-//deltaTinitial   #calc "$endTime / floor($endTime / ( 0.5 / (50 * 0.2)))"; 
+//deltaTinitial   #eval "$endTime / floor($endTime / ( 0.5 / (50 * 0.2)))"; 
 //
-//writeInterval   #calc "floor(0.1 * ($endTime / $deltaTinitial))";
+//writeInterval   #eval "floor(0.1 * ($endTime / $deltaTinitial))";
 //
-//deltaT          #calc "$endTime / (10 * $writeInterval)"; 
+//deltaT          #eval "$endTime / (10 * $writeInterval)"; 
 
 // Set values according to CFL=0.5
 deltaT					5e-2;
