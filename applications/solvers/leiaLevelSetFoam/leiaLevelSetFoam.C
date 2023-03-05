@@ -94,8 +94,15 @@ int main(int argc, char *argv[])
     {
         #include "CourantNo.H"
 
+        // if last timestep would overshoot endTime, set deltaT
+        if ((runTime.endTime() - runTime) < runTime.deltaT())
+        {
+            runTime.setDeltaT((runTime.endTime() - runTime), false);
+        }
+
         ++runTime;
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        Info<< "Time = " << runTime.timeName() << endl;
+        Info<< "deltaT = " << runTime.deltaT().value() << nl << endl;
 
         if (velocityModel->isOscillating())
         {
