@@ -14,4 +14,8 @@ SDPLSSourceScheme/strictNegativeSpLinearImplicit.C
 interfaceBand/interfaceBand.C
 interfaceBand/signChangeInterfaceBand.C
 
+profile/profile.C
+profile/signedDistance.C
+profile/tanh.C
+
 LIB = $(FOAM_USER_LIBBIN)/libleiaLevelSet
