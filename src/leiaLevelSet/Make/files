@@ -6,4 +6,7 @@ phaseIndicator/geometricPhaseIndicator.C
 redistancer/redistancer.C
 redistancer/lsqRedistancer.C
 
+surfaceTensionForce/surfaceTensionForce.C
+surfaceTensionForce/traceGradGeoNormalSnGradAlpha.C
+
 LIB = $(FOAM_USER_LIBBIN)/libleiaLevelSet
