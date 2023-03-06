@@ -97,8 +97,10 @@ public:
     
     virtual scalar value(const vector point) const
     {
-        WarningIn("profile::value") 
-        << "Profile is an abstract class." << endl;
+        // WarningIn("profile::value") 
+        // << "Profile is an abstract class." << endl;
+        FatalErrorInFunction
+        << "Profile is an abstract class." << exit(FatalError);
         return 0;
     }
     
