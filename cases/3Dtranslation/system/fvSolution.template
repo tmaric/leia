@@ -53,7 +53,13 @@ levelSet
 {
 	interfaceBand	signChange;
 
-		profile @!PROFILE!@;
+
+		profile
+		{
+			type	@!PROFILE!@;
+			limit	@!TANH_LIMIT!@;
+		}
+
 
     implicitSurface 
     {

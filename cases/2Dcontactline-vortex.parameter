@@ -7,13 +7,45 @@ values
 				100 200 400
 		);
 
-		SDPLS_SOURCE
-		(
-				noSource explicit simpleLinearImplicit strictNegativeSpLinearImplicit
-		);
 		
-		PROFILE
-		(
-				signedDistance tanh
-		);
+	SDPLS_SOURCE
+	(
+		noSource 
+		explicit 
+		simpleLinearImplicit 
+		strictNegativeSpLinearImplicit
+	);
+	
+	BC
+	(
+		zeroGradient
+		explicitGradient
+		explicitMag1Gradient
+	);
+	
+	DIV
+	(
+		linear
+		$LinearUpwind
+		vanLeer
+		$Gamma1
+		MUSCL 
+		Minmod
+		OSPRE 
+		SFCD
+		SuperBee
+		UMIST
+		vanAlbada 
+	);
+	
+	TANH_LIMIT
+	(
+		0.2
+	);
+
+	PROFILE
+	(
+		signedDistance 
+		tanh
+	);
 }
