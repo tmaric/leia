@@ -52,6 +52,12 @@ levelSet
 {
 	interfaceBand	signChange;
 
+		profile
+		{
+			type	signedDistance;
+		}
+
+
     implicitSurface 
     { 
         //Liovic, P., Rudman, M., Liow, J. L., Lakehal, D., & Kothe, D. (2006).

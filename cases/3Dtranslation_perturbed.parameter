@@ -13,22 +13,45 @@ values
     (
         32 64 128
     );
+			
+	SDPLS_SOURCE
+	(
+		noSource 
+		explicit 
+		simpleLinearImplicit 
+		strictNegativeSpLinearImplicit
+	);
 	
-		BC
-		(
-		    zeroGradient 
-		);
-		
-		DIV
-		(
-		    linear
-		    $LinearUpwind
-		    vanLeer
-		);
-		
-    PROFILE
-    (
-      	signedDistance tanh
-    );
+	BC
+	(
+		zeroGradient
+		explicitGradient
+		explicitMag1Gradient
+	);
+	
+	DIV
+	(
+		linear
+		$LinearUpwind
+		vanLeer
+		$Gamma1
+		MUSCL 
+		Minmod
+		OSPRE 
+		SFCD
+		SuperBee
+		UMIST
+		vanAlbada 
+	);
+	
+	TANH_LIMIT
+	(
+		0.2
+	);
 
+	PROFILE
+	(
+		signedDistance 
+		tanh
+	);
 }
