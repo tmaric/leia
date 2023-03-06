@@ -57,7 +57,8 @@ Description
 void setField
 (
     volScalarField& psi, 
-    profile const& LSprofile
+    // profile const& LSprofile
+    autoPtr<profile> LSprofile_ptr
 )
 {
     const auto& mesh = psi.mesh();
@@ -96,7 +97,8 @@ void setField
 
 
     forAll(psi, cellI)
-        psi[cellI] = LSprofile.value(cellCenters[cellI]);
+        // psi[cellI] = LSprofile.value(cellCenters[cellI]);
+        psi[cellI] = LSprofile_ptr->value(cellCenters[cellI]);
     
     const auto& Cf = mesh.Cf();
     const auto& CfBoundaryField = Cf.boundaryField(); 
@@ -113,7 +115,8 @@ void setField
             auto& psiPatchField = psiBoundaryField[patchI]; 
             forAll(psiPatchField, faceI)
             {
-                psiPatchField[faceI] = LSprofile.value(CfPatchField[faceI]);
+                // psiPatchField[faceI] = LSprofile.value(CfPatchField[faceI]);
+                psiPatchField[faceI] = LSprofile_ptr->value(CfPatchField[faceI]);
             }
         // }
     }
@@ -131,7 +134,8 @@ int main(int argc, char *argv[])
 
     #include "createFields.H"
 
-    setField(psi, LSprofile);
+    // setField(psi, LSprofile);
+    setField(psi, LSprofile_ptr);
     phaseInd->calcPhaseIndicator(alpha, psi);
 
     psi.write();

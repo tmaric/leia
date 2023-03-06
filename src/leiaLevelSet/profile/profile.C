@@ -66,7 +66,7 @@ autoPtr<Foam::profile> profile::New(const fvMesh& mesh, const implicitSurface& s
             *MeshConstructorTablePtr_
         ) << exit(FatalIOError);
     }
-    Info << "Selecting level-set profile:" << modelType << nl << endl;
+    Info << "Selecting level-set profile: " << modelType << nl << endl;
     // Construct the model and return the autoPtr to the object. 
     return autoPtr<profile>(ctorPtr(mesh, surface));
 }
