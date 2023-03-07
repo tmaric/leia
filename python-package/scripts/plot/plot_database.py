@@ -131,7 +131,7 @@ def main():
     parser.add_argument("studyCSV", help="The database-CSV file to postprocess.")
    
     parser.add_argument('--mesh',
-                        choices=['hex', 'perturbed', 'poly'],
+                        choices=['hex', 'hex-perturbed', 'poly'],
                         help="Adds mesh type information into figure titles."\
                             + "\nMeshtype: hexahedral, hexahedral-perturbed or polyhedral",
                         default='',
