@@ -22,8 +22,6 @@ Script and module for postprocessing database-CSV files.
 Creates timeplots, tables and convergence plots for specified error properties.
 """
 
-
-
 @dataclass(kw_only=True)
 class Fig:
     title: str
@@ -147,33 +145,40 @@ def main():
                         nargs=3, 
                         )
     
+    parser.add_argument('-d','--savedir',
+                        help="Directory where plots are saved. Default: dirname(studyCSV)",
+                        required=False,
+                        default=None,
+                        )
+    
     args = parser.parse_args()
 
     study_csv = args.studyCSV
-
     template = os.path.basename(study_csv).split('_')[1]
     study = os.path.basename(study_csv).rpartition('_')[0]
 
     study_df = pd.read_csv(study_csv, header=[0,1])
 
+    assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
+
     if args.filter is not None:
         for fi in args.filter:
             study_df = filter_studydf(study_df, column=(fi[0], fi[1]), value=fi[2])
 
-    
-    assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
+    if args.savedir is None:
+        args.savedir = os.path.abspath(os.path.dirname(study_csv))
+        # savedir = f"/home/julian/Masterthesis/meetings/next/{study}"
+        # savedir = f"/home/julian/.local/share/Trash/files/{study}"
 
-    savedir = os.path.abspath(os.path.dirname(study_csv))
-    # savedir = f"/home/julian/Masterthesis/meetings/next/{study}"
-    # savedir = f"/home/julian/.local/share/Trash/files/{study}"
 
-    os.makedirs(savedir, exist_ok=True)
-
-    properties = property_dict(template, study, mesh=args.mesh)
-    runall(study_df, properties, savedir)
+    os.makedirs(args.savedir, exist_ok=True)
 
     # run just timeplot for some properties
-    timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), savedir)
+    timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir)
+    
+    properties = property_dict(template, study, mesh=args.mesh)
+    runall(study_df, properties, args.savedir)
+
 
 
 def runall(study_df, properties, savedir):
