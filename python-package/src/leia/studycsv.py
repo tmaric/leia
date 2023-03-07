@@ -59,6 +59,9 @@ def smallest_refinement_gb(study_df, by, deltaX=('case','DELTA_X')):
     studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
     studyparameters.remove(refinement_label)
 
+    if isinstance(studyparameters, list) and len(studyparameters) == 1:
+        studyparameters = studyparameters[0]
+
     study_ref_gb = study_df.groupby(by=studyparameters, sort=False)
 
     def key(ref_gb_item):

@@ -105,10 +105,48 @@ def property_dict(template, study, mesh=''):
             ),
     }
 
+def time_property_dict(template, study, mesh=''):
+    return {
+
+        'MAX_CFL':
+            Prop(
+                column = ('case', 'MAX_CFL'),
+                template = template,
+                study = study,
+                titlestr = 'max(CFL)',
+                figstr = 'CFLmax',
+                labelstr = r'$ CFL $',
+                formula = '',
+                mesh=mesh,   
+            ),
+    }
+
+def filter_studydf(study_df, column, value):
+    study_df = study_df.loc[study_df[column] == value]
+    study_df = study_df.drop(column, axis='columns', inplace=False)
+    return study_df
 
 def main():
     parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
     parser.add_argument("studyCSV", help="The database-CSV file to postprocess.")
+   
+    parser.add_argument('--mesh',
+                        choices=['hex', 'perturbed', 'poly'],
+                        help="Adds mesh type information into figure titles."\
+                            + "\nMeshtype: hexahedral, hexahedral-perturbed or polyhedral",
+                        default='',
+                        required=False,
+                        dest='mesh',
+                        )
+    
+    parser.add_argument('--filter',
+                        help="Drop a whole column and keep rows which match <value>" \
+                            + "\nExpects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
+                        required=False,
+                        action='append',
+                        nargs=3, 
+                        )
+    
     args = parser.parse_args()
 
     study_csv = args.studyCSV
@@ -117,6 +155,11 @@ def main():
     study = os.path.basename(study_csv).rpartition('_')[0]
 
     study_df = pd.read_csv(study_csv, header=[0,1])
+
+    if args.filter is not None:
+        for fi in args.filter:
+            study_df = filter_studydf(study_df, column=(fi[0], fi[1]), value=fi[2])
+
     
     assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
 
@@ -126,8 +169,11 @@ def main():
 
     os.makedirs(savedir, exist_ok=True)
 
-    properties = property_dict(template, study, mesh='')
+    properties = property_dict(template, study, mesh=args.mesh)
     runall(study_df, properties, savedir)
+
+    # run just timeplot for some properties
+    timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), savedir)
 
 
 def runall(study_df, properties, savedir):
