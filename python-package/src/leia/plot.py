@@ -21,27 +21,29 @@ def detox_label(label: str):
 def legendlabel(dict, key):
     return detox_label(f"{key}: {dict[key]}")
 
-def timeplot(study_df, struct):
-    prop = struct[0]
-    ylabel = struct[1]
-    title = struct[2]
+def timeplot(study_df, prop):
+    column = prop.column
+    ylabel = prop.figTime.ylabel
+    xlabel = prop.figTime.xlabel
+    title = prop.figTime.title
     case_gb = study_df.groupby(('database','CASE'), sort=False)
     fig, ax = plt.subplots()
     for case, case_df  in case_gb:
         label = f"{case}: {database.get_raw_label(case_df)}"
         label = detox_label(label)
-        ax.plot(case_df[('case','TIME')].values, case_df[prop].values, 'x', label=label)
+        ax.plot(case_df[('case','TIME')].values, case_df[column].values, 'x', label=label)
     ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
     ax.set_ylabel(ylabel)
-    ax.set_xlabel('TIME in seconds')
+    ax.set_xlabel(xlabel)
     ax.grid('on')
     ax.set_title(title)
     return fig
 
-def convergenceplot(study_df, struct):
-    prop = struct[0]
-    ylabel = struct[1]
-    title = struct[2]
+def convergenceplot(study_df, prop):
+    column = prop.column
+    ylabel = prop.figConv.ylabel
+    xlabel = prop.figConv.xlabel
+    title = prop.figConv.title
     
     refinementlabel = studycsv.get_refinementlabel(study_df)
     mi = study_df.columns
@@ -80,12 +82,12 @@ def convergenceplot(study_df, struct):
     ax.minorticks_off()
     plt.title(f"{title}")
     plt.ylabel(ylabel)
-    plt.xlabel("$h$")
+    plt.xlabel(xlabel)
     
     convergence_ref = 1e6
 
     for id, (parameters, convergence_df) in enumerate(convergence_gb):
-        res_val_np = convergence.get_values(convergence_df, prop, refinement_parameter=refinementlabel[1])
+        res_val_np = convergence.get_values(convergence_df, column, refinement_parameter=refinementlabel[1])
         resolutions = res_val_np[:,0]
         values = res_val_np[:,1]
         convergence_ref = min(convergence_ref, values[0])
