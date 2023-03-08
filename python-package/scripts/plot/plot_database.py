@@ -101,6 +101,30 @@ def property_dict(template, study, mesh=''):
                 formula = r'$E_v(t) = \frac{\left|\sum_{c \in C}\alpha_c(t)|\Omega_c| - \sum_{c \in C} \alpha_c(t_0)|\Omega_c|\right|}{\left|\sum_{c \in C} \alpha_c(t_0)|\Omega_c|\right|}$',
                 mesh=mesh,   
             ),
+
+        "E_TV":
+            Prop(
+                column = ('case', 'E_TV'),
+                template = template,
+                study = study,
+                titlestr = 'total variation error',
+                figstr = 'Etv',
+                labelstr = r'$ E_{TV} $',
+                formula = r'$ E_{TV} = TV(t_e)-TV(t_0) $, $ TV = \sum_f \psi_N - \psi_O $',
+                mesh=mesh,   
+            ),
+
+        "E_TV_REL":
+            Prop(
+                column = ('case', 'E_TV_REL'),
+                template = template,
+                study = study,
+                titlestr = 'relative total variation error',
+                figstr = 'Etv-rel',
+                labelstr = r'$ E_{TV} $',
+                formula = r'$ E_{TV} = \frac{TV(t_e)-TV(t_0)}{TV(t_0)} $, $ TV = \sum_f \psi_N - \psi_O $',
+                mesh=mesh,   
+            ),
     }
 
 def time_property_dict(template, study, mesh=''):

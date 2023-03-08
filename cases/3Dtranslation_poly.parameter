@@ -53,7 +53,7 @@ values
 	
 	TANH_LIMIT
 	(
-		0.2
+		0.1
 	);
 
 	PROFILE
