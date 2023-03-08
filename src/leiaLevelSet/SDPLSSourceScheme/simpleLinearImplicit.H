@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,9 +27,7 @@ Class
     Foam::simpleLinearImplicit
 
 Description
-    This is the absract baseclass for the source term in the level-set-equation for two-phase-flow simulation.
-    The source term is defined in "A locally signed-distance preserving level set method (SDPLS) for moving interfaces" by M. Fricke et. al..
-    https://arxiv.org/abs/2208.01269
+    Concrete class which calculates the SDPLS source term, the non-linear part explicitly and the linear part implicitly.
 
 SourceFiles
     simpleLinearImplicitI.H

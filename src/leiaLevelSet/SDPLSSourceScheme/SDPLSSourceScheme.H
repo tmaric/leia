@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -32,9 +32,7 @@ Description
     https://arxiv.org/abs/2208.01269
 
 SourceFiles
-    SDPLSSourceSchemeI.H
     SDPLSSourceScheme.C
-    SDPLSSourceSchemeIO.C
 
 \*---------------------------------------------------------------------------*/
 

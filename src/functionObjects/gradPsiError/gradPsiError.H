@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR, AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt 
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -30,33 +30,12 @@ Group
     grpFieldFunctionObjects
 
 Description
-    <minimal description of the function object>
+    Calculates the absolute signed distance error of a field \psi which represents signed distance to an interface. 
 
     <equation>
     \f[
-        x = x_{ref}^x + \rho \omega
+        gradPsiError = ||\nabla \psi|-1|
     \f]
-
-    <variable-explanation table>
-    where
-    \vartable
-      \rho        | <explanation> [units, e.g. kg/m3]
-      \omega      | \f$ \nabla \cdot \vec U \f$
-      ...         | ...
-    \endvartable
-
-    <inline equation>
-    where \f$ x_k \f$ is ...
-
-    <input-output table>
-    \table
-      Operand      | Type                 | Location
-      input        | {vol,surface}\<Type\>Field(s) <!--
-               --> |$FOAM_CASE/\<time\>/\<inpField\>s
-      output file  | dat                  <!--
-              -->  | $FOAM_CASE/postProcessing/\<FO\>/\<time\>/\<file\>
-      output field | volScalarField       | $FOAM_CASE/\<time\>/\<outField\>
-    \endtable
 
 Usage
     Minimal example by using \c system/controlDict.functions:
@@ -65,50 +44,14 @@ Usage
     {
         // Mandatory entries (unmodifiable)
         type           gradPsiError;
-        libs           (gradPsiErrorFunctionObject);
+        libs           (libleiaFunctionObject);
+        field          psi;
+        result         gradPsiError;
+        writeControl   writeTime;
 
-        // Mandatory entries (runtime modifiable)
-        ...
-
-        // Mandatory (inherited) entries (unmodifiable)
-        ...
-
-        // Mandatory (inherited) entries (runtime unmodifiable)
-        ...
-
-        // Optional entries (unmodifiable)
-        ...
-
-        // Optional entries (runtime modifiable)
-        boolData       <bool>;
-        labelData      <label>;
-        wordData       <word>;
-        scalarData     <scalar>;
-
-        // Optional (inherited) entries
-        ...
     }
     \endverbatim
 
-    where the entries mean:
-    \table
-      Property   | Description                      | Type | Req'd | Dflt
-      type       | Type name: gradPsiError        | word |  yes  | -
-      libs       | Library name: gradPsiErrorFunctionObject  <!--
-             --> | word  | yes | -
-      boolData   | <explanation>                    | bool |  yes  | -
-      labelData  | <explanation>                    | label |  yes | -
-      wordData   | <explanation>                    | word |  yes  | -
-      scalarData | <explanation>                    | scalar |  no | 1.0
-      wordListData  | <explanation>                 | wordList | yes | -
-    \endtable
-
-    Options for the \c ENTRY entry:
-    \verbatim
-        <option1>
-        <option2> | <explanation>
-      ...
-    \endverbatim
 
     The inherited entries are elaborated in:
      - \link functionObject.H \endlink
@@ -126,11 +69,6 @@ Usage
     <if \c postProcess is not applicable>
     Usage by the \c postProcess utility is not available.
 
-Note
-    - <note1>
-    - <note2>
-    ...
-
 See also
     - Foam::functionObject
     - Foam::functionObjects::fvMeshFunctionObject
@@ -139,8 +77,6 @@ See also
 
 SourceFiles
     gradPsiError.C
-    gradPsiErrorTEMPLATES.C
-    ...
 
 \*---------------------------------------------------------------------------*/
 
