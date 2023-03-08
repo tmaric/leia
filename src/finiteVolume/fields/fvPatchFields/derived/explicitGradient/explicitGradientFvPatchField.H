@@ -77,12 +77,6 @@ class explicitGradientFvPatchField
     // Private data
         Field<scalar> snGrad_;
 
-    // Private member functions
-
-    // void init();
-
-
-
 public:
 
     //- Runtime type information

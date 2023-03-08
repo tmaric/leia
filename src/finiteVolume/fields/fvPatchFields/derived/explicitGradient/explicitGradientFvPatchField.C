@@ -206,10 +206,6 @@ Foam::explicitGradientFvPatchField::gradientBoundaryCoeffs() const
 void Foam::explicitGradientFvPatchField::write(Ostream& os) const
 {
     fvPatchField<scalar>::write(os);
-    // this->writeEntry("values", os);
-    // snGrad_.writeEntry("gradient", os);
-    // this->patch().deltaCoeffs().writeEntry("deltaCoeffs", os);
-
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
