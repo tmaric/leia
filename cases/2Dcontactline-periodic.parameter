@@ -1,6 +1,8 @@
 values
 {
-   	solver (leiaLevelSetFoam);
+ 	solver (leiaLevelSetFoam);
+	
+	CFL	( 0.5 );
 
 	N_CELLS
 	(

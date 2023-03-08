@@ -25,13 +25,21 @@ stopAt          endTime;
 
 endTime         3; 
 
-timeStep #eval "0.5 / (2. * 64)"; 
+Umax						1.0;
 
-deltaT          $timeStep; 
+CFL							0.5;
 
-writeControl    timeStep;
+// safty factor which is necessary to ensure maxCFL for some reason
+CFLsafty				0.5;
 
-writeInterval   #eval "floor(0.1 * $endTime / $timeStep)";
+// dummy float value. Will be replaced by Allrun
+deltaX					0.0;
+
+deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+
+writeControl    runTime;
+
+writeInterval   0.2;
 
 purgeWrite      0;
 

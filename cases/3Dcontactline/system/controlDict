@@ -23,24 +23,23 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         1;
+endTime         1.0; 
 
-// Maximal velocity 0.2
-// A global CFL is set based on this maximal global velocity 
-// CFL = 0.5
-// N cells in coordinate axis direction (unit domain) = 64 
+Umax						0.2;
 
-// Does not work in this case. endTime to small. ZeroDivisionError
-//deltaTinitial   #eval "$endTime / floor($endTime / ( 0.5 / (50 * 0.2)))"; 
-//
-//writeInterval   #eval "floor(0.1 * ($endTime / $deltaTinitial))";
-//
-//deltaT          #eval "$endTime / (10 * $writeInterval)"; 
+CFL							0.5;
 
-// Set values according to CFL=0.5
-deltaT					5e-2;
-writeInterval		0.1;
+// safty factor which is necessary to ensure maxCFL for some reason
+CFLsafty				1.0;
+
+// dummy float value. Will be replaced by Allrun
+deltaX					0.0;
+
+deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+
 writeControl    runTime;
+
+writeInterval   0.05;
 
 purgeWrite      0;
 
