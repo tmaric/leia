@@ -25,18 +25,21 @@ stopAt          endTime;
 
 endTime         0.8;
 
-writeControl    timeStep;
+Umax						1.2;
 
-CFL							0.5;
-vmax						1.2;
-n_cells					200;
+CFL							@!CFL!@;
 
-deltaTinitial   #eval "$endTime / floor($endTime / ( $CFL / (@!N_CELLS!@ * $vmax)))"; 
-writeInterval   #eval "floor(0.1 * ($endTime / $deltaTinitial))";
-deltaT          #eval "$endTime / (10 * $writeInterval)"; 
+// safty factor which is necessary to ensure maxCFL for some reason
+CFLsafty				1.0;
 
-//deltaT          #eval "$CFL * 1. / @!N_CELLS!@ / $vmax";
-//writeInterval   #eval "(0.1 * $endTime / $deltaT)";
+// dummy float value. Will be replaced by Allrun
+deltaX					0.0;
+
+deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+
+writeControl    runTime;
+
+writeInterval   0.05;
 
 purgeWrite      0;
 
@@ -51,6 +54,8 @@ timeFormat      general;
 timePrecision   6;
 
 runTimeModifiable true;
+
+libs ("libleiafiniteVolume.so");
 
 #include "fobjects";
 // ************************************************************************* //

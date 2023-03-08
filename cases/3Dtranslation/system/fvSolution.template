@@ -51,15 +51,13 @@ velocityModel
 
 levelSet
 {
-	interfaceBand	signChange;
-
+		interfaceBand	signChange;
 
 		profile
 		{
 			type	@!PROFILE!@;
 			limit	@!TANH_LIMIT!@;
 		}
-
 
     implicitSurface 
     {

@@ -23,19 +23,24 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         6.283185307179586;
+endTime         6.283185307179586; 
 
 // Maximal velocity in the rotation around an axis for a unit-cube domain is sqrt(0.5^2 + 0.5^2)
-// A global CFL is set based on this maximal global velocity 
-// CFL = 0.5
-// N cells in coordinate axis direction (unit domain) = 64 
-deltaTinitial   #eval "$endTime / floor($endTime / ( 0.5 / (64 * 0.7071067811865476)))"; 
+Umax						0.7071067811865476;
 
-writeInterval   #eval "floor(0.1 * ($endTime / $deltaTinitial))";
+CFL							0.3;
 
-deltaT          #eval "$endTime / (10 * $writeInterval)"; 
+// safty factor which is necessary to ensure maxCFL for some reason
+CFLsafty				1.0;
 
-writeControl    timeStep;
+// dummy float value. Will be replaced by Allrun
+deltaX					0.0;
+
+deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+
+writeControl    runTime;
+
+writeInterval   0.3;
 
 purgeWrite      0;
 

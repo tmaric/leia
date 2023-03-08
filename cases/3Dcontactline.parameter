@@ -1,7 +1,8 @@
 values
 {
     solver (leiaLevelSetFoam);
-
+	
+	CFL ( 0.5 );
 		
 	SDPLS_SOURCE
 	(

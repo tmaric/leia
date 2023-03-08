@@ -23,15 +23,23 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         3;
+endTime         @!END_TIME!@;
 
-timeStep #eval "2.0 * 0.021 / 2.0"; 
+Umax						0.2;
 
-deltaT          $timeStep; 
+CFL							@!CFL!@;
 
-writeControl    timeStep;
+// safty factor which is necessary to ensure maxCFL for some reason
+CFLsafty				1.0;
 
-writeInterval   #eval "floor(0.1 * $endTime / $timeStep)";
+// dummy float value. Will be replaced by Allrun
+deltaX					0.0;
+
+deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+
+writeControl    runTime;
+
+writeInterval   0.05;
 
 purgeWrite      0;
 
@@ -47,6 +55,7 @@ timePrecision   6;
 
 runTimeModifiable true;
 
-#include "fobjects";
+libs ("libleiafiniteVolume.so");
 
+#include "fobjects";
 // ************************************************************************* //
