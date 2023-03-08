@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,11 +27,12 @@ Class
     Foam::interfaceBand
 
 Description
+    Abstract base class which starts the model hierachy for marking cells which are near the interface aka the "narrowBand".
+    Calculate a field with {0,1} which mark cells near the zero level-set interface.
+
 
 SourceFiles
-    interfaceBandI.H
     interfaceBand.C
-    interfaceBandIO.C
 
 \*---------------------------------------------------------------------------*/
 

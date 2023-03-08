@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,6 +27,7 @@ Class
     Foam::profile
 
 Description
+    Abstract base class which starts the hierachy for different level-set profile fields, typically signedDistance or tanh variants.
 
 SourceFiles
     profile.C
@@ -97,8 +98,6 @@ public:
     
     virtual scalar value(const vector point) const
     {
-        // WarningIn("profile::value") 
-        // << "Profile is an abstract class." << endl;
         FatalErrorInFunction
         << "Profile is an abstract class." << exit(FatalError);
         return 0;

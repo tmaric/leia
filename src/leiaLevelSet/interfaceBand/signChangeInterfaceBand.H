@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Tomislav Maric & Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,11 +27,11 @@ Class
     Foam::signChangeInterfaceBand
 
 Description
+    Concrete class which calculates a field with {0,1} which mark cells near the zero level-set interface.
 
 SourceFiles
-    signChangeInterfaceBandI.H
     signChangeInterfaceBand.C
-    signChangeInterfaceBandIO.C
+
 
 \*---------------------------------------------------------------------------*/
 

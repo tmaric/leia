@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt 
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -31,6 +31,7 @@ Group
 
 Description
 
+    Sets the BC gradient to the gradient of the internalField of the last time step.
 
     $\nabla \psi_b^{n+1} = \nabla \psi_c^{n} $
 

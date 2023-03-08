@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2011-2017 OpenFOAM Foundation
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt 
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -30,33 +30,22 @@ Group
     grpGenericBoundaryConditions
 
 Description
-    This boundary condition supplies a fixed gradient condition, such that
-    the patch values are calculated using:
 
-        \f[
-            x_p = x_c + \frac{\nabla(x)}{\Delta}
-        \f]
+    Sets the BC gradient to the normalized gradient of the internalField of the last time step.
+
+    $\nabla \psi_b^{n+1} = \frac{\nabla \psi_c^{n}}{|\nabla \psi_c^{n}|} $
 
     where
     \vartable
-        x_p      | patch values
-        x_c      | internal field values
         \nabla(x)| gradient (user-specified)
-        \Delta   | inverse distance from patch face centre to cell centre
     \endvartable
 
 Usage
-    \table
-        Property     | Description             | Required    | Default value
-        gradient     | gradient                | yes         |
-    \endtable
-
     Example of the boundary condition specification:
     \verbatim
     <patchName>
     {
-        type            explicitGradient;
-        gradient        uniform 0;
+        type            explicitMag1Gradient;
     }
     \endverbatim
 

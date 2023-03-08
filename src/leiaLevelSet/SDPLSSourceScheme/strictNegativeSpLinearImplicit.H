@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,14 +27,17 @@ Class
     Foam::strictNegativeSpLinearImplicit
 
 Description
-    This is the absract baseclass for the source term in the level-set-equation for two-phase-flow simulation.
-    The source term is defined in "A locally signed-distance preserving level set method (SDPLS) for moving interfaces" by M. Fricke et. al..
-    https://arxiv.org/abs/2208.01269
+    Concrete class which calculates the SDPLS source term.
+    Similiar to simpleLinearImplicit it trys to calculate the non-linear part explicitly and the linear part implicitly.
+    But there is a switch. If the implicit part would produce positive coefficients contributions the the linear system, 
+    then this part is treaded explicitly in order to preserve diagonal dominance.
+
+    strictNegativeSpLinearImplicit $S=S_c +S_p \psi$
+	- $S_c = max(-R(\psi^\*),0)\psi^\*$
+	- $S_p = -max(R(\psi^\*),0)$
 
 SourceFiles
-    strictNegativeSpLinearImplicitI.H
     strictNegativeSpLinearImplicit.C
-    strictNegativeSpLinearImplicitIO.C
 
 \*---------------------------------------------------------------------------*/
 
