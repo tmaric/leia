@@ -101,7 +101,7 @@ def cp_extrafiles_to_concrete_cases(args, extrafiles, casesfile):
     extrafiles = [os.path.join(args.casedir, file) for file in extrafiles]
     extrafiles_str = ' '.join(extrafiles)
     cmd = f"""
-    cat {casesfile} | xargs -I[] bash -c 'cp {extrafiles_str} []/'
+    cat {casesfile} | xargs -I[] bash -c 'cp {extrafiles_str} []/ 2>/dev/null'
     """
     run(cmd, shell=True)
     
@@ -114,7 +114,7 @@ def main():
 
     info_dict = get_infofile_dict(os.path.basename(args.studydir) + '.info')
     args.metaname = info_dict['metaname']
-    args.studyname = info_dict['metaname']
+    args.studyname = info_dict['studyname']
     args.casedir = info_dict['templatecase']
     args.paramfile = info_dict['parameterfile']
 
@@ -124,18 +124,22 @@ def main():
 
     # Creates file which lists all concrete cases
     casesfile = create_concrete_casesfile(args)
+    print(f"Created {casesfile}")
 
     extrafiles = [
         '*.stl',
         'Allrun*.sbatch',
     ]
+    print(f"Copy extrafiles into cases.")
     cp_extrafiles_to_concrete_cases(args, extrafiles, casesfile)
     
     # Creates file with almost dictionary structure, connection the variation number to the parameter vector.
     pyFoam_variationfile = create_pyFoam_variationfile(args)
+    print(f"Created {pyFoam_variationfile}")
     
     # Creates file similiar to the pyFoamVariation_file, but with case basenames and in json format. Readable by python.
     json_variationfile = create_json_variationfile(args, casesfile, pyFoam_variationfile)
+    print(f"Created {json_variationfile}")
 
     add_to_infofile(args)
 

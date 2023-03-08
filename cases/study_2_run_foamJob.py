@@ -8,7 +8,9 @@ import os
 import os.path
 
 
-usage = """"""
+usage = """
+    Script starts the simulation of a parameter study with foamJob and a provided Allrun-script inside every case directory.
+"""
 
 def parse_arguments():
     parser = ArgumentParser(description=usage, formatter_class=RawTextHelpFormatter)
