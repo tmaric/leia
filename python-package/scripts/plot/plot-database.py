@@ -201,9 +201,12 @@ def main():
     timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir)
     
     properties = property_dict(template, study, mesh=args.mesh)
+    properties = check_properties_in_studydf(properties, study_df)
     runall(study_df, properties, args.savedir)
 
-
+def check_properties_in_studydf(properties, study_df):
+    properties = dict(filter(lambda item: item[0] in study_df.columns.levels[1], properties.items()))
+    return properties
 
 def runall(study_df, properties, savedir):
     timeplot(study_df, properties, savedir)
