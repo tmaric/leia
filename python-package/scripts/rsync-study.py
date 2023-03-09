@@ -31,13 +31,13 @@ def main():
     #---------------------------------------------------------------------------
 
     excludes =[
-        "*[0-9][0-9][0-9][0-9][0-9]*/*",
+        "*_[0-9][0-9][0-9][0-9][0-9]_*/*",
         "*tmp*"
     ]
 
     excludes_flags = " ".join(["--exclude=" + ex for ex in excludes])
 
-    rsync_cmd = f"rsync -avu --relative {excludes_flags} {args.source} {args.destination}"
+    rsync_cmd = f"rsync -avu {excludes_flags} {args.source} {args.destination}"
 
     run(rsync_cmd, shell=True, check=True)
 
