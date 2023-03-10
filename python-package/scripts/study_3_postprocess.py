@@ -8,14 +8,17 @@ import pandas as pd
 import os.path
 import warnings
 from leia import database
+import yaml
+
+merge_csv = ['leiaLevelSetFoam.csv', 'gradPsiError.csv', 'TVerror.csv']
 
 app_description = \
-"""
+f"""
 Use this script to merge and concatenate case specific postprocessing CSV data into one large CSV file.
 It also computes and add convergencerates of all error properties according to the called script `convergencerates.py`.
 
 Summary:
-- merges leiaLevelSetFoam.csv, gradPsierror.csv in all study cases into merged.csv
+- merges {merge_csv} in all study cases into merged.csv
 - gather-study-data.py of all cases related to a pyFoam variation study
 - calcs convergencerates and add them as columns if 'N_CELLS' was a study parameter
 - concatenates the DataFrame to an existing database CSV or creates a new one"
@@ -43,42 +46,8 @@ def merge_csv_in_cases(casesfile, csv_list):
             merged_df = pd.merge(merged_df, df, how='outer', on='TIME')
         merged_df.to_csv(os.path.join(case, "merged.csv"), index=False)
     return "merged.csv"
-         
 
-def main():
-
-    #---- Command line arguments ----------------------------------------------
-    parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
-
-    parser.add_argument("variationfile",
-                        help="Variationfile where pyFoam stores mapping of study variation number to parameter vector.",
-                        )
-
-    parser.add_argument("-l", "--casesfile",
-                        help="Casesfile where each case basename is stored in a separated line.",
-                        required=True,
-                        dest="casesfile")
-    
-    parser.add_argument("--skip-convergence",
-                    action='store_true',
-                    help="Skipping calculation of convergence columns.",
-                    required=False,
-                    )
-
-
-    parser.add_argument("-s", "--study-csv",
-                        help="Study-CSV file where the whole study postprocessing data will be stored. Convergencerates will be added as columns.",
-                        required=False,
-                        default="tmp.csv",
-                        dest="study_csv")
-
-    parser.add_argument("-d", "--database-csv",
-                        help="Path to the postprocessing CSV file in a case instance of the study, like `3Ddeformation_study_00000_3Ddeformation/leiaLevelSetFoam.csv`",
-                        required=False,
-                        dest="database_csv")
-
-    args = parser.parse_args()
-
+def parse_manual(args):
     if args.database_csv is None:
         cwd = os.path.abspath(os.getcwd())
         parents = cwd.split('/')
@@ -89,12 +58,61 @@ def main():
                 break
         else:
             args.database_csv = f'study_database.csv'
-            print(f"Using study database default name: {args.database_csv}")
+            print(f"Using study database default name: {args.database_csv}")   
+    return args
+
+def parse_studydir(args):
+    basename_studydir = os.path.basename(os.path.abspath(args.studydir))
+    studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
+    with open(studyinfofile, 'r') as file:
+        info = yaml.safe_load(file)
+    args.database_csv   = info["studyname"] + '_database.csv'
+    args.casesfile      = info["casesfile"]
+    args.variationfile  = info["pyFoam_variationfile"]
+    return args
+
+def main():
+
+    #---- Command line arguments ----------------------------------------------
+    parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
+    parser.add_argument("--skip-convergence",
+                    action='store_true',
+                    help="Skipping calculation of convergence columns.",
+                    required=False,
+                    )
+    parser.add_argument("-d", "--database-csv",
+                        help="Provide a different database CSV file name.",
+                        required=False,
+                        dest="database_csv")
+    
+    subparsers = parser.add_subparsers()
+
+    subparsers_studydir = subparsers.add_parser('studydir', help='Postprocess studies inside a studydir with a .info file.')    
+    subparsers_studydir.set_defaults(func=parse_studydir)
+    subparsers_studydir.add_argument("studydir",
+                        help="Provide the study directory with the .info yaml file inside it to fetch all meta data.",
+                        metavar='STUDYDIR',
+                        )
+    
+    subparsers_manual = subparsers.add_parser('manual', help='Postprocess studies inside a studydir and provide all meta info manual.')
+    subparsers_manual.set_defaults(func=parse_manual)
+    subparsers_manual.add_argument("casesfile",
+                        help="Casesfile where each case basename is stored in a separated line.",
+                        )
+    subparsers_manual.add_argument("variationfile",
+                        help="Variationfile where pyFoam stores mapping of study variation number to parameter vector.",
+                        )
+
+    args = parser.parse_args()
+    args = args.func(args)
+
+    study_csv = 'tmp.csv'
+
              
 
     #---------------------------------------------------------------------------
 
-    merge_csv = ['leiaLevelSetFoam.csv', 'gradPsiError.csv', 'TVerror.csv']
+    
 
     print("Merge all postprocessing CSV in all concrete cases.")
     merged_csv_str = merge_csv_in_cases(args.casesfile, merge_csv)
@@ -105,21 +123,21 @@ def main():
     instance_case_csv = os.path.join(firstcase, merged_csv_str)
 
     print("Gather merged.csv from concrete cases and assemble one big CSV.")
-    cmd_str_gather = f"gather-study-data.py -v {quote(args.variationfile)} -f {quote(args.study_csv.removesuffix('.csv'))} {instance_case_csv}"
+    cmd_str_gather = f"gather-study-data.py -v {quote(args.variationfile)} -f {quote(study_csv.removesuffix('.csv'))} {instance_case_csv}"
     run(cmd_str_gather, check=True, shell=True)
 
     print("Sort big CSV according to case folder names and TIME.")
-    cmd_str_sort = f"sort-csv.py -i {quote(args.study_csv)}"
+    cmd_str_sort = f"database_sort.py -i {quote(study_csv)}"
     run(cmd_str_sort, check=True, shell=True)
 
-    refinementparameter = database.get_refinementparameter(pd.read_csv(args.study_csv))
+    refinementparameter = database.get_refinementparameter(pd.read_csv(study_csv))
     if not args.skip_convergence and refinementparameter is not None:
         print("Study investigates refinemenet. Calculate convergence rates and add to CSV.")
-        cmd_str_conver = f"convergencerates.py --write -r {refinementparameter} {quote(args.study_csv)}"
+        cmd_str_conver = f"convergencerates.py --write -r {refinementparameter} {quote(study_csv)}"
         run(cmd_str_conver, check=True, shell=True)
     
     print(f"Set up 2-level column structure and concatenate to {args.database_csv}")
-    cmd_str_add = f"add-csv-to-database.py {quote(args.study_csv)} {quote(args.database_csv)}"
+    cmd_str_add = f"add-csv-to-database.py {quote(study_csv)} {quote(args.database_csv)}"
     run(cmd_str_add, check=True, shell=True)
 
 
