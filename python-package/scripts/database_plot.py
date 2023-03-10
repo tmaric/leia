@@ -146,6 +146,7 @@ def time_property_dict(template, study, mesh=''):
 def filter_studydf(study_df, column, value):
     study_df = study_df.loc[study_df[column] == value]
     study_df = study_df.drop(column, axis='columns', inplace=False)
+    study_df.reset_index()
     return study_df
 
 def main():
