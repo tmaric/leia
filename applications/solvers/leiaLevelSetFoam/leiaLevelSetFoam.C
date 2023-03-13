@@ -90,15 +90,19 @@ int main(int argc, char *argv[])
 
     #include "errorCalculation.H"
 
+    // while (runTime.run() || runTime < runTime.endTime())
     while (runTime.run())
     {
         #include "CourantNo.H"
 
-        // if last timestep would overshoot endTime, set deltaT
-        if ((runTime.endTime() - runTime) < runTime.deltaT())
-        {
-            runTime.setDeltaT((runTime.endTime() - runTime), false);
-        }
+        // // if last timestep would overshoot endTime, set deltaT
+        // if ((runTime.endTime() - runTime) < runTime.deltaT())
+        // {
+        //     runTime.setDeltaT((runTime.endTime() - runTime), false);
+        // }
+
+        // Testing
+        // runTime.setDeltaT(0.005, false);
 
         ++runTime;
         Info<< "Time = " << runTime.timeName() << endl;
@@ -137,6 +141,13 @@ int main(int argc, char *argv[])
 
         runTime.write();
         runTime.printExecutionTime(Info);
+        
+        // if last timestep would overshoot endTime, set deltaT
+        if ((runTime.endTime() - runTime) < runTime.deltaT())
+        {
+            runTime.setDeltaT((runTime.endTime() - runTime), false);
+        }
+
     }
 
     psi.write();
