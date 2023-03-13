@@ -33,7 +33,7 @@ module purge
 
 echo "LOAD ENVIRONMENT"
 ml gcc/10.2.0 openmpi/4.1.4 
-source /work/home/jr87keli/OpenFOAM/OpenFOAM-v2212/etc/bashrc
+source /work/groups/da_mma_b/OpenFOAM-v2212/etc/bashrc
 
 echo "Modules:"
 module list
