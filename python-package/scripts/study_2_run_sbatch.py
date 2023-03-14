@@ -21,8 +21,9 @@ def parse_arguments():
                     help=""
                     )
     
-    parser.add_argument("allrun_script", 
-                    help=""
+    parser.add_argument("slurm_allrun_script", 
+                    help="",
+                    dest='allrun_script'
                     )
     
     return parser.parse_args()

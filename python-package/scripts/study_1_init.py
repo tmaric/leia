@@ -74,14 +74,13 @@ def create_concrete_casesfile(args):
     return casesfile
 
 def add_to_infofile(args):
-    infofile = os.path.basename(args.studydir + '.info')
     cmd = f"""(
             echo "casesfile: {args.casesfile}";
             echo "pyFoam_variationfile: {args.pyFoam_variationfile}";
             echo "json_variationfile: {args.json_variationfile}";
             echo "inittime: {time.strftime(time_format)}";
             echo "";
-        ) >> {infofile}"""
+        ) >> {args.infofile}"""
     run(cmd, shell=True, check=True)
 
 
@@ -107,8 +106,8 @@ def main():
     args = parse_arguments()
 
     basename_studydir = os.path.basename(os.path.abspath(args.studydir))
-    studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
-    with open(studyinfofile, 'r') as file:
+    args.studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
+    with open(args.studyinfofile, 'r') as file:
         info = yaml.safe_load(file)
 
     args.metaname = info['metaname']

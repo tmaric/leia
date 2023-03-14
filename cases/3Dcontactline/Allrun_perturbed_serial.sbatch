@@ -32,7 +32,7 @@ echo "Current PWD: $PWD"
 module purge
 
 echo "LOAD ENVIRONMENT"
-ml gcc/10.2.0 openmpi/4.1.4 
+ml gcc/10.2.0 openmpi/4.1.4 python
 source /work/groups/da_mma_b/OpenFOAM-v2212/etc/bashrc
 
 echo "Modules:"
