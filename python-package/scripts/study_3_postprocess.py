@@ -48,6 +48,7 @@ def merge_csv_in_cases(casesfile, csv_list):
     return "merged.csv"
 
 def parse_manual(args):
+    args.studydir = '.'
     if args.database_csv is None:
         cwd = os.path.abspath(os.getcwd())
         parents = cwd.split('/')
@@ -69,6 +70,7 @@ def parse_studydir(args):
     args.database_csv   = os.path.join(args.studydir, info["metaname"] + '_database.csv')
     args.casesfile      = os.path.join(args.studydir, info["casesfile"])
     args.variationfile  = os.path.join(args.studydir, info["pyFoam_variationfile"])
+    args.endTimesfile   = os.path.join(args.studydir, args.endTimesfile)
     return args
 
 def main():
@@ -104,6 +106,7 @@ def main():
                         )
 
     args = parser.parse_args()
+    args.endTimesfile = 'endTimes.txt'
     args = args.func(args)
 
     study_csv = 'tmp.csv'
@@ -112,7 +115,9 @@ def main():
 
     #---------------------------------------------------------------------------
 
-    
+    print(f"Save endTimes of concrete cases to {args.endTimesfile}")
+    cmd_str_endTimes = f"study_print-endTimes.sh {args.studydir} > {args.endTimesfile}"
+    run(cmd_str_endTimes, check=True, shell=True)
 
     print("Merge all postprocessing CSV in all concrete cases.")
     merged_csv_str = merge_csv_in_cases(args.casesfile, merge_csv)
