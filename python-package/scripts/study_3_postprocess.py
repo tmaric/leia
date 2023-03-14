@@ -14,7 +14,7 @@ merge_csv = ['leiaLevelSetFoam.csv', 'gradPsiError.csv', 'TVerror.csv']
 
 app_description = \
 f"""
-Use this script to merge and concatenate case specific postprocessing CSV data into one large CSV file.
+Use this script to merge and concatenate case specific postprocessing CSV data into one large database CSV file.
 It also computes and add convergencerates of all error properties according to the called script `convergencerates.py`.
 
 Summary:
@@ -24,7 +24,7 @@ Summary:
 - concatenates the DataFrame to an existing database CSV or creates a new one"
 
 Note:
-Call this script from the directory where the study cases are.
+Call this script from inside the directory where the concrete study cases lie.
 """
 
 def merge_csv_in_cases(casesfile, csv_list):
@@ -66,9 +66,9 @@ def parse_studydir(args):
     studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
     with open(studyinfofile, 'r') as file:
         info = yaml.safe_load(file)
-    args.database_csv   = info["studyname"] + '_database.csv'
-    args.casesfile      = info["casesfile"]
-    args.variationfile  = info["pyFoam_variationfile"]
+    args.database_csv   = os.path.join(args.studydir, info["metaname"] + '_database.csv')
+    args.casesfile      = os.path.join(args.studydir, info["casesfile"])
+    args.variationfile  = os.path.join(args.studydir, info["pyFoam_variationfile"])
     return args
 
 def main():
@@ -80,7 +80,7 @@ def main():
                     help="Skipping calculation of convergence columns.",
                     required=False,
                     )
-    parser.add_argument("-d", "--database-csv",
+    parser.add_argument("-n", "--name",
                         help="Provide a different database CSV file name.",
                         required=False,
                         dest="database_csv")
@@ -93,7 +93,7 @@ def main():
                         help="Provide the study directory with the .info yaml file inside it to fetch all meta data.",
                         metavar='STUDYDIR',
                         )
-    
+        
     subparsers_manual = subparsers.add_parser('manual', help='Postprocess studies inside a studydir and provide all meta info manual.')
     subparsers_manual.set_defaults(func=parse_manual)
     subparsers_manual.add_argument("casesfile",
