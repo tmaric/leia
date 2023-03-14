@@ -23,7 +23,6 @@ def parse_arguments():
     
     parser.add_argument("slurm_allrun_script", 
                     help="",
-                    dest='allrun_script'
                     )
     
     return parser.parse_args()
@@ -40,7 +39,7 @@ def main():
     os.chdir(args.studydir)
 
     cmd = f"""
-    cat {info['casesfile']} | xargs -I[] bash -c 'cd [] && sbatch {args.allrun_script};  sleep 1s'
+    cat {info['casesfile']} | xargs -I[] bash -c 'cd [] && sbatch {args.slurm_allrun_script};  sleep 1s'
     """
 
     run(cmd, shell=True)
