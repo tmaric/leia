@@ -106,8 +106,8 @@ def main():
     args = parse_arguments()
 
     basename_studydir = os.path.basename(os.path.abspath(args.studydir))
-    args.studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
-    with open(args.studyinfofile, 'r') as file:
+    args.infofile = os.path.join(args.studydir, f"{basename_studydir}.info")
+    with open(args.infofile, 'r') as file:
         info = yaml.safe_load(file)
 
     args.metaname = info['metaname']
