@@ -7,10 +7,9 @@ from shlex import quote
 import pandas as pd
 import os.path
 import warnings
-from leia import database
+import leia
 import yaml
 
-merge_csv = ['leiaLevelSetFoam.csv', 'gradPsiError.csv', 'TVerror.csv']
 
 app_description = \
 f"""
@@ -18,34 +17,13 @@ Use this script to merge and concatenate case specific postprocessing CSV data i
 It also computes and add convergencerates of all error properties according to the called script `convergencerates.py`.
 
 Summary:
-- merges {merge_csv} in all study cases into merged.csv
-- gather-study-data.py of all cases related to a pyFoam variation study
-- calcs convergencerates and add them as columns if 'N_CELLS' was a study parameter
-- concatenates the DataFrame to an existing database CSV or creates a new one"
+- list endTimes of all cases into file.
+- agglomerate {leia.studydir.CASE_CSVs} in all study cases to one study CSV file, which has 2-level columns structure.
+- If study investigate refinement, also convergencerates are calculated and added to the CSV
 
 Note:
 Call this script from inside the directory where the concrete study cases lie.
 """
-
-def merge_csv_in_cases(casesfile, csv_list):
-    with open(casesfile, 'r', encoding='utf-8') as file:
-            cases = file.readlines() 
-    cases = [ case_str.removesuffix('\n') for case_str in cases]
-    
-    for case in cases:
-        if not os.path.isdir(case):
-            warnings.warn(f"Skipping {case}. Is no directory")
-            continue
-        merged_df = pd.DataFrame(columns=['TIME'])
-        for csv in csv_list:
-            csv_path = os.path.join(case, csv)
-            if not os.path.isfile(csv_path):
-                warnings.warn(f"Skipping {csv_path}. Is no file")
-                continue
-            df = pd.read_csv(os.path.join(case, csv))
-            merged_df = pd.merge(merged_df, df, how='outer', on='TIME')
-        merged_df.to_csv(os.path.join(case, "merged.csv"), index=False)
-    return "merged.csv"
 
 def parse_manual(args):
     args.studydir = '.'
@@ -73,9 +51,7 @@ def parse_studydir(args):
     args.endTimesfile   = os.path.join(args.studydir, args.endTimesfile)
     return args
 
-def main():
-
-    #---- Command line arguments ----------------------------------------------
+def parse_arguments():
     parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
     parser.add_argument("--skip-convergence",
                     action='store_true',
@@ -107,43 +83,24 @@ def main():
 
     args = parser.parse_args()
     args.endTimesfile = 'endTimes.txt'
-    args = args.func(args)
+    return args.func(args)
 
-    study_csv = 'tmp.csv'
-
-             
-
-    #---------------------------------------------------------------------------
+def main():
+    args = parse_arguments()
 
     print(f"Save endTimes of concrete cases to {args.endTimesfile}")
     cmd_str_endTimes = f"study_print-endTimes.sh {args.studydir} > {args.endTimesfile}"
     run(cmd_str_endTimes, check=True, shell=True)
 
-    print("Merge all postprocessing CSV in all concrete cases.")
-    merged_csv_str = merge_csv_in_cases(args.casesfile, merge_csv)
+    print(f"Agglomerate {leia.studydir.CASE_CSVs} of all cases with metadata and studyparameters into {args.database_csv}")
+    cmd_str_agglo = f"study_agglomerate-database.py {args.studydir} {args.database_csv}"
+    run(cmd_str_agglo, check=True, shell=True)
 
-
-    with open(args.casesfile, 'r', encoding='utf-8') as file:
-            firstcase = file.readline().removesuffix('\n')
-    instance_case_csv = os.path.join(firstcase, merged_csv_str)
-
-    print("Gather merged.csv from concrete cases and assemble one big CSV.")
-    cmd_str_gather = f"gather-study-data.py -v {quote(args.variationfile)} -f {quote(study_csv.removesuffix('.csv'))} {instance_case_csv}"
-    run(cmd_str_gather, check=True, shell=True)
-
-    print("Sort big CSV according to case folder names and TIME.")
-    cmd_str_sort = f"database_sort.py -i {quote(study_csv)}"
-    run(cmd_str_sort, check=True, shell=True)
-
-    refinementparameter = database.get_refinementparameter(pd.read_csv(study_csv))
+    refinementparameter = leia.studycsv.get_refinementlabel(pd.read_csv(args.database_csv, header=[0,1]))[1]
     if not args.skip_convergence and refinementparameter is not None:
-        print("Study investigates refinemenet. Calculate convergence rates and add to CSV.")
-        cmd_str_conver = f"convergencerates.py --write -r {refinementparameter} {quote(study_csv)}"
+        print(f"Study investigates refinemenet. Calculate convergence rates and add them to {args.database_csv}")
+        cmd_str_conver = f"database_add-convergence.py --inplace --refinement-parameter {refinementparameter} {args.database_csv}"
         run(cmd_str_conver, check=True, shell=True)
-    
-    print(f"Set up 2-level column structure and concatenate to {args.database_csv}")
-    cmd_str_add = f"add-csv-to-database.py {quote(study_csv)} {quote(args.database_csv)}"
-    run(cmd_str_add, check=True, shell=True)
 
 
 

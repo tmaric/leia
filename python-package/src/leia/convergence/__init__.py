@@ -12,27 +12,30 @@ def _check(df):
     if df.shape[0] > 1: 
         assert is_sorted(df.iloc[:,0].values), 'DataFrame zeroth column, representing time values, is not sorted!'
 
-
+def _label(label, format_func):
+    """
+    Accepts string or tuple length 2 for MultiIndex labels.
+    """
+    if isinstance(label, str): # normal label
+        return format_func(label)
+    elif isinstance(label, tuple) and len(label)==2: # Multiindexlabel
+        return (label[0], format_func(label[1]))
+    else:
+        raise TypeError("Label must be string or lenght 2 tuple for MultiInde label.")
 
 def global_label(label):
-    label = database.drop_multilabel(label)
+    """
+    Accepts string or tuple length 2 for MultiIndex labels.
+    """
     format = lambda label: f"O({label})"
-    if isinstance(label, str):
-        return format(label)
-    elif isinstance(label, list):
-        return [format(lab) for lab in label]
-    else:
-        raise TypeError("label must be string or list")
+    return _label(label, format)
 
 def local_label(label):
-    label = database.drop_multilabel(label)
+    """
+    Accepts string or tuple length 2 for MultiIndex labels.
+    """
     format = lambda label: f"O_LOCAL({label})"
-    if isinstance(label, str):
-        return format(label)
-    elif isinstance(label, list):
-        return [format(lab) for lab in label]
-    else:
-        raise TypeError("label must be string or list")
+    return _label(label, format)
 
 def get_value(df):
     """
@@ -54,6 +57,8 @@ def get_value(df):
 
 def get_values(df, key, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
     """
+    Accepts columns as label or lenth 2 tuple for MultiIndex label.
+
     Parameter
     =========
     df: pd.DataFrame
@@ -63,8 +68,6 @@ def get_values(df, key, time='TIME', deltaX='DELTA_X', refinement_parameter='N_C
         Column name of the property for which the convergence should be calculated.
     """
     tmp = df.copy()
-    tmp.columns = database.drop_multiindex(tmp.columns)
-    key = database.drop_multilabel(key)
     gb = tmp.groupby(by=refinement_parameter, sort=False)
     list_ = []
     for ref_param, case_df in gb:
@@ -91,10 +94,6 @@ def calc_global_convergence(array: np.ndarray):
     """
     assert array.shape[0] >= 2, "For convergence calculation the provided np.ndarray needs at least 2 rows."
     return np.polyfit(np.log10(array[:,0]), np.log10(array[:,1]), 1)[0]
-
-def get_global_convergence(df, key, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
-    values_np = get_values(df, key, time, deltaX, refinement_parameter)
-    return calc_global_convergence(values_np)
 
 def calc_local_convergence(array: np.ndarray):
     """
@@ -124,12 +123,54 @@ def calc_local_convergence(array: np.ndarray):
     deltaXs = array[:,0]
     return np.vstack((deltaXs, np.stack(list_))).T
 
-def get_local_convergence(df, key, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
+def _get_convergence(refinement_df, key, calc_func, *, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
+    columns = [key, time, deltaX, refinement_parameter]
+    if not all([isinstance(col, str) for col in columns]) and \
+        not all([isinstance(col, tuple) for col in columns]):
+            raise RuntimeError(f"Columnlabels must be all strings or length 2 tuples for MultiIndex.\
+                            \ncolumns = {columns}"
+            )
+
+    values_np = get_values(refinement_df, key, time, deltaX, refinement_parameter)
+    return calc_func(values_np)
+
+def get_global_convergence(refinement_df, key, *, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
     """
+    Accepts columns as label or lenth 2 tuple for MultiIndex label.
+
+    Parameters
+    ==========
+    df: pd.DataFrame
+        Refinement DataFrame, which is a concatenated DataFrame which contains cases of on refinement group.
+        Studyparameters vary only in the refinement parameter.
+    key: str
+        Column name of the property for which the convergence should be calculated.
+    """
+    return _get_convergence(refinement_df, key, calc_global_convergence, 
+                            time=time, 
+                            deltaX=deltaX, 
+                            refinement_parameter=refinement_parameter)
+
+
+def get_local_convergence(refinement_df, key, *, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
+    """
+    Accepts columns as label or lenth 2 tuple for MultiIndex label.
+
+    Parameters
+    ==========
+    df: pd.DataFrame
+        Refinement DataFrame, which is a concatenated DataFrame which contains cases of on refinement group.
+        Studyparameters vary only in the refinement parameter.
+    key: str
+        Column name of the property for which the convergence should be calculated.
+
     Returns
     -------
     pandas.DataFrame: convergence rate
     """
-    values_np = get_values(df, key, time, deltaX, refinement_parameter)
-    convergence_np = calc_local_convergence(values_np)
-    return pd.DataFrame(convergence_np, columns=[deltaX, f'O_LOCAL({key})'])
+    convergence_np = _get_convergence(refinement_df, key, calc_local_convergence, 
+                                      time=time, 
+                                      deltaX=deltaX, 
+                                      refinement_parameter=refinement_parameter
+                                      )
+    return pd.DataFrame(convergence_np, columns=pd.Index([deltaX, local_label(key)]))

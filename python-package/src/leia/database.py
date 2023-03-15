@@ -66,34 +66,34 @@ def drop_multilabel(label):
 def mtime_str(file):
     return time.strftime(time_format, time.localtime(os.path.getmtime(file)))
 
-def groupcolumns(columns_orig):
-    columns = columns_orig.copy()
-    potential_database = database_columns.copy()
+# def groupcolumns(columns_orig):
+#     columns = columns_orig.copy()
+#     potential_database = database_columns.copy()
     
-    gr = {
-        'database':list(),
-        'studyparameters':list(),
-        'case':list()
-    }
+#     gr = {
+#         'database':list(),
+#         'studyparameters':list(),
+#         'case':list()
+#     }
 
-    # Assumes first columns are studyparameters
-    for i, column in enumerate(columns_orig):
-        if column in potential_database:
-            break
-        else:
-            gr['studyparameters'].append(columns.pop(0))
+#     # Assumes first columns are studyparameters
+#     for i, column in enumerate(columns_orig):
+#         if column in potential_database:
+#             break
+#         else:
+#             gr['studyparameters'].append(columns.pop(0))
 
-    # Assumes database columns are in the list potential_database
-    for column in columns_orig[i:]:
-        if column in potential_database:
-            gr['database'].append(column)
-            columns.remove(column)
+#     # Assumes database columns are in the list potential_database
+#     for column in columns_orig[i:]:
+#         if column in potential_database:
+#             gr['database'].append(column)
+#             columns.remove(column)
 
-    # Assumes rest of columns are case columns
-    gr['case'].extend(columns)
+#     # Assumes rest of columns are case columns
+#     gr['case'].extend(columns)
 
-    assert len(gr['database']) + len(gr['studyparameters']) + len(gr['case']) == len(columns_orig)
-    return gr
+#     assert len(gr['database']) + len(gr['studyparameters']) + len(gr['case']) == len(columns_orig)
+#     return gr
 
 def get_refinementparameter(study_df):
     """
@@ -164,7 +164,8 @@ def filter_parameter(study_df, study_dict, parameter=(('studyparameters','N_CELL
 
 def get_raw_label(df):
     mi = df.columns
-    studyparameters = mi[mi.get_loc_level('studyparameters')[0]]
+    # studyparameters = mi[mi.get_loc_level('studyparameters')[0]]
+    studyparameters = mi[mi.get_loc('studyparameters')]
     list_ = []
     for param in studyparameters:
         unique = df[param].unique()

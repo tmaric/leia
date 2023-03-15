@@ -65,11 +65,10 @@ def agglomerate_study_data(args, cases, CSVs):
 def parse_arguments():
     parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
     parser.add_argument("studydir",
-                    help="",
+                    help="Top level study directory with the .info file.",
                     )
-    parser.add_argument("-n","--csv-name",
-                    help="",
-                    required=False
+    parser.add_argument("studyCSV",
+                    help="File where aggolomerated DataFrame will be stored.",
                     )
     parser.add_argument("--flat-columns",
                     help="Provide if you don't want the 2-level columns structure, just one column level. ",
@@ -101,11 +100,11 @@ def main():
     cases = leia.studydir.filter_existing_cases(cases)
     study_df = agglomerate_study_data(args, cases, CSVs)
 
-    if args.csv_name is not None:
-        csv_name = args.csv_name
+    if args.studyCSV is not None:
+        studyCSV = args.studyCSV
     else:
-        csv_name = os.path.join(args.studydir, args.metaname + '_1lvlcol.csv')
-    study_df.to_csv(csv_name, index=False)
+        studyCSV = os.path.join(args.studydir, args.metaname + '_1lvlcol.csv')
+    study_df.to_csv(studyCSV, index=False)
 
 
 if __name__ == "__main__":
