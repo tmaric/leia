@@ -12,17 +12,47 @@ import os.path
 import os
 from leia import convergence
 from leia.convergence import _config
+import yaml
 
 time_format = "%Y-%m-%d_%H%M%S"
 
 firstlvl_sublabels = ['database', 'studyparameters', 'case']
 
-database_sublabels = ['CASE', 'TEMPLATE', 'M_TIME', 'USER']
+def get_template(studydir):
+    basename_studydir = os.path.basename(os.path.abspath(studydir))
+    infofile = os.path.join(studydir, f"{basename_studydir}.info")
+    with open(infofile, 'r') as file:
+        info = yaml.safe_load(file)
+    return info['templatecase']
+
+def get_case(casedir):
+    return os.path.basename(os.path.abspath(casedir))
+
+def get_mtime(casedir):
+    return time.strftime(time_format, time.localtime(os.path.getmtime(casedir)))
+
+def get_user():
+    return os.getlogin()
+
+database_sublabels = ['TEMPLATE', 'CASE', 'USER', 'M_TIME']
 
 refinement_labels = [('studyparameters','N_CELLS'), ('studyparameters','MAX_CELL_SIZE')]
 
 time_label = ('case', 'TIME')
 
+def get_database_parameter_for_case(studydir, casedir, columnlevel=2) -> dict:
+    if columnlevel == 1:
+        dict_ = {
+            'TEMPLATE'  : get_template(studydir),
+            'CASE'      : get_case(casedir),
+            'USER'      : get_user(),
+            'M_TIME'    : get_mtime(casedir),
+        }
+        return dict_
+    elif columnlevel == 2:
+        raise NotImplemented("Columnlvl=2 not implemented")
+    else:
+        raise RuntimeError("Choose {1,2} for columnlvl.")
 
 def get_refinementlabel(study_df):
     """
