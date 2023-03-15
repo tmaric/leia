@@ -52,7 +52,7 @@ def convergenceplot(study_df, prop):
     if len(studyparameters) == 1:
         studyparameters = studyparameters[0]
 
-    convergence_gb = study_df.groupby(studyparameters, sort=False)
+    refinement_gb = study_df.groupby(studyparameters, sort=False)
 
     def unique_1significant(values):
         unique_ = []
@@ -86,13 +86,13 @@ def convergenceplot(study_df, prop):
     
     convergence_ref = 1e6
 
-    for id, (parameters, convergence_df) in enumerate(convergence_gb):
-        res_val_np = convergence.get_values(convergence_df, column, refinement_parameter=refinementlabel[1])
+    for id, (parameters, refinement_df) in enumerate(refinement_gb):
+        res_val_np = convergence.get_values(refinement_df, column, refinement_parameter=refinementlabel[1])
         resolutions = res_val_np[:,0]
         values = res_val_np[:,1]
         convergence_ref = min(convergence_ref, values[0])
         leg_label = database.get_raw_label(
-                                convergence_df.drop(studycsv.get_refinementlabel(convergence_df), axis='columns')
+                                refinement_df.drop(studycsv.get_refinementlabel(refinement_df), axis='columns')
                     )
         leg_label = detox_label(leg_label)
         ax.plot(resolutions, values, marker='x',label=leg_label)
