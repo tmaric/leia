@@ -14,7 +14,7 @@ import yaml
 app_description = \
 f"""
 Use this script to merge and concatenate case specific postprocessing CSV data into one large database CSV file.
-It also computes and add convergencerates of all error properties according to the called script `convergencerates.py`.
+It also computes and add convergencerates of all error properties.
 
 Summary:
 - list endTimes of all cases into file.
@@ -25,20 +25,20 @@ Note:
 Call this script from inside the directory where the concrete study cases lie.
 """
 
-def parse_manual(args):
-    args.studydir = '.'
-    if args.database_csv is None:
-        cwd = os.path.abspath(os.getcwd())
-        parents = cwd.split('/')
-        for parent in reversed(parents):
-            if parent.startswith("study_"):
-                args.database_csv = f"{parent}_database.csv"
-                print(f"Using inferred study database name: {args.database_csv}")
-                break
-        else:
-            args.database_csv = f'study_database.csv'
-            print(f"Using study database default name: {args.database_csv}")   
-    return args
+# def parse_manual(args):
+#     args.studydir = '.'
+#     if args.database_csv is None:
+#         cwd = os.path.abspath(os.getcwd())
+#         parents = cwd.split('/')
+#         for parent in reversed(parents):
+#             if parent.startswith("study_"):
+#                 args.database_csv = f"{parent}_database.csv"
+#                 print(f"Using inferred study database name: {args.database_csv}")
+#                 break
+#         else:
+#             args.database_csv = f'study_database.csv'
+#             print(f"Using study database default name: {args.database_csv}")   
+#     return args
 
 def parse_studydir(args):
     basename_studydir = os.path.basename(os.path.abspath(args.studydir))
@@ -62,28 +62,34 @@ def parse_arguments():
                         help="Provide a different database CSV file name.",
                         required=False,
                         dest="database_csv")
-    
-    subparsers = parser.add_subparsers()
 
-    subparsers_studydir = subparsers.add_parser('studydir', help='Postprocess studies inside a studydir with a .info file.')    
-    subparsers_studydir.set_defaults(func=parse_studydir)
-    subparsers_studydir.add_argument("studydir",
+    parser.add_argument("studydir",
                         help="Provide the study directory with the .info yaml file inside it to fetch all meta data.",
                         metavar='STUDYDIR',
                         )
+
+    # subparsers = parser.add_subparsers()
+
+    # subparsers_studydir = subparsers.add_parser('studydir', help='Postprocess studies inside a studydir with a .info file.')    
+    # subparsers_studydir.set_defaults(func=parse_studydir)
+    # subparsers_studydir.add_argument("studydir",
+    #                     help="Provide the study directory with the .info yaml file inside it to fetch all meta data.",
+    #                     metavar='STUDYDIR',
+    #                     )
         
-    subparsers_manual = subparsers.add_parser('manual', help='Postprocess studies inside a studydir and provide all meta info manual.')
-    subparsers_manual.set_defaults(func=parse_manual)
-    subparsers_manual.add_argument("casesfile",
-                        help="Casesfile where each case basename is stored in a separated line.",
-                        )
-    subparsers_manual.add_argument("variationfile",
-                        help="Variationfile where pyFoam stores mapping of study variation number to parameter vector.",
-                        )
+    # subparsers_manual = subparsers.add_parser('manual', help='Postprocess studies inside a studydir and provide all meta info manual.')
+    # subparsers_manual.set_defaults(func=parse_manual)
+    # subparsers_manual.add_argument("casesfile",
+    #                     help="Casesfile where each case basename is stored in a separated line.",
+    #                     )
+    # subparsers_manual.add_argument("variationfile",
+    #                     help="Variationfile where pyFoam stores mapping of study variation number to parameter vector.",
+    #                     )
 
     args = parser.parse_args()
     args.endTimesfile = 'endTimes.txt'
-    return args.func(args)
+    # return args.func(args)
+    return parse_studydir(args)
 
 def main():
     args = parse_arguments()

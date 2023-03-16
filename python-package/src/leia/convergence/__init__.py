@@ -2,6 +2,7 @@ from . import _config
 import pandas as pd
 import numpy as np
 from leia import database
+import warnings
 
 
 
@@ -106,7 +107,9 @@ def calc_global_convergence(array: np.ndarray):
     -------
     float: convergence rate
     """
-    assert array.shape[0] >= 2, "For convergence calculation the provided np.ndarray needs at least 2 rows."
+    if array.shape[0] < 2:
+        # warnings.warn("Convergence calculation needs at least 2 rows in np.ndarray. Returning NaN.")
+        return float('NaN')
     return np.polyfit(np.log10(array[:,0]), np.log10(array[:,1]), 1)[0]
 
 def calc_local_convergence(array: np.ndarray):
@@ -129,17 +132,22 @@ def calc_local_convergence(array: np.ndarray):
     """
 
     list_ = []
-    for i in range(1, array.shape[0]):
-        rows = range(i-1,i+1)
-        local_array = array[rows, :]
-        list_.append(calc_global_convergence(local_array))
-    list_.insert(0, list_[0])
-    deltaXs = array[:,0]
-    return np.vstack((deltaXs, np.stack(list_))).T
+    if array.shape[0] >= 2:
+        for i in range(1, array.shape[0]):
+            rows = range(i-1,i+1)
+            local_array = array[rows, :]
+            list_.append(calc_global_convergence(local_array))
+        list_.insert(0, list_[0])
+        deltaXs = array[:,0]
+        return np.vstack((deltaXs, np.stack(list_))).T
+    elif array.shape[0] == 1:
+        return np.array([array[:,0], np.array([np.nan])]).T
+    else:
+        raise NotImplemented()
 
 def _get_convergence(refinement_df, key, calc_func, *, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
     _check_labels([key, time, deltaX, refinement_parameter])
-    values_np = get_values(refinement_df, key, time, deltaX, refinement_parameter)
+    values_np = get_values(refinement_df, key, time=time, deltaX=deltaX, refinement_parameter=refinement_parameter)
     return calc_func(values_np)
 
 def get_global_convergence(refinement_df, key, *, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
