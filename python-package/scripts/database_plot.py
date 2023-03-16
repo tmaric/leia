@@ -192,9 +192,6 @@ def main():
 
     if args.savedir is None:
         args.savedir = os.path.abspath(os.path.dirname(study_csv))
-        # savedir = f"/home/julian/Masterthesis/meetings/next/{study}"
-        # savedir = f"/home/julian/.local/share/Trash/files/{study}"
-
 
     os.makedirs(args.savedir, exist_ok=True)
 
@@ -247,13 +244,13 @@ def nsmallest_table(study_df, properties, savedir):
     for prop in properties.values():
         if refinement_label is not None:
             columns = [
-                prop.column[1],
-                f"O({prop.column[1]})",
-                f"O_LOCAL({prop.column[1]})",
+                prop.column,
+                ('case', f"O({prop.column[1]})"),
+                ('case', f"O_LOCAL({prop.column[1]})"),
             ]
         else:
             columns = [ 
-                    prop.column[1],
+                    prop.column,
                 ]
             
         error_df = database.df_represantive_error_rows(study_df, prop.column)
@@ -301,10 +298,6 @@ def best_convergenceplot(study_df, properties, savedir):
         fig.savefig(os.path.join(savedir, f'{prop.figBestConv.figname}.jpg'), bbox_inches='tight')
         fig.savefig(os.path.join(savedir, f'{prop.figBestConv.figname}.pdf'), bbox_inches='tight')
         plt.close(fig)
-
-
-
-
 
 
 if __name__ == '__main__':

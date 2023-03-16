@@ -26,23 +26,14 @@ Database
 
 """
 
-import time
-import os.path
 import numpy as np
 import pandas as pd
 from itertools import zip_longest
-import matplotlib.pyplot as plt
 import os.path
 import os
-from leia import convergence
+import leia
 from leia.convergence import _config
-import warnings
 
-time_format = "%Y-%m-%d_%H%M%S"
-
-database_columns = ['CASE', 'TEMPLATE', 'M_TIME', 'USER']
-
-refinement_columns = ['N_CELLS', 'MAX_CELL_SIZE']
 
 def isErrorColumn(errorcolumn):
     errorcolumn = drop_multilabel(errorcolumn)
@@ -63,48 +54,6 @@ def drop_multilabel(label):
         label = label[-1]
     return label
 
-def mtime_str(file):
-    return time.strftime(time_format, time.localtime(os.path.getmtime(file)))
-
-# def groupcolumns(columns_orig):
-#     columns = columns_orig.copy()
-#     potential_database = database_columns.copy()
-    
-#     gr = {
-#         'database':list(),
-#         'studyparameters':list(),
-#         'case':list()
-#     }
-
-#     # Assumes first columns are studyparameters
-#     for i, column in enumerate(columns_orig):
-#         if column in potential_database:
-#             break
-#         else:
-#             gr['studyparameters'].append(columns.pop(0))
-
-#     # Assumes database columns are in the list potential_database
-#     for column in columns_orig[i:]:
-#         if column in potential_database:
-#             gr['database'].append(column)
-#             columns.remove(column)
-
-#     # Assumes rest of columns are case columns
-#     gr['case'].extend(columns)
-
-#     assert len(gr['database']) + len(gr['studyparameters']) + len(gr['case']) == len(columns_orig)
-#     return gr
-
-def get_refinementparameter(study_df):
-    """
-    Returns the first matching refinementparameter in the columns.
-    None is returned if the DataFrame has no refinementparameter.
-    """
-    for param in refinement_columns:
-        if param in study_df.columns:
-            return param
-    else:
-        return None
 
 def df_endTimes(study_df):
     """
@@ -131,45 +80,14 @@ def df_represantive_error_rows(study_df, errorcolumn):
 def database_smallest(df, columns, nsmallest=10):
     mi = df.columns
     database = mi[mi.get_locs(['database'])].to_list()
-    studyparameters = mi[mi.get_locs(['studyparameters'])].to_list()
-    columns = list(zip_longest([], columns, fillvalue='case'))
+    studyparameters = list(leia.studycsv.get_studyparameters(df.columns))
 
     if columns[0] not in df.columns:
         raise RuntimeError(f"Main columns {columns[0]} is not in DataFrame. Can not sort.")
-    # for idx, col in enumerate(columns):
-    #     if col not in df.columns:
-    #         skip = columns.pop(idx)
-    #         warnings.warn(f"Skip tabulating column {skip}.")
-
     columns = list(filter(lambda col: col in df.columns, columns))
 
     viewsmallest_df = df.nsmallest(nsmallest, columns)
     return viewsmallest_df[database + studyparameters + [('case','TIME')] + columns ]
 
-def filter_parameter(study_df, study_dict, parameter=(('studyparameters','N_CELLS'), 400)):
-    
-    def filterfunc(pair, parameter=parameter):
-        parameter_key = parameter[0][1]
-        parameter_val = parameter[1]
-        val = pair[1]
-        return val[parameter_key] == parameter_val
-    
-    new_dict = dict(filter(filterfunc, study_dict.items()))
 
-    parameter_key = parameter[0]
-    parameter_val = parameter[1]
-    new_df = study_df.copy()
-    new_df = new_df[new_df[parameter_key] == parameter_val]
-    return new_df, new_dict
-
-def get_raw_label(df):
-    mi = df.columns
-    # studyparameters = mi[mi.get_loc_level('studyparameters')[0]]
-    studyparameters = mi[mi.get_loc('studyparameters')]
-    list_ = []
-    for param in studyparameters:
-        unique = df[param].unique()
-        if len(unique) == 1:
-            list_.append(f'{param[1]}: {unique[0]}')
-    return ', '.join(list_)
 
