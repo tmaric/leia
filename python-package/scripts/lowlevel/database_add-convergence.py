@@ -133,8 +133,7 @@ def add_convergencerates(
 
     """
     refinementlabel = studycsv.get_refinementlabel(study_df)
-    mi = study_df.columns
-    studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
+    studyparameters = list(studycsv.get_studyparameters(study_df.columns))
     cases_gb = study_df.groupby(studyparameters, sort=False)
     studyparameters.remove(refinementlabel)
     if len(studyparameters) == 1:

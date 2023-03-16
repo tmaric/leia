@@ -1,11 +1,8 @@
 import numpy as np
 import pandas as pd
-from itertools import zip_longest
 import matplotlib.pyplot as plt
-import os.path
-import os
-from leia import convergence, database, studycsv
-import math
+from leia import convergence, studycsv
+
 from itertools import cycle
 
 
