@@ -26,11 +26,7 @@ Database
 
 """
 
-import numpy as np
 import pandas as pd
-from itertools import zip_longest
-import os.path
-import os
 import leia
 from leia.convergence import _config
 

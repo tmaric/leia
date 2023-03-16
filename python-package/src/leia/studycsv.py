@@ -114,7 +114,7 @@ def smallest_refinement_gb(study_df, by, deltaX=('case','DELTA_X')):
         return None 
     
     mi = study_df.columns
-    studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
+    studyparameters = list(mi[mi.get_loc('studyparameters')])
     studyparameters.remove(refinement_label)
 
     if isinstance(studyparameters, list) and len(studyparameters) == 1:

@@ -22,14 +22,16 @@ Script and module for postprocessing database-CSV files.
 Creates timeplots, tables and convergence plots for specified error properties.
 """
 
-@dataclass(kw_only=True)
+# @dataclass(kw_only=True) # Uncomment if python/3.10 is available on Lichtenberg
+@dataclass()
 class Fig:
     title: str
     ylabel: str
     xlabel: str
     figname: str
 
-@dataclass(kw_only=True)
+# @dataclass(kw_only=True) # Uncomment if python/3.10 is available on Lichtenberg
+@dataclass()
 class Prop:
     column: tuple
     template: str
