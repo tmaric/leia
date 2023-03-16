@@ -54,7 +54,7 @@ Description
 #include "phaseIndicator.H"
 #include "redistancer.H"
 #include "interfaceBand.H"
-#include "SDPLSSourceScheme.H"
+#include "SDPLSSource.H"
 #include "advectionVerification.H"
 
 // tmp
@@ -129,7 +129,8 @@ int main(int argc, char *argv[])
             fvm::ddt(psi)
           + fvm::div(phi, psi)
           ==
-            fvm::SDPLSSource(psi, U)
+            // fvm::SDPLSSource(psi, U)
+            source->fvmSDPLSSource(psi, U)
         );
 
         psiEqn.solve();

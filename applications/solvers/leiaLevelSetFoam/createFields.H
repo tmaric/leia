@@ -75,6 +75,11 @@ autoPtr<interfaceBand> interfaceBand = interfaceBand::New(mesh, psi);
 interfaceBand->calc();
 interfaceBand->write();
 
+// SDPLS Source term
+autoPtr<SDPLSSource> source = SDPLSSource::New(mesh); 
+source->update(psi, U);
+source->write();
+
 // Advection velocity model
 autoPtr<velocityModel> velocityModel = velocityModel::New(mesh); 
 

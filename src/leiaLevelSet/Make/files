@@ -6,10 +6,13 @@ phaseIndicator/geometricPhaseIndicator.C
 redistancer/redistancer.C
 redistancer/lsqRedistancer.C
 
-SDPLSSourceScheme/SDPLSSourceScheme.C
-SDPLSSourceScheme/explicitSDPLSSourceScheme.C
-SDPLSSourceScheme/simpleLinearImplicit.C
-SDPLSSourceScheme/strictNegativeSpLinearImplicit.C
+SDPLSSource/SDPLSSource.C
+SDPLSSource/SDPLS_R.C
+
+SDPLSSource/SourceScheme/SourceScheme.C
+SDPLSSource/SourceScheme/explicitScheme.C
+SDPLSSource/SourceScheme/simpleLinearImplicitScheme.C
+SDPLSSource/SourceScheme/strictNegativeSpLinearImplicitScheme.C
 
 interfaceBand/interfaceBand.C
 interfaceBand/signChangeInterfaceBand.C
