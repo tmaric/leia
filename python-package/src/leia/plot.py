@@ -21,17 +21,20 @@ def detox_label(label: str):
 def legendlabel(dict, key):
     return detox_label(f"{key}: {dict[key]}")
 
-def timeplot(study_df, prop):
+def timeplot(study_df, prop, *,
+                time=('case', 'TIME'), 
+                caselabel=('database','CASE'), 
+             ):
     column = prop.column
     ylabel = prop.figTime.ylabel
     xlabel = prop.figTime.xlabel
     title = prop.figTime.title
-    case_gb = study_df.groupby(('database','CASE'), sort=False)
+    case_gb = study_df.groupby(caselabel, sort=False)
     fig, ax = plt.subplots()
     for case, case_df  in case_gb:
-        label = f"{case}: {database.get_raw_label(case_df)}"
+        label = f"{case}: {studycsv.get_raw_label(case_df)}"
         label = detox_label(label)
-        ax.plot(case_df[('case','TIME')].values, case_df[column].values, 'x', label=label)
+        ax.plot(case_df[time].values, case_df[column].values, 'x', label=label)
     ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
@@ -39,15 +42,17 @@ def timeplot(study_df, prop):
     ax.set_title(title)
     return fig
 
-def convergenceplot(study_df, prop):
+def convergenceplot(study_df, prop, *,
+                    time=('case', 'TIME'), 
+                    deltaX=('case', 'DELTA_X'), 
+                    ):
     column = prop.column
     ylabel = prop.figConv.ylabel
     xlabel = prop.figConv.xlabel
     title = prop.figConv.title
     
     refinementlabel = studycsv.get_refinementlabel(study_df)
-    mi = study_df.columns
-    studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
+    studyparameters = list(studycsv.get_studyparameters(study_df.columns))
     studyparameters.remove(refinementlabel)
     if len(studyparameters) == 1:
         studyparameters = studyparameters[0]
@@ -65,13 +70,8 @@ def convergenceplot(study_df, prop):
         return unique_
 
     # filter out similiar resolutions that can occur on perturbed meshes. Would overload xticks
-    # study_resolutions = study_df[('case', 'DELTA_X')].apply(lambda value: float(f"{value:.1e}")).unique()
-    study_resolutions = study_df[('case', 'DELTA_X')].unique()
-    
-    # better filter
+    study_resolutions = study_df[deltaX].unique()
     study_resolutions = unique_1significant(study_resolutions)
-
-
     
     fig, ax = plt.subplots()
     ax.loglog()
@@ -86,12 +86,17 @@ def convergenceplot(study_df, prop):
     
     convergence_ref = 1e6
 
-    for id, (parameters, refinement_df) in enumerate(refinement_gb):
-        res_val_np = convergence.get_values(refinement_df, column, refinement_parameter=refinementlabel[1])
+    for parameters, refinement_df in refinement_gb:
+        res_val_np = convergence.get_values(refinement_df, 
+                                            column, 
+                                            time=time, 
+                                            deltaX=deltaX,
+                                            refinement_parameter=refinementlabel
+                                            )
         resolutions = res_val_np[:,0]
         values = res_val_np[:,1]
         convergence_ref = min(convergence_ref, values[0])
-        leg_label = database.get_raw_label(
+        leg_label = studycsv.get_raw_label(
                                 refinement_df.drop(studycsv.get_refinementlabel(refinement_df), axis='columns')
                     )
         leg_label = detox_label(leg_label)

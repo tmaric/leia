@@ -54,6 +54,21 @@ def get_database_parameter_for_case(studydir, casedir, columnlevel=2) -> dict:
     else:
         raise RuntimeError("Choose {1,2} for columnlvl.")
 
+def get_studyparameters(columns):
+    """
+    Provide columns of a study DataFrame. Can be a list, Index or two level MultiIndex object.
+    The columns must follow the convention of this module.
+    """
+    if isinstance(columns, pd.MultiIndex):
+        return columns[columns.get_loc('studyparameters')]
+    elif isinstance(columns, pd.Index):
+        return columns[len(database_sublabels)+1 : columns.get_loc(time_label[1])]
+    elif isinstance(columns, list):
+        return columns[len(database_sublabels)+1 : columns.index(time_label[1])]
+    else:
+        raise TypeError("Columns must be list, pd.Index or pd.MultiIndex")
+
+
 def get_refinementlabel(study_df):
     """
     Returns the first matching refinementparameter in the columnlabels.
@@ -64,6 +79,19 @@ def get_refinementlabel(study_df):
             return param
     else:
         return None
+    
+
+def get_raw_label(df):
+    """
+    Provide a DataFrame and get a raw label of all unique studyparameters and their values.
+    """
+    studyparameters = get_studyparameters(df.columns)
+    list_ = []
+    for param in studyparameters:
+        unique = df[param].unique()
+        if len(unique) == 1:
+            list_.append(f'{param[1]}: {unique[0]}')
+    return ', '.join(list_)
     
 def smallest_refinement_gb(study_df, by, deltaX=('case','DELTA_X')):
     """

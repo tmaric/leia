@@ -3,14 +3,7 @@ import pandas as pd
 import numpy as np
 from leia import database
 
-def _check(df):
-    # df must have two columns, zeroth representing time values and the first representing some float values
-    assert df.shape[1] == 2, 'DataFrame has not exactly 2 columns!'
 
-    # time values need to be sorted
-    is_sorted = lambda a: np.all(a[:-1] <= a[1:])
-    if df.shape[0] > 1: 
-        assert is_sorted(df.iloc[:,0].values), 'DataFrame zeroth column, representing time values, is not sorted!'
 
 def _label(label, format_func):
     """
@@ -50,12 +43,32 @@ def get_value(df):
     =======
     float
     """
+    def _check(df):
+        # df must have two columns, zeroth representing time values and the first representing some float values
+        assert df.shape[1] == 2, 'DataFrame has not exactly 2 columns!'
+
+        # time values need to be sorted
+        is_sorted = lambda a: np.all(a[:-1] <= a[1:])
+        if df.shape[0] > 1: 
+            assert is_sorted(df.iloc[:,0].values), 'DataFrame zeroth column, representing time values, is not sorted!'
+
     _check(df)
     key = database.drop_multiindex(df.columns)[1]
     strategy_str = _config.get_strategy(key)
     return _config.dict_get_values[strategy_str](df)
 
-def get_values(df, key, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
+def _check_labels(labels):
+    """
+    Provide a list of all labels provided as parameters to a function.
+    This function checks if all labels are consistent str or length 2 tuples for MultiIndex labels.
+    """
+    if not all([isinstance(label, str) for label in labels]) and \
+        not all([isinstance(label, tuple) for label in labels]):
+            raise RuntimeError(f"Columnlabels must be all strings or length 2 tuples for MultiIndex.\
+                            \ncolumns = {labels}"
+            )
+
+def get_values(df, key, *, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
     """
     Accepts columns as label or lenth 2 tuple for MultiIndex label.
 
@@ -67,6 +80,7 @@ def get_values(df, key, time='TIME', deltaX='DELTA_X', refinement_parameter='N_C
     key: str
         Column name of the property for which the convergence should be calculated.
     """
+    _check_labels([key, time, deltaX, refinement_parameter])
     tmp = df.copy()
     gb = tmp.groupby(by=refinement_parameter, sort=False)
     list_ = []
@@ -124,13 +138,7 @@ def calc_local_convergence(array: np.ndarray):
     return np.vstack((deltaXs, np.stack(list_))).T
 
 def _get_convergence(refinement_df, key, calc_func, *, time='TIME', deltaX='DELTA_X', refinement_parameter='N_CELLS'):
-    columns = [key, time, deltaX, refinement_parameter]
-    if not all([isinstance(col, str) for col in columns]) and \
-        not all([isinstance(col, tuple) for col in columns]):
-            raise RuntimeError(f"Columnlabels must be all strings or length 2 tuples for MultiIndex.\
-                            \ncolumns = {columns}"
-            )
-
+    _check_labels([key, time, deltaX, refinement_parameter])
     values_np = get_values(refinement_df, key, time, deltaX, refinement_parameter)
     return calc_func(values_np)
 
