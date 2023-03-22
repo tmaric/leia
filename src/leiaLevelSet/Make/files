@@ -8,6 +8,8 @@ redistancer/lsqRedistancer.C
 
 SDPLSSource/SDPLSSource.C
 SDPLSSource/SDPLS_R.C
+SDPLSSource/SDPLS_Rlin.C
+SDPLSSource/SDPLS_Rquad.C
 
 SDPLSSource/SourceScheme/SourceScheme.C
 SDPLSSource/SourceScheme/explicitScheme.C
