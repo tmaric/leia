@@ -48,7 +48,7 @@ def parse_studydir(args):
     args.database_csv   = os.path.join(args.studydir, info["metaname"] + '_database.csv')
     args.casesfile      = os.path.join(args.studydir, info["casesfile"])
     args.variationfile  = os.path.join(args.studydir, info["pyFoam_variationfile"])
-    args.endTimesfile   = os.path.join(args.studydir, args.endTimesfile)
+    args.endTimesfile   = os.path.join(args.studydir, info["metaname"] + '.latestTimes.txt')
     return args
 
 def parse_arguments():
@@ -87,25 +87,25 @@ def parse_arguments():
     #                     )
 
     args = parser.parse_args()
-    args.endTimesfile = 'endTimes.txt'
+    
     # return args.func(args)
     return parse_studydir(args)
 
 def main():
     args = parse_arguments()
 
-    print(f"Save endTimes of concrete cases to {args.endTimesfile}")
-    cmd_str_endTimes = f"study_print-endTimes.sh {args.studydir} > {args.endTimesfile}"
+    print(f"Save latestTimes of concrete cases to {args.endTimesfile}")
+    cmd_str_endTimes = f"study_print-latestTimes.sh {args.studydir} > {args.endTimesfile}"
     run(cmd_str_endTimes, check=True, shell=True)
 
     print(f"Agglomerate {leia.studydir.CASE_CSVs} of all cases with metadata and studyparameters into {args.database_csv}")
     cmd_str_agglo = f"study_agglomerate-database.py {args.studydir} {args.database_csv}"
     run(cmd_str_agglo, check=True, shell=True)
 
-    refinementparameter = leia.studycsv.get_refinementlabel(pd.read_csv(args.database_csv, header=[0,1]))[1]
+    refinementparameter = leia.studycsv.get_refinementlabel(pd.read_csv(args.database_csv, header=[0,1]))
     if not args.skip_convergence and refinementparameter is not None:
         print(f"Study investigates refinemenet. Calculate convergence rates and add them to {args.database_csv}")
-        cmd_str_conver = f"database_add-convergence.py --inplace --refinement-parameter {refinementparameter} {args.database_csv}"
+        cmd_str_conver = f"database_add-convergence.py --inplace --refinement-parameter {refinementparameter[1]} {args.database_csv}"
         run(cmd_str_conver, check=True, shell=True)
 
 
