@@ -2,33 +2,21 @@ values
 {
     solver (leiaLevelSetFoam);
 
-    END_TIME (6.283185307179586);
+    END_TIME (3.0);
 
-    MAX_CELL_SIZE // cfmesh tetMesh 
+    CFL (0.25);
+
+    N_CELLS
     (
-        0.021 
-
-        0.015
-
-        0.008 
-    );
-
-    SURFACE_FILE
-    (
-        box-edges.stl
-    );
-
-    CFL
-    (
-    	0.05
+        32 64 128
     );
 		
 	SOURCE_SCHEME
 	(
-		explicit 
-		simpleLinearImplicit 
-		strictNegativeSpLinearImplicit
+		R
 	);
+	
+	SOURCE_SCHEME
 
 	SDPLS_SOURCE
 	(
@@ -38,6 +26,12 @@ values
 		Rquad
 		lin
 		quad
+	);
+	(
+		none 
+		explicit 
+		simpleLinearImplicit 
+		strictNegativeSpLinearImplicit
 	);
 	
 	BC

@@ -75,10 +75,11 @@ levelSet
         type noRedistancing;
     }
 
-    SDPLSSourceTerm
-    {
-        discretization noSource;
-    }
+		SDPLSSource
+		{
+        type noSource;
+        discretization none;
+		}
 }
 
 
