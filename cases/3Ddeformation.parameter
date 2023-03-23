@@ -11,12 +11,21 @@ values
         32 64 128
     );
 		
-	SDPLS_SOURCE
+	SOURCE_SCHEME
 	(
-		noSource 
 		explicit 
 		simpleLinearImplicit 
 		strictNegativeSpLinearImplicit
+	);
+
+	SDPLS_SOURCE
+	(
+		noSource
+		R
+		Rlin
+		Rquad
+		lin
+		quad
 	);
 	
 	BC

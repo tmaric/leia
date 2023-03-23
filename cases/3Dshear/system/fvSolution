@@ -79,11 +79,11 @@ levelSet
         type noRedistancing;
     }
 
-    SDPLSSourceTerm
-    {
-            discretization noSource;
-						narrowBand off;
-    }
+		SDPLSSource
+		{
+        type noSource;
+        discretization none;
+		}
 }
 
 
