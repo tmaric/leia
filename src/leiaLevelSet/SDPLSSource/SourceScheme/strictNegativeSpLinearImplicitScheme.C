@@ -48,7 +48,7 @@ strictNegativeSpLinearImplicitScheme::strictNegativeSpLinearImplicitScheme()
 
 void strictNegativeSpLinearImplicitScheme::updateSc(const volScalarField& nonLinearPart, const volScalarField& psi)
 {
-    // Sc_ = scalarField(nonLinearPart.size(), 0.0);
+    Sc_ = scalarField(nonLinearPart.size(), 0.0);
     forAll(nonLinearPart, cellID)
     {
         Sc_[cellID] = Foam::max(nonLinearPart[cellID], 0) *psi[cellID];
@@ -57,7 +57,7 @@ void strictNegativeSpLinearImplicitScheme::updateSc(const volScalarField& nonLin
 
 void strictNegativeSpLinearImplicitScheme::updateSp(const volScalarField& nonLinearPart)
 {
-    // Sp_ = scalarField(nonLinearPart.size(), 0.0);
+    Sp_ = scalarField(nonLinearPart.size(), 0.0);
     forAll(nonLinearPart, cellID)
     {
         Sp_[cellID] = Foam::min(nonLinearPart[cellID], 0);
