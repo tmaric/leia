@@ -25,9 +25,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "SourceScheme.H"
+#include "Mollifier.H"
 #include "addToRunTimeSelectionTable.H"
-#include "SDPLSSource.H"
+// #include "fvSolution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -36,71 +36,76 @@ namespace Foam
 // namespace fv
 // {
 
-defineTypeNameAndDebug(SourceScheme, false);
-defineRunTimeSelectionTable(SourceScheme, Dictionary);
-addToRunTimeSelectionTable(SourceScheme, SourceScheme, Dictionary);
+defineTypeNameAndDebug(Mollifier, false);
+defineRunTimeSelectionTable(Mollifier, Dictionary);
+addToRunTimeSelectionTable(Mollifier, Mollifier, Dictionary);
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
 
-Foam::autoPtr<SourceScheme>
-SourceScheme::New(const word type)
+Foam::autoPtr<Mollifier>
+Mollifier::New(const dictionary& dict)
 {
+    const word& type = dict.getOrDefault<word>("type", "off");
+
     auto* ctorPtr = DictionaryConstructorTable(type);
 
     if (!ctorPtr)
     {
-        FatalErrorInFunction
-        << "Unknown discretization type \"" << type << "\"\n\n"
-        << "Valid write types : "
-        << flatOutput(DictionaryConstructorTablePtr_->sortedToc()) << nl
-        << exit(FatalError);
+        FatalIOErrorInLookup
+        (
+            dict,
+            "Mollifier",
+            type,
+            *DictionaryConstructorTablePtr_
+        ) << exit(FatalIOError);
     }
-    Info << "Selecting SDPLS Source discretization: " << type << nl << endl;
-    return autoPtr<SourceScheme>(ctorPtr());
+
+    Info << "Selecting SDPLS source mollifier: " << type << nl << endl;
+    return autoPtr<Mollifier>(ctorPtr(dict));
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-SourceScheme::SourceScheme()
-    :
-        Sc_(zeroField()),
-        Sp_(zeroField())
+Mollifier::Mollifier(const dictionary& dict)
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<fvScalarMatrix> SourceScheme::discretize(const volScalarField& nonLinearPart, const volScalarField& psi)
+tmp<volScalarField> Mollifier::field(const volScalarField& psi) const
 {
-    tmp<fvScalarMatrix> tfvm
+    tmp<volScalarField> tfield
     (
-        new fvScalarMatrix
+        new volScalarField
         (
-            psi,
-            psi.dimensions()*dimVol/dimTime
+            IOobject
+            (
+                word(),
+                fileName(),
+                psi.mesh(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            psi.mesh(),
+            dimensionedScalar(dimless, 0.0)
         )
     );
 
-    fvScalarMatrix& fvm = tfvm.ref();
-    const fvMesh& mesh = psi.mesh();
+    forAll(tfield.cref(), cellID)
+    {
+        tfield.ref()[cellID] = mollify(psi[cellID]);
+    }
 
-    updateSc(nonLinearPart, psi);
-    updateSp(nonLinearPart);
-
-    fvm.source()    = mesh.V().field() * Sc_;
-    fvm.diag()      = mesh.V().field() * Sp_;
-    return tfvm;
+    return tfield;
 }
 
-void SourceScheme::updateSc(const volScalarField& nonLinearPart, const volScalarField& psi)
+
+double Mollifier::mollify(double x) const
 {
-    Sc_ = scalarField(nonLinearPart.size(), 0.0);
+    return 1.0;
 }
 
-void SourceScheme::updateSp(const volScalarField& nonLinearPart)
-{
-    Sp_ = scalarField(nonLinearPart.size(), 0.0);
-}
 
 
 // } // End namespace fv

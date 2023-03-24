@@ -24,27 +24,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::SDPLSSource
+    Foam::Mollifier1
 
 Description
-    This is the absract baseclass for the source term in the level-set-equation for two-phase-flow simulation.
-    The source term is defined in "A locally signed-distance preserving level set method (SDPLS) for moving interfaces" by M. Fricke et. al..
-    https://arxiv.org/abs/2208.01269
+
 
 SourceFiles
-    SDPLSSource.C
+    Mollifier1.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef SDPLSSource_H
-#define SDPLSSource_H
+#ifndef Mollifier1_H
+#define Mollifier1_H
 
 #include "typeInfo.H"
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
 #include "fvCFD.H"
-#include "SourceScheme.H"
-#include "Mollifier.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -54,78 +50,55 @@ namespace Foam
 // namespace fv
 // {
 
-// class SourceScheme;
 
 /*---------------------------------------------------------------------------*\
-                         Class SDPLSSource Declaration
+                         Class Mollifier1 Declaration
 \*---------------------------------------------------------------------------*/
 
-class SDPLSSource
+class Mollifier
 {
-private:
-
-    autoPtr<SourceScheme> discretization_;
-    autoPtr<Mollifier> mollifier_;
-
-    volScalarField R_;
-
-    volScalarField nonLinearPart_;
-
 public:
 
     // Static Data Members
     
-    TypeName("noSource");
+    TypeName("off");
 
     declareRunTimeSelectionTable
     (
         autoPtr,
-        SDPLSSource, 
+        Mollifier, 
         Dictionary, 
         (
-            const dictionary& dict, const fvMesh& mesh
+            const dictionary& dict
         ), 
-        (dict, mesh)
+        (dict)
     );
 
     // Constructors
 
         //- Construct from components
-        SDPLSSource(const dictionary& dict, const fvMesh& mesh);
+        Mollifier(const dictionary& dict);
 
     // Selectors
 
         //- Select default constructed
-        static autoPtr<SDPLSSource> New(const fvMesh& mesh);
+        static autoPtr<Mollifier> New(const dictionary& dict);
 
     //- Destructor
-    virtual ~SDPLSSource() = default;
+    virtual ~Mollifier() = default;
 
     // Member functions
-    tmp<fvScalarMatrix> fvmSDPLSSource(const volScalarField& psi, const volVectorField& U);
 
-    void update(const volScalarField& psi, const volVectorField& U);
-    
-    void write() const;
+    tmp<volScalarField> field(const volScalarField& psi) const;
 
 protected:
-    virtual tmp<volScalarField> nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const;
+    virtual double mollify(double x) const;
 
-private:
-    // old name 'minusR', new name 'R', wich mean the same term. 
-    tmp<volScalarField> R(const volScalarField& psi, const volVectorField& U) const;
 
 };
 
 // } // End namespace fv
 
-// * * * * * * * * * * * * * *  Global functions  * * * * * * * * * * * * * * //
-namespace fvm
-{
-tmp<fvScalarMatrix> SDPLSSource(const volScalarField& psi, const volVectorField& U);
-
-
-} // End namespace fvm
 } // End namespace Foam
 
 #endif
