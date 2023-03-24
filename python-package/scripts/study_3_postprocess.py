@@ -95,7 +95,7 @@ def main():
     args = parse_arguments()
 
     print(f"Save latestTimes of concrete cases to {args.endTimesfile}")
-    cmd_str_endTimes = f"study_print-latestTimes.sh {args.studydir} > {args.endTimesfile}"
+    cmd_str_endTimes = f"study_print-latestTime.py {args.studydir} > {args.endTimesfile}"
     run(cmd_str_endTimes, check=True, shell=True)
 
     print(f"Agglomerate {leia.studydir.CASE_CSVs} of all cases with metadata and studyparameters into {args.database_csv}")
