@@ -74,7 +74,7 @@ SDPLSSource::New(const fvMesh& mesh)
 SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
     :
         discretization_(SourceScheme::New(dict.getOrDefault<word>("discretization","none"))),
-        mollifier_(dict.getOrDefault<word>("mollifier", "none")),
+        mollifier_(Mollifier::New(dict.subOrEmptyDict("mollifier"))),
         R_(
             IOobject(
                 "minusR",
@@ -105,7 +105,18 @@ SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
 tmp<fvScalarMatrix> SDPLSSource::fvmSDPLSSource(const volScalarField& psi, const volVectorField& U)
 {
     update(psi, U);
-    tmp<fvScalarMatrix> tfvm = discretization_->discretize(nonLinearPart_, psi);
+    tmp<fvScalarMatrix> tfvm;
+    // if(mollifier_->TypeName() == "none")
+    if(mollifier_->type() == "none")
+    {
+        tfvm = discretization_->discretize(nonLinearPart_, psi);
+    }
+    else
+    {
+        volScalarField mollified_nonLinearPart = nonLinearPart_ * mollifier_->field(psi);
+        tfvm = discretization_->discretize(mollified_nonLinearPart, psi);
+    }
+
     return tfvm;
 }
 

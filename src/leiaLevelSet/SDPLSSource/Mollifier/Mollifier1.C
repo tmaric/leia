@@ -25,9 +25,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "SourceScheme.H"
+#include "Mollifier1.H"
 #include "addToRunTimeSelectionTable.H"
-#include "SDPLSSource.H"
+// #include "fvSolution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -36,71 +36,42 @@ namespace Foam
 // namespace fv
 // {
 
-defineTypeNameAndDebug(SourceScheme, false);
-defineRunTimeSelectionTable(SourceScheme, Dictionary);
-addToRunTimeSelectionTable(SourceScheme, SourceScheme, Dictionary);
+defineTypeNameAndDebug(Mollifier1, false);
+addToRunTimeSelectionTable(Mollifier, Mollifier1, Dictionary);
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
-
-
-Foam::autoPtr<SourceScheme>
-SourceScheme::New(const word type)
-{
-    auto* ctorPtr = DictionaryConstructorTable(type);
-
-    if (!ctorPtr)
-    {
-        FatalErrorInFunction
-        << "Unknown discretization type \"" << type << "\"\n\n"
-        << "Valid write types : "
-        << flatOutput(DictionaryConstructorTablePtr_->sortedToc()) << nl
-        << exit(FatalError);
-    }
-    Info << "Selecting SDPLS Source discretization: " << type << nl << endl;
-    return autoPtr<SourceScheme>(ctorPtr());
-}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-SourceScheme::SourceScheme()
+Mollifier1::Mollifier1(const dictionary& dict)
     :
-        Sc_(zeroField()),
-        Sp_(zeroField())
+        Mollifier(dict),
+        w1_(dict.get<scalar>("w1")),
+        w2_(dict.getOrDefault<scalar>("w2", 1e-3))
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<fvScalarMatrix> SourceScheme::discretize(const volScalarField& nonLinearPart, const volScalarField& psi)
+double Mollifier1::mollify(double x) const
 {
-    tmp<fvScalarMatrix> tfvm
-    (
-        new fvScalarMatrix
-        (
-            psi,
-            psi.dimensions()*dimVol/dimTime
-        )
-    );
-
-    fvScalarMatrix& fvm = tfvm.ref();
-    const fvMesh& mesh = psi.mesh();
-
-    updateSc(nonLinearPart, psi);
-    updateSp(nonLinearPart);
-
-    fvm.source()    = mesh.V().field() * Sc_;
-    fvm.diag()      = mesh.V().field() * Sp_;
-    return tfvm;
+    double w1 = w1_; 
+    double w2 = w2_;
+    // w1 is the width of the plateau
+    // w2 is the width before the mollifier is close to 0 (here 10^-3).  
+    double s=1.0; // help variable  
+    s = log(1000.0)/pow((w2-w1),2);    
+    if (x >= 0) {
+        if (x < w1) {
+            return 1.0;
+        } 
+        else {
+            return exp(- s*pow(x-w1, 2));
+        }
+    } 
+    else {
+        return mollify(-x);
+    }
 }
 
-void SourceScheme::updateSc(const volScalarField& nonLinearPart, const volScalarField& psi)
-{
-    Sc_ = scalarField(nonLinearPart.size(), 0.0);
-}
-
-void SourceScheme::updateSp(const volScalarField& nonLinearPart)
-{
-    Sp_ = scalarField(nonLinearPart.size(), 0.0);
-}
 
 
 // } // End namespace fv
