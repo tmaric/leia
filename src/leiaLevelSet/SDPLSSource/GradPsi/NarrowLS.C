@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "GradPsi.H"
+#include "NarrowLS.H"
 #include "addToRunTimeSelectionTable.H"
 // #include "fvSolution.H"
 
@@ -36,43 +36,33 @@ namespace Foam
 // namespace fv
 // {
 
-defineTypeNameAndDebug(GradPsi, false);
-defineRunTimeSelectionTable(GradPsi, Dictionary);
-addToRunTimeSelectionTable(GradPsi, GradPsi, Dictionary);
+defineTypeNameAndDebug(NarrowLS, false);
+addToRunTimeSelectionTable(GradPsi, NarrowLS, Dictionary);
 
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
-
-
-Foam::autoPtr<GradPsi>
-GradPsi::New(const word type, const fvMesh& mesh)
-{
-    auto* ctorPtr = DictionaryConstructorTable(type);
-
-    if (!ctorPtr)
-    {
-        FatalErrorInFunction
-        << "Unknown GradPsi type \"" << type << "\"\n\n"
-        << "Valid write types : "
-        << flatOutput(DictionaryConstructorTablePtr_->sortedToc()) << nl
-        << exit(FatalError);
-    }
-    Info << "Selecting SDPLS Source GradPsi type: " << type << nl << endl;
-    return autoPtr<GradPsi>(ctorPtr(mesh));
-}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-GradPsi::GradPsi(const fvMesh& mesh)
+NarrowLS::NarrowLS(const fvMesh& mesh)
+    :
+        GradPsi(mesh),
+        narrowBand_(mesh.lookupObject<volScalarField>("narrowBand")),
+        nc_(mesh.lookupObject<volVectorField>("nc"))
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<volVectorField> GradPsi::grad(const volScalarField& psi) const
+tmp<volVectorField> NarrowLS::grad(const volScalarField& psi) const
 {
-    return fvc::grad(psi);
+    tmp<volVectorField> tgradpsi = fvc::grad(psi);
+    forAll(narrowBand_, cellID)
+    {
+        if (narrowBand_[cellID] == 1)
+        {
+            tgradpsi.ref()[cellID] = nc_[cellID];
+        }
+    }
+    return tgradpsi;
 }
-
-
 
 
 
