@@ -81,6 +81,11 @@ levelSet
 		{
         type @!SDPLS_SOURCE!@;
         discretization @!SOURCE_SCHEME!@;
+				mollifier
+				{
+					type 	@!MOLLIFIER!@;
+					w1		0.05;
+				}
 		}
 }
 

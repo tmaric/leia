@@ -18,6 +18,12 @@ values
 		strictNegativeSpLinearImplicit
 	);
 
+	MOLLIFIER
+	(
+		none
+		m1
+	);
+
 	SDPLS_SOURCE
 	(
 		noSource
