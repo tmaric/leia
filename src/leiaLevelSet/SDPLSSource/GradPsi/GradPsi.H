@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -23,10 +23,25 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::GradPsi1
+
+Description
+
+
+SourceFiles
+    GradPsi1.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "SDPLS_quad.H"
-#include "addToRunTimeSelectionTable.H"
+#ifndef GradPsi1_H
+#define GradPsi1_H
+
+#include "typeInfo.H"
+#include "autoPtr.H"
+#include "runTimeSelectionTables.H"
+#include "fvCFD.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -36,43 +51,53 @@ namespace Foam
 // {
 
 
-defineTypeNameAndDebug(SDPLS_quad, false);
-addToRunTimeSelectionTable(SDPLSSource, SDPLS_quad, Dictionary);
+/*---------------------------------------------------------------------------*\
+                         Class GradPsi1 Declaration
+\*---------------------------------------------------------------------------*/
 
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-SDPLS_quad::SDPLS_quad(const dictionary& dict, const fvMesh& mesh)
-    :
-        SDPLSSource(dict, mesh)
-{}
-
-// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
-
-tmp<volScalarField> SDPLS_quad::nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const
+class GradPsi
 {
-    const fvMesh& mesh = psi.mesh();
-    // const Time& runtime = mesh.time(); 
+public:
 
-    return tmp<volScalarField>
+    // Static Data Members
+    
+    TypeName("fvc");
+
+    declareRunTimeSelectionTable
     (
-        new volScalarField
+        autoPtr,
+        GradPsi, 
+        Dictionary, 
         (
-            IOobject
-            (
-                word(),
-                fileName(),
-                mesh,
-                IOobject::NO_READ,
-                IOobject::NO_WRITE,
-                false
-            ),
-            dimensioned<scalar>(dimless/dimTime, 1.0)*(pow(mag(gradPsi(psi)), -2) - dimensioned<scalar>(1.0))
-        )
+            const fvMesh& mesh
+        ), 
+        (mesh)
     );
-}
 
-// ************************************************************************* //
+    // Constructors
+
+        //- Construct from components
+        GradPsi(const fvMesh& mesh);
+
+    // Selectors
+
+        //- Select default constructed
+        static autoPtr<GradPsi> New(const word type, const fvMesh& mesh);
+
+    //- Destructor
+    virtual ~GradPsi() = default;
+
+    // Member functions
+
+    tmp<volVectorField> grad(const volScalarField& psi) const;
+
+
+};
 
 // } // End namespace fv
+
 } // End namespace Foam
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#endif
+
+// ************************************************************************* //

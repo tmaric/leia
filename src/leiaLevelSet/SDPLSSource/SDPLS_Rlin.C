@@ -65,7 +65,7 @@ tmp<volScalarField> SDPLS_Rlin::nonLinearPart(const volScalarField& R, const vol
                 IOobject::NO_WRITE,
                 false
             ),
-            R + dimensioned<scalar>(dimless/dimTime, 1.0)*(dimensioned<scalar>(1.0) - mag(fvc::grad(psi)))
+            R + dimensioned<scalar>(dimless/dimTime, 1.0)*(dimensioned<scalar>(1.0) - mag(gradPsi(psi)))
         )
     );
 }

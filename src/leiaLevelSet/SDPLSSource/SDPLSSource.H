@@ -45,6 +45,7 @@ SourceFiles
 #include "fvCFD.H"
 #include "SourceScheme.H"
 #include "Mollifier.H"
+#include "GradPsi.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -65,6 +66,7 @@ class SDPLSSource
 private:
 
     autoPtr<SourceScheme> discretization_;
+    autoPtr<GradPsi> gradPsi_;
     autoPtr<Mollifier> mollifier_;
 
     volScalarField R_;
@@ -110,6 +112,8 @@ public:
 
 protected:
     virtual tmp<volScalarField> nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const;
+
+    tmp<volVectorField> gradPsi(const volScalarField& psi) const;
 
 private:
     // old name 'minusR', new name 'R', wich mean the same term. 

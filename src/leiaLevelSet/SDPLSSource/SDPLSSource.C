@@ -74,6 +74,7 @@ SDPLSSource::New(const fvMesh& mesh)
 SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
     :
         discretization_(SourceScheme::New(dict.getOrDefault<word>("discretization","none"))),
+        gradPsi_(GradPsi::New(dict.getOrDefault<word>("gradPsi","fvc"), mesh)),
         mollifier_(Mollifier::New(dict.subOrEmptyDict("mollifier"))),
         R_(
             IOobject(
@@ -130,12 +131,17 @@ void SDPLSSource::update(const volScalarField& psi, const volVectorField& U)
 // old name 'minusR', new name 'R', wich mean the same term. 
 tmp<volScalarField> SDPLSSource::R(const volScalarField& psi, const volVectorField& U) const
 {
-    volVectorField const grad_psi = fvc::grad(psi).cref();
+    volVectorField const grad_psi = gradPsi(psi);
     volTensorField const grad_U = fvc::grad(U).cref();
     dimensioned<scalar> const eps = dimensioned(grad_psi.dimensions(), SMALL);
     volVectorField const normal_interface = (grad_psi / (mag(grad_psi) + eps)).cref();
 
     return (grad_U & normal_interface) & normal_interface;
+}
+
+tmp<volVectorField> SDPLSSource::gradPsi(const volScalarField& psi) const
+{
+    return gradPsi_->grad(psi);
 }
 
 tmp<volScalarField> SDPLSSource::nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const

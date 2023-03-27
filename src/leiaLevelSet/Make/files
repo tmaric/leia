@@ -13,13 +13,15 @@ SDPLSSource/SDPLS_Rquad.C
 SDPLSSource/SDPLS_quad.C
 SDPLSSource/SDPLS_lin.C
 
-SDPLSSource/Mollifier/Mollifier.C
-SDPLSSource/Mollifier/Mollifier1.C
-
 SDPLSSource/SourceScheme/SourceScheme.C
 SDPLSSource/SourceScheme/explicitScheme.C
 SDPLSSource/SourceScheme/simpleLinearImplicitScheme.C
 SDPLSSource/SourceScheme/strictNegativeSpLinearImplicitScheme.C
+
+SDPLSSource/Mollifier/Mollifier.C
+SDPLSSource/Mollifier/Mollifier1.C
+
+SDPLSSource/GradPsi/GradPsi.C
 
 interfaceBand/interfaceBand.C
 interfaceBand/signChangeInterfaceBand.C
