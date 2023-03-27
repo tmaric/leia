@@ -62,7 +62,7 @@ public:
 
     // Static Data Members
     
-    TypeName("on");
+    TypeName("m1");
 
     // Constructors
 

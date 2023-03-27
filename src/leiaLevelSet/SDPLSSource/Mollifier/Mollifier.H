@@ -61,7 +61,7 @@ public:
 
     // Static Data Members
     
-    TypeName("off");
+    TypeName("none");
 
     declareRunTimeSelectionTable
     (
