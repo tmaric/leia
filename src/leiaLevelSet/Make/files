@@ -22,6 +22,7 @@ SDPLSSource/Mollifier/Mollifier.C
 SDPLSSource/Mollifier/Mollifier1.C
 
 SDPLSSource/GradPsi/GradPsi.C
+SDPLSSource/GradPsi/NarrowLS.C
 
 interfaceBand/interfaceBand.C
 interfaceBand/signChangeInterfaceBand.C
