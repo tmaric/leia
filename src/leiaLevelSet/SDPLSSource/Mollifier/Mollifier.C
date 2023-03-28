@@ -46,7 +46,7 @@ addToRunTimeSelectionTable(Mollifier, Mollifier, Dictionary);
 Foam::autoPtr<Mollifier>
 Mollifier::New(const dictionary& dict)
 {
-    const word& type = dict.getOrDefault<word>("type", "off");
+    const word& type = dict.getOrDefault<word>("type", "none");
 
     auto* ctorPtr = DictionaryConstructorTable(type);
 
