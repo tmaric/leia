@@ -51,7 +51,10 @@ velocityModel
 
 levelSet
 {
-		interfaceBand	signChange;
+		interfaceBand	
+		{
+			type	signChange;
+		}
 
 		profile
 		{

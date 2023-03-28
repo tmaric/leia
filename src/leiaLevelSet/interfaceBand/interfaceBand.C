@@ -34,18 +34,18 @@ defineTypeNameAndDebug(interfaceBand, false);
 defineRunTimeSelectionTable(interfaceBand, Mesh);
 addToRunTimeSelectionTable(interfaceBand, interfaceBand, Mesh);
 
-interfaceBand::interfaceBand(const fvMesh& mesh, const volScalarField& psi)
+interfaceBand::interfaceBand(const dictionary& dict, const volScalarField& psi)
     :
-        mesh_(mesh),
+        mesh_(psi.mesh()),
         interfaceBandField_(
             IOobject(
                 "interfaceBand",
-                mesh.time().timeName(),
-                mesh,
+                psi.mesh().time().timeName(),
+                psi.mesh(),
                 IOobject::NO_READ,
                 IOobject::AUTO_WRITE
                 ), 
-            mesh, 
+            psi.mesh(), 
             dimensioned(dimless, 0.)
         ),
         psi_(psi)
@@ -55,9 +55,10 @@ autoPtr<interfaceBand> interfaceBand::New(const fvMesh& mesh, const volScalarFie
 {
     const fvSolution& fvSolution (mesh);
     const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-    const word& interfaceBandType = levelSetDict.getOrDefault<word>("interfaceBand", "none");
+    const dictionary& interfaceBandDict = levelSetDict.subOrEmptyDict("interfaceBand");
+    const word& type = interfaceBandDict.getOrDefault<word>("type","none");
 
-    auto* ctorPtr = MeshConstructorTable(interfaceBandType);
+    auto* ctorPtr = MeshConstructorTable(type);
 
     if (!ctorPtr)
     {
@@ -65,13 +66,15 @@ autoPtr<interfaceBand> interfaceBand::New(const fvMesh& mesh, const volScalarFie
         (
             fvSolution,
             "interfaceBand",
-            interfaceBandType,
+            type,
             *MeshConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 
+    Info << "Selecting interfaceBand type: " << type << nl << endl;
+    
     // Construct the model and return the autoPtr to the object. 
-    return autoPtr<interfaceBand>(ctorPtr(mesh, psi));
+    return autoPtr<interfaceBand>(ctorPtr(interfaceBandDict, psi));
 }
 
 } // End namespace Foam
