@@ -73,12 +73,12 @@ public:
         interfaceBand, 
         Mesh, 
         (
-            const fvMesh& mesh, const volScalarField& psi
+            const dictionary& dict, const volScalarField& psi
         ), 
-        (mesh, psi)
+        (dict, psi)
     );
 
-    interfaceBand(const fvMesh& mesh, const volScalarField& psi);
+    interfaceBand(const dictionary& dict, const volScalarField& psi);
 
     static autoPtr<interfaceBand> New(const fvMesh& mesh, const volScalarField& psi);
 

@@ -34,9 +34,9 @@ namespace Foam
     defineTypeNameAndDebug(signChangeInterfaceBand, false);
     addToRunTimeSelectionTable(interfaceBand, signChangeInterfaceBand, Mesh);
 
-    signChangeInterfaceBand::signChangeInterfaceBand(const fvMesh& mesh, const volScalarField& psi)
+    signChangeInterfaceBand::signChangeInterfaceBand(const dictionary& dict, const volScalarField& psi)
         :
-            interfaceBand(mesh, psi)
+            interfaceBand(dict, psi)
     {}
 
     void signChangeInterfaceBand::calc()

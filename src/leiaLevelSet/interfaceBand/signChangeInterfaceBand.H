@@ -56,7 +56,7 @@ class signChangeInterfaceBand
 public:
 
     TypeName("signChange");
-    signChangeInterfaceBand(const fvMesh& mesh, const volScalarField& psi);
+    signChangeInterfaceBand(const dictionary& dict, const volScalarField& psi);
 
     virtual ~signChangeInterfaceBand() = default;
 
