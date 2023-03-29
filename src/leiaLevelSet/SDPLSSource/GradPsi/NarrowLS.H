@@ -74,7 +74,7 @@ public:
     //- Destructor
     virtual ~NarrowLS() = default;
 
-    tmp<volVectorField> grad(const volScalarField& psi) const;
+    virtual tmp<volVectorField> grad(const volScalarField& psi) const;
 
 
 };
