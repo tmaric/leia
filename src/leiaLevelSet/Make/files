@@ -26,6 +26,7 @@ SDPLSSource/GradPsi/NarrowLS.C
 
 interfaceBand/interfaceBand.C
 interfaceBand/signChangeInterfaceBand.C
+interfaceBand/distanceInterfaceBand.C
 
 profile/profile.C
 profile/signedDistance.C

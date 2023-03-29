@@ -31,8 +31,8 @@ License
 namespace Foam
 {
 defineTypeNameAndDebug(interfaceBand, false);
-defineRunTimeSelectionTable(interfaceBand, Mesh);
-addToRunTimeSelectionTable(interfaceBand, interfaceBand, Mesh);
+defineRunTimeSelectionTable(interfaceBand, Dictionary);
+addToRunTimeSelectionTable(interfaceBand, interfaceBand, Dictionary);
 
 interfaceBand::interfaceBand(const dictionary& dict, const volScalarField& psi)
     :
@@ -58,7 +58,7 @@ autoPtr<interfaceBand> interfaceBand::New(const fvMesh& mesh, const volScalarFie
     const dictionary& interfaceBandDict = levelSetDict.subOrEmptyDict("interfaceBand");
     const word& type = interfaceBandDict.getOrDefault<word>("type","none");
 
-    auto* ctorPtr = MeshConstructorTable(type);
+    auto* ctorPtr = DictionaryConstructorTable(type);
 
     if (!ctorPtr)
     {
@@ -67,7 +67,7 @@ autoPtr<interfaceBand> interfaceBand::New(const fvMesh& mesh, const volScalarFie
             fvSolution,
             "interfaceBand",
             type,
-            *MeshConstructorTablePtr_
+            *DictionaryConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 

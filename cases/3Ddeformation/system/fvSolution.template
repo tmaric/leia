@@ -52,7 +52,7 @@ levelSet
 {
 		interfaceBand	
 		{
-			type	signChange;
+			type	@!NARROWBAND!@;
 		}
 
 
