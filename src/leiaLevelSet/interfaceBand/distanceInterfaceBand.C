@@ -23,49 +23,43 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::signChangeInterfaceBand
-
-Description
-    Concrete class which calculates a field with {0,1} which mark cells near the zero level-set interface.
-
-SourceFiles
-    signChangeInterfaceBand.C
-
-
 \*---------------------------------------------------------------------------*/
 
-#ifndef signChangeInterfaceBand_H
-#define signChangeInterfaceBand_H
-
-#include "interfaceBand.H"
-
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+#include "distanceInterfaceBand.H"
+#include "addToRunTimeSelectionTable.H"
+#include "fvCFD.H"
 
 namespace Foam
 {
+    defineTypeNameAndDebug(distanceInterfaceBand, false);
+    addToRunTimeSelectionTable(interfaceBand, distanceInterfaceBand, Dictionary);
 
-/*---------------------------------------------------------------------------*\
-                         Class signChangeInterfaceBand Declaration
-\*---------------------------------------------------------------------------*/
+    distanceInterfaceBand::distanceInterfaceBand(const dictionary& dict, const volScalarField& psi)
+        :
+            interfaceBand(dict, psi),
+            ncells_(dict.getOrDefault<scalar>("ncells", 5))
+    {
+        // Info << "interfaceBand type: " << TypeNameString << " with ncells: " << ncells_ << nl << endl;
+    }
 
-class signChangeInterfaceBand
-    : public interfaceBand
-{
-public:
+    void distanceInterfaceBand::calc()
+    {
+        const volScalarField& psi = this->psi_;
+        volScalarField& interfaceBand = interfaceBandField_;
+        interfaceBand = dimensionedScalar(interfaceBand.dimensions(), 0.);
 
-    TypeName("signChange");
-    signChangeInterfaceBand(const dictionary& dict, const volScalarField& psi);
-    virtual ~signChangeInterfaceBand() = default;
-    virtual void calc();
-};
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+        const auto deltaX = pow(mesh().deltaCoeffs(),-1).cref();
+        const auto deltaX_min = gMin(deltaX);
+
+        forAll(interfaceBand, cellID)
+        {
+            if (psi[cellID]/deltaX_min < ncells_)
+            {
+                interfaceBand[cellID] = 1.0;
+            }
+        }
+    }
 
 } // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#endif
 
 // ************************************************************************* //

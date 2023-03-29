@@ -32,7 +32,7 @@ License
 namespace Foam
 {
     defineTypeNameAndDebug(signChangeInterfaceBand, false);
-    addToRunTimeSelectionTable(interfaceBand, signChangeInterfaceBand, Mesh);
+    addToRunTimeSelectionTable(interfaceBand, signChangeInterfaceBand, Dictionary);
 
     signChangeInterfaceBand::signChangeInterfaceBand(const dictionary& dict, const volScalarField& psi)
         :

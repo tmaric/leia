@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
+    Copyright (C) 2022 Tomislav Maric & Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,81 +24,43 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::interfaceBand
+    Foam::distanceInterfaceBand
 
 Description
-    Abstract base class which starts the model hierachy for marking cells which are near the interface aka the "narrowBand".
-    Calculate a field with {0,1} which mark cells near the zero level-set interface.
-
+    Concrete class which calculates a field with {0,1} which mark cells near the zero level-set interface.
 
 SourceFiles
-    interfaceBand.C
+    distanceInterfaceBand.C
+
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef interfaceBand_H
-#define interfaceBand_H
+#ifndef distanceInterfaceBand_H
+#define distanceInterfaceBand_H
 
-#include "typeInfo.H"
-#include "autoPtr.H"
-#include "runTimeSelectionTables.H"
-#include "fvMesh.H"
-#include "volFields.H"
+#include "interfaceBand.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-
-
 /*---------------------------------------------------------------------------*\
-                         Class interfaceBand Declaration
+                         Class distanceInterfaceBand Declaration
 \*---------------------------------------------------------------------------*/
 
-class interfaceBand
+class distanceInterfaceBand
+    : public interfaceBand
 {
-protected:
-    const fvMesh& mesh_;
-    volScalarField interfaceBandField_;
-    const volScalarField& psi_;
-
+    scalar ncells_;
+    
 public:
 
-    TypeName("none");
-
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        interfaceBand, 
-        Dictionary, 
-        (
-            const dictionary& dict, const volScalarField& psi
-        ), 
-        (dict, psi)
-    );
-
-    interfaceBand(const dictionary& dict, const volScalarField& psi);
-
-    static autoPtr<interfaceBand> New(const fvMesh& mesh, const volScalarField& psi);
-
-    virtual ~interfaceBand() = default;
-
-
-    // Member Functions
-
-    const fvMesh& mesh()
-    {
-        return mesh_;
-    }
-
-    virtual void calc()
-    {}
-
-    void write()
-    {
-        interfaceBandField_.write();
-    }
+    TypeName("distance");
+    distanceInterfaceBand(const dictionary& dict, const volScalarField& psi);
+    virtual ~distanceInterfaceBand() = default;
+    virtual void calc();
 };
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
