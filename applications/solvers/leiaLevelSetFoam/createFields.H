@@ -71,9 +71,9 @@ phaseInd->calcPhaseIndicator(alpha, psi);
 alpha.write();
 
 // Level Set interfaceBand model (optional)
-autoPtr<interfaceBand> interfaceBand = interfaceBand::New(mesh, psi); 
-interfaceBand->calc();
-interfaceBand->write();
+autoPtr<NarrowBand> narrowBand = NarrowBand::New(mesh, psi); 
+narrowBand->calc();
+narrowBand->write();
 
 // SDPLS Source term
 autoPtr<SDPLSSource> source = SDPLSSource::New(mesh); 

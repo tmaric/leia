@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 Tomislav Maric & Julian Reitzel, TU Darmstadt
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,39 +25,44 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "distanceInterfaceBand.H"
+#include "EmptyNarrowBand.H"
 #include "addToRunTimeSelectionTable.H"
-#include "fvCFD.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(distanceInterfaceBand, false);
-    addToRunTimeSelectionTable(interfaceBand, distanceInterfaceBand, Dictionary);
+defineTypeNameAndDebug(EmptyNarrowBand, false);
+addToRunTimeSelectionTable(NarrowBand, EmptyNarrowBand, Dictionary);
 
-    distanceInterfaceBand::distanceInterfaceBand(const dictionary& dict, const volScalarField& psi)
-        :
-            interfaceBand(dict, psi),
-            ncells_(dict.getOrDefault<scalar>("ncells", 5))
+EmptyNarrowBand::EmptyNarrowBand(const dictionary& dict, const volScalarField& psi)
+    :
+        NarrowBand(dict, psi),
+        field_(
+            IOobject(
+                "NarrowBand",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+                ), 
+            mesh(), 
+            dimensioned(dimless, 0.)
+        )
+{}
+
+    const volScalarField& EmptyNarrowBand::field() const
     {
-        // Info << "interfaceBand type: " << TypeNameString << " with ncells: " << ncells_ << nl << endl;
+        return field_;
     }
 
-    void distanceInterfaceBand::calc()
+    volScalarField& EmptyNarrowBand::field()
     {
-        const volScalarField& psi = this->psi_;
-        volScalarField& interfaceBand = interfaceBandField_;
-        interfaceBand = dimensionedScalar(interfaceBand.dimensions(), 0.);
+        return field_;
+    }
 
-        const auto deltaX = pow(mesh().deltaCoeffs(),-1).cref();
-        const auto deltaX_min = gMin(deltaX);
-
-        forAll(interfaceBand, cellID)
-        {
-            if (psi[cellID]/deltaX_min < ncells_)
-            {
-                interfaceBand[cellID] = 1.0;
-            }
-        }
+    void EmptyNarrowBand::write() const
+    {
+        Info << "EmptyNarrowBand::write()" << endl;
+        field().write();
     }
 
 } // End namespace Foam
