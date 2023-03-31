@@ -61,7 +61,6 @@ EmptyNarrowBand::EmptyNarrowBand(const dictionary& dict, const volScalarField& p
 
     void EmptyNarrowBand::write() const
     {
-        Info << "EmptyNarrowBand::write()" << endl;
         field().write();
     }
 

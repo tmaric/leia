@@ -64,16 +64,15 @@ volVectorField U
 // Leve Set re-distancing model
 autoPtr<redistancer> redist = redistancer::New(mesh);
 
-// Level Set phase-indicator model
-autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh); 
-
-phaseInd->calcPhaseIndicator(alpha, psi);
-alpha.write();
-
-// Level Set interfaceBand model (optional)
+// Level Set narrowBand model
 autoPtr<NarrowBand> narrowBand = NarrowBand::New(mesh, psi); 
 narrowBand->calc();
 narrowBand->write();
+
+// Level Set phase-indicator model
+autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh); 
+phaseInd->calcPhaseIndicator(alpha, psi);
+alpha.write();
 
 // SDPLS Source term
 autoPtr<SDPLSSource> source = SDPLSSource::New(mesh); 

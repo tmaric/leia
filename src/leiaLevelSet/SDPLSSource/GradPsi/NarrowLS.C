@@ -45,7 +45,7 @@ addToRunTimeSelectionTable(GradPsi, NarrowLS, Dictionary);
 NarrowLS::NarrowLS(const fvMesh& mesh)
     :
         GradPsi(mesh),
-        narrowBand_(mesh.lookupObject<volScalarField>("narrowBand")),
+        narrowBand_(mesh.lookupObject<volScalarField>("NarrowBand")),
         nc_(mesh.lookupObject<volVectorField>("nc"))
 {}
 
