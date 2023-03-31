@@ -53,6 +53,7 @@ levelSet
 		narrowBand	
 		{
 			type	@!NARROWBAND!@;
+			n			@!NEIGHBOURS!@;
 		}
 
 
