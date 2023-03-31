@@ -40,9 +40,16 @@ values
 		quad
 	);
 	
+	NEIGHBOURS
+	(
+		5
+		10
+	);
+
 	NARROWBAND
 	(
 		signChange
+		neighbours
 		distance
 	);
 	
