@@ -57,7 +57,7 @@ class NeighbourNarrowBand
     
 public:
 
-    TypeName("neighbour");
+    TypeName("neighbours");
     NeighbourNarrowBand(const dictionary& dict, const volScalarField& psi);
     virtual ~NeighbourNarrowBand() = default;
     virtual void calc();
