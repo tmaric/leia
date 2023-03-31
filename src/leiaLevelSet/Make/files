@@ -24,10 +24,11 @@ SDPLSSource/Mollifier/Mollifier1.C
 SDPLSSource/GradPsi/GradPsi.C
 SDPLSSource/GradPsi/NarrowLS.C
 
-interfaceBand/interfaceBand.C
-interfaceBand/signChangeInterfaceBand.C
-interfaceBand/distanceInterfaceBand.C
-interfaceBand/neighbourInterfaceBand.C
+NarrowBand/NarrowBand.C
+NarrowBand/EmptyNarrowBand.C
+NarrowBand/SignChangeNarrowBand.C
+NarrowBand/NeighbourNarrowBand.C
+NarrowBand/DistanceNarrowBand.C
 
 profile/profile.C
 profile/signedDistance.C

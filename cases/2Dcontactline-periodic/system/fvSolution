@@ -51,7 +51,7 @@ velocityModel
 
 levelSet
 {
-		interfaceBand	
+		narrowBand	
 		{
 			type	signChange;
 		}

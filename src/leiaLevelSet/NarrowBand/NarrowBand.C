@@ -25,38 +25,28 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "interfaceBand.H"
+#include "NarrowBand.H"
 #include "addToRunTimeSelectionTable.H"
 
 namespace Foam
 {
-defineTypeNameAndDebug(interfaceBand, false);
-defineRunTimeSelectionTable(interfaceBand, Dictionary);
-addToRunTimeSelectionTable(interfaceBand, interfaceBand, Dictionary);
+defineTypeNameAndDebug(NarrowBand, false);
+defineRunTimeSelectionTable(NarrowBand, Dictionary);
+addToRunTimeSelectionTable(NarrowBand, NarrowBand, Dictionary);
 
-interfaceBand::interfaceBand(const dictionary& dict, const volScalarField& psi)
+NarrowBand::NarrowBand(const dictionary& dict, const volScalarField& psi)
     :
         mesh_(psi.mesh()),
-        interfaceBandField_(
-            IOobject(
-                "interfaceBand",
-                psi.mesh().time().timeName(),
-                psi.mesh(),
-                IOobject::NO_READ,
-                IOobject::AUTO_WRITE
-                ), 
-            psi.mesh(), 
-            dimensioned(dimless, 0.)
-        ),
         psi_(psi)
+
 {}
 
-autoPtr<interfaceBand> interfaceBand::New(const fvMesh& mesh, const volScalarField& psi)
+autoPtr<NarrowBand> NarrowBand::New(const fvMesh& mesh, const volScalarField& psi)
 {
     const fvSolution& fvSolution (mesh);
     const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-    const dictionary& interfaceBandDict = levelSetDict.subOrEmptyDict("interfaceBand");
-    const word& type = interfaceBandDict.getOrDefault<word>("type","none");
+    const dictionary& NarrowBandDict = levelSetDict.subOrEmptyDict("narrowBand");
+    const word& type = NarrowBandDict.getOrDefault<word>("type","none");
 
     auto* ctorPtr = DictionaryConstructorTable(type);
 
@@ -65,17 +55,33 @@ autoPtr<interfaceBand> interfaceBand::New(const fvMesh& mesh, const volScalarFie
         FatalIOErrorInLookup
         (
             fvSolution,
-            "interfaceBand",
+            "NarrowBand",
             type,
             *DictionaryConstructorTablePtr_
         ) << exit(FatalIOError);
     }
 
-    Info << "Selecting interfaceBand type: " << type << nl << endl;
+    Info << "Selecting NarrowBand type: " << type << nl << endl;
     
     // Construct the model and return the autoPtr to the object. 
-    return autoPtr<interfaceBand>(ctorPtr(interfaceBandDict, psi));
+    return autoPtr<NarrowBand>(ctorPtr(NarrowBandDict, psi));
 }
+
+const fvMesh& NarrowBand::mesh() const
+{
+    return mesh_;
+}
+
+const volScalarField& NarrowBand::psi() const
+{
+    return psi_;
+}
+
+void NarrowBand::calc()
+{}
+
+void NarrowBand::write() const
+{}
 
 } // End namespace Foam
 

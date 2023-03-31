@@ -25,27 +25,27 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "signChangeInterfaceBand.H"
+#include "SignChangeNarrowBand.H"
 #include "addToRunTimeSelectionTable.H"
 #include "processorFvPatch.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(signChangeInterfaceBand, false);
-    addToRunTimeSelectionTable(interfaceBand, signChangeInterfaceBand, Dictionary);
+    defineTypeNameAndDebug(SignChangeNarrowBand, false);
+    addToRunTimeSelectionTable(NarrowBand, SignChangeNarrowBand, Dictionary);
 
-    signChangeInterfaceBand::signChangeInterfaceBand(const dictionary& dict, const volScalarField& psi)
+    SignChangeNarrowBand::SignChangeNarrowBand(const dictionary& dict, const volScalarField& psi)
         :
-            interfaceBand(dict, psi)
+            EmptyNarrowBand(dict, psi)
     {}
 
-    void signChangeInterfaceBand::calc()
+    void SignChangeNarrowBand::calc()
     {
         const auto& own = mesh().owner();  
         const auto& nei = mesh().neighbour(); 
-        const volScalarField& psi = this->psi_;
-        volScalarField& interfaceBand = interfaceBandField_;
-        interfaceBand = dimensionedScalar(interfaceBand.dimensions(), 0.);
+        const volScalarField& psi = this->psi();
+        volScalarField& NarrowBand = field();
+        NarrowBand = dimensionedScalar(NarrowBand.dimensions(), 0.);
 
         // Select the cells in the narrow band using face-connectivity.
         forAll(own, faceI)
@@ -55,8 +55,8 @@ namespace Foam
             // may not be picked up by this. May cause numerical inconsistency. TM. 
             if (psi[own[faceI]] * psi[nei[faceI]] <= 0)
             {
-                interfaceBand[own[faceI]] = 1;
-                interfaceBand[nei[faceI]] = 1;
+                NarrowBand[own[faceI]] = 1;
+                NarrowBand[nei[faceI]] = 1;
             }
         }
         // Set narrow band values across coupled process boundaries. 
@@ -77,7 +77,7 @@ namespace Foam
                     label faceJ = faceI + patch.start(); // Global face label.
                     if (psi[faceOwner[faceJ]] * psiPatchNeiField[faceI] <= 0)
                     {
-                        interfaceBand[faceOwner[faceJ]] = 1;
+                        NarrowBand[faceOwner[faceJ]] = 1;
                     }
                 }
             }

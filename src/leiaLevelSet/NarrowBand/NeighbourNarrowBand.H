@@ -24,21 +24,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::distanceInterfaceBand
+    Foam::NeighbourNarrowBand
 
 Description
     Concrete class which calculates a field with {0,1} which mark cells near the zero level-set interface.
 
 SourceFiles
-    distanceInterfaceBand.C
+    NeighbourNarrowBand.C
 
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef distanceInterfaceBand_H
-#define distanceInterfaceBand_H
+#ifndef NeighbourNarrowBand_H
+#define NeighbourNarrowBand_H
 
-#include "interfaceBand.H"
+#include "SignChangeNarrowBand.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -47,19 +47,19 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class distanceInterfaceBand Declaration
+                         Class NeighbourNarrowBand Declaration
 \*---------------------------------------------------------------------------*/
 
-class distanceInterfaceBand
-    : public interfaceBand
+class NeighbourNarrowBand
+    : public SignChangeNarrowBand
 {
-    scalar ncells_;
+    int ntimes_;
     
 public:
 
-    TypeName("distance");
-    distanceInterfaceBand(const dictionary& dict, const volScalarField& psi);
-    virtual ~distanceInterfaceBand() = default;
+    TypeName("neighbour");
+    NeighbourNarrowBand(const dictionary& dict, const volScalarField& psi);
+    virtual ~NeighbourNarrowBand() = default;
     virtual void calc();
 };
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

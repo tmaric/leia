@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 Tomislav Maric & Julian Reitzel, TU Darmstadt
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,21 +24,22 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::signChangeInterfaceBand
+    Foam::EmptyNarrowBand
 
 Description
-    Concrete class which calculates a field with {0,1} which mark cells near the zero level-set interface.
+    Abstract base class which starts the model hierachy for marking cells which are near the interface aka the "narrowBand".
+    Calculate a field with {0,1} which mark cells near the zero level-set interface.
+
 
 SourceFiles
-    signChangeInterfaceBand.C
-
+    EmptyNarrowBand.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef signChangeInterfaceBand_H
-#define signChangeInterfaceBand_H
+#ifndef EmptyNarrowBand_H
+#define EmptyNarrowBand_H
 
-#include "interfaceBand.H"
+#include "NarrowBand.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -47,18 +48,25 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class signChangeInterfaceBand Declaration
+                         Class EmptyNarrowBand Declaration
 \*---------------------------------------------------------------------------*/
 
-class signChangeInterfaceBand
-    : public interfaceBand
+class EmptyNarrowBand
+    : public NarrowBand
 {
-public:
+private:
+    volScalarField field_;
 
-    TypeName("signChange");
-    signChangeInterfaceBand(const dictionary& dict, const volScalarField& psi);
-    virtual ~signChangeInterfaceBand() = default;
-    virtual void calc();
+public:
+    TypeName("empty");
+    EmptyNarrowBand(const dictionary& dict, const volScalarField& psi);
+    virtual ~EmptyNarrowBand() = default;
+
+    // Member Functions
+    const volScalarField& field() const;
+    volScalarField& field();
+    virtual void write() const;
+
 };
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

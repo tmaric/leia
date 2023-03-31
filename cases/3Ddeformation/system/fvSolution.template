@@ -50,7 +50,7 @@ velocityModel
 
 levelSet
 {
-		interfaceBand	
+		narrowBand	
 		{
 			type	@!NARROWBAND!@;
 		}

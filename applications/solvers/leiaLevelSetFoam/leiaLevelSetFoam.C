@@ -53,7 +53,7 @@ Description
 #include "advectionErrors.H"
 #include "phaseIndicator.H"
 #include "redistancer.H"
-#include "interfaceBand.H"
+#include "NarrowBand.H"
 #include "SDPLSSource.H"
 #include "advectionVerification.H"
 
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
         
         phaseInd->calcPhaseIndicator(alpha, psi);
 
-        interfaceBand->calc();
+        narrowBand->calc();
 
         reportErrors(
             errorFile, 

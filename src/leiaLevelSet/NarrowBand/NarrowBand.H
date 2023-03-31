@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 Tomislav Maric & Julian Reitzel, TU Darmstadt
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,22 +24,26 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::neighbourInterfaceBand
+    Foam::NarrowBand
 
 Description
-    Concrete class which calculates a field with {0,1} which mark cells near the zero level-set interface.
+    Abstract base class which starts the model hierachy for marking cells which are near the interface aka the "narrowBand".
+    Calculate a field with {0,1} which mark cells near the zero level-set interface.
+
 
 SourceFiles
-    neighbourInterfaceBand.C
-
+    NarrowBand.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef neighbourInterfaceBand_H
-#define neighbourInterfaceBand_H
+#ifndef NarrowBand_H
+#define NarrowBand_H
 
-#include "signChangeInterfaceBand.H"
-
+#include "typeInfo.H"
+#include "autoPtr.H"
+#include "runTimeSelectionTables.H"
+#include "fvMesh.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -47,20 +51,47 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class neighbourInterfaceBand Declaration
+                         Class NarrowBand Declaration
 \*---------------------------------------------------------------------------*/
 
-class neighbourInterfaceBand
-    : public signChangeInterfaceBand
+class NarrowBand
 {
-    int nneighbour_;
-    
+protected:
+    const fvMesh& mesh_;
+    const volScalarField& psi_;
+
+
 public:
 
-    TypeName("neighbour");
-    neighbourInterfaceBand(const dictionary& dict, const volScalarField& psi);
-    virtual ~neighbourInterfaceBand() = default;
+    TypeName("none");
+
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        NarrowBand, 
+        Dictionary, 
+        (
+            const dictionary& dict, const volScalarField& psi
+        ), 
+        (dict, psi)
+    );
+
+    NarrowBand(const dictionary& dict, const volScalarField& psi);
+
+    static autoPtr<NarrowBand> New(const fvMesh& mesh, const volScalarField& psi);
+
+    virtual ~NarrowBand() = default;
+
+
+    // Member Functions
+
+    const fvMesh& mesh() const;
+
+    const volScalarField& psi() const;
+
     virtual void calc();
+
+    virtual void write() const;
 };
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

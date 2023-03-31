@@ -25,80 +25,79 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "neighbourInterfaceBand.H"
+#include "NeighbourNarrowBand.H"
 #include "addToRunTimeSelectionTable.H"
-#include "processorFvPatch.H"
 
 namespace Foam
 {
-    defineTypeNameAndDebug(neighbourInterfaceBand, false);
-    addToRunTimeSelectionTable(interfaceBand, neighbourInterfaceBand, Dictionary);
+    defineTypeNameAndDebug(NeighbourNarrowBand, false);
+    addToRunTimeSelectionTable(NarrowBand, NeighbourNarrowBand, Dictionary);
 
-    neighbourInterfaceBand::neighbourInterfaceBand(const dictionary& dict, const volScalarField& psi)
+    NeighbourNarrowBand::NeighbourNarrowBand(const dictionary& dict, const volScalarField& psi)
         :
-            signChangeInterfaceBand(dict, psi),
-            nneighbour_(dict.get<int>("n"))
+            SignChangeNarrowBand(dict, psi),
+            ntimes_(dict.get<int>("n"))
     {}
 
-    void neighbourInterfaceBand::calc()
+    void NeighbourNarrowBand::calc()
     {
-        signChangeInterfaceBand::calc();
-        if (interfaceBandField.empty())
+        SignChangeNarrowBand::calc();
+        if (field().empty())
         {
             FatalErrorInFunction
-            << "Initial interfaceBandField is empty! Can not find neighbours." << exit(FatalError);   
+            << "Initial NarrowBandField is empty! Can not find neighbours." << exit(FatalError);   
         }
 
-        const volScalarField& interfaceBandField = interfaceBandField_;
         const labelListList& neighbourCells = mesh().cellCells();
 
-        // // Approach: Does not work. newInterfaceBandIndices is empty or full with all labels.
-        // auto lambda = [&interfaceBandField](label idx){
+        // // Approach: Does not work. newNarrowBandIndices is empty or full with all labels.
+        // const volScalarField& NarrowBandField = field();
+        // auto lambda = [&NarrowBandField](label idx){
         //     scalar cmp = 0.0;
-        //     return interfaceBandField[idx] > cmp;
+        //     return NarrowBandField[idx] > cmp;
         // };
-        // labelList newInterfaceBandIndices = ListOps::findIndices(interfaceBandField, lambda);
-        // label ntimes = ListOps::count_if(interfaceBandField, lambda);
+        // labelList newNarrowBandIndices = ListOps::findIndices(field(), lambda);
+        // label ntimes = ListOps::count_if(field(), lambda);
         // Info << ntimes << " : ntimes the lambda evaled to true." << endl;  
 
         // Alternative approach: Find indices with forAll loop
-        labelList newInterfaceBandIndices;
-        forAll(interfaceBandField, cellID)
+        labelList newNarrowBandIndices;
+        forAll(field(), cellID)
         {
-            if(interfaceBandField[cellID] > 0.0)
+            if(field()[cellID] > 0.0)
             {
-                newInterfaceBandIndices.append(cellID);
+                newNarrowBandIndices.append(cellID);
             }
         }
-        // Info << newInterfaceBandIndices.size() << " : newInterfaceBandIndices.size()" << endl;
+        // Info << newNarrowBandIndices.size() << " : newNarrowBandIndices.size()" << endl;
         
-        if (newInterfaceBandIndices.empty())
+        if (newNarrowBandIndices.empty())
         {
             return;
         }
 
-        for(int i=0; i < nneighbour_; ++i)
+        for(int i=0; i < ntimes_; ++i)
         {
             labelList tmplist;
 
-            // iterate over all new interfaceBand cells
-            forAll(newInterfaceBandIndices, idxIndex)
+            // iterate over all new NarrowBand cells
+            forAll(newNarrowBandIndices, idxIndex)
             {
-                label idxCell = newInterfaceBandIndices[idxIndex];
+                label idxCell = newNarrowBandIndices[idxIndex];
                 const labelList& neighbours = neighbourCells[idxCell];
 
                 //iterate over all neighbour cells
                 forAll(neighbours, idxNei)
                 {
                     label neighbour = neighbours[idxNei];
-                    if(interfaceBandField_[neighbour] == 0.0)
+                    if(field()[neighbour] == 0.0)
                     {
-                        interfaceBandField_[neighbour] = 1.0;
+                        field()[neighbour] = 1.0;
                         tmplist.append(neighbour);
                     }
                 }
             }
-            newInterfaceBandIndices = tmplist;
+            newNarrowBandIndices = tmplist;
         }
     }
 
