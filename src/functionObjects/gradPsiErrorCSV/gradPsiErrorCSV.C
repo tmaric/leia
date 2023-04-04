@@ -85,10 +85,10 @@ bool Foam::functionObjects::gradPsiErrorCSV::write()
     scalar max_narrowGradPsiError = 0.0;
     scalar mean_narrowGradPsiError = 0.0;
 
-    if (mesh.objectRegistry::found("interfaceBand"))
+    if (mesh.objectRegistry::found("NarrowBand"))
     {
-        const auto interfaceBand = mesh.lookupObject<volScalarField>("interfaceBand");
-        List<scalar> narrowGradPsiError = subset(interfaceBand, gradPsiError);
+        const auto narrowBand = mesh.lookupObject<volScalarField>("NarrowBand");
+        List<scalar> narrowGradPsiError = subset(narrowBand, gradPsiError);
         max_narrowGradPsiError = gMax(narrowGradPsiError);
         mean_narrowGradPsiError = gAverage(narrowGradPsiError);
     }
