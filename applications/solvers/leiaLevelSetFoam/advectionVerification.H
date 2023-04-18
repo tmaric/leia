@@ -58,10 +58,11 @@ class velocityModel
 
         const fvSolution& fvSolution_;
         const dictionary& velocityDict_; 
-        Switch isOscillating_; 
+        Switch isOscillating_;
+        const scalar tau_;
 
     public: 
-        
+
         //- Runtime type information
         TypeName("none");
 
@@ -93,15 +94,45 @@ class velocityModel
                     "oscillation", 
                     "on"
                 )
+            ),
+            tau_
+            (
+                velocityDict_.getOrDefault<scalar>
+                (
+                    "tau",
+                    mesh.time().endTime().value())
             )
+                
         {}
+
+        virtual ~velocityModel() = default;
 
         Switch isOscillating() const
         {
             return isOscillating_;
         } 
 
-        virtual ~velocityModel() = default;
+        scalar oscillationFactor(scalar const time, const scalar tau) const
+        {
+            return Foam::cos(M_PI * time / tau);
+        }
+
+        void oscillateVelocity(
+                volVectorField& U, 
+                const volVectorField& U0,
+                surfaceScalarField& phi,
+                const surfaceScalarField& phi0, 
+                const Time& runTime
+        ) const
+        {
+            if (isOscillating())
+            {
+                const scalar osFactor = oscillationFactor(runTime.timeOutputValue(), tau_);
+                
+                phi == phi0 * osFactor;
+                U == U0 * osFactor;
+            }
+        }
 
         virtual Foam::vector velocity(const vector& x) const
         {
@@ -167,6 +198,7 @@ class velocityModel
             }
         }
 };
+
     
 defineTypeNameAndDebug(velocityModel, 0);
 defineRunTimeSelectionTable(velocityModel, Mesh);
@@ -356,6 +388,68 @@ class rotation
 
 defineTypeNameAndDebug(rotation, 0);
 addToRunTimeSelectionTable(velocityModel, rotation, Mesh);
+
+
+class vortex2D 
+:
+    public velocityModel
+{
+    scalar v0_; 
+
+    public: 
+
+        //- Runtime type information
+        TypeName("vortex2D");
+
+        vortex2D(const fvMesh& mesh) 
+        : 
+            velocityModel(mesh),
+            v0_(velocityDict_.getOrDefault<scalar>("v0", -0.2))
+        {}; 
+
+        virtual ~vortex2D() = default;
+
+        virtual vector velocity(const vector& p) const
+        {
+            return v0_ * Vector(-sin(M_PI*p[0])*cos(M_PI*p[1]), cos(M_PI*p[0])*sin(M_PI*p[1]), 0.0);
+        } 
+};
+
+defineTypeNameAndDebug(vortex2D, 0);
+addToRunTimeSelectionTable(velocityModel, vortex2D, Mesh);
+
+class periodic2D 
+:
+    public velocityModel
+{
+    scalar v0_; 
+    scalar c1_; 
+    scalar c2_; 
+
+    public: 
+
+        //- Runtime type information
+        TypeName("periodic2D");
+
+        periodic2D(const fvMesh& mesh) 
+        : 
+            velocityModel(mesh),
+            v0_(velocityDict_.getOrDefault<scalar>("v0", -0.2)),
+						c1_(0.1),
+						c2_(-2)
+        {}; 
+
+        virtual ~periodic2D() = default;
+
+        virtual vector velocity(const vector& p) const
+        {
+            return  Vector(v0_ + c1_*p[0] + c2_*p[1], -c1_*p[1], 0.0);
+        } 
+};
+
+defineTypeNameAndDebug(periodic2D, 0);
+addToRunTimeSelectionTable(velocityModel, periodic2D, Mesh);
+
 
 /*---------------------------------------------------------------------------*\    
                     Function templates for advection 

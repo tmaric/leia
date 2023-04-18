@@ -1,12 +1,49 @@
-functions    
-{    
-    volumeConservation     
-    {    
-	// Mandatory entries (unmodifiable)    
-	type        continuityError;    
-	libs        (fieldFunctionObjects);    
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2206                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+functions
+{
+    writeIsoSurfaceTopo
+    {
+        type            writeIsoSurfaceTopo;
+        libs            ( fieldFunctionObjects leiaFunctionObjects );
+    }
+    gradPsiError
+    {
+        type            gradPsiError;
+        libs            ( fieldFunctionObjects leiaFunctionObjects );
+        field           psi;
+        result          gradPsiError;
+        writeControl    writeTime;
+    }
+    gradPsi
+    {
+        type            grad;
+        libs            ( fieldFunctionObjects );
+        field           psi;
+        result          gradPsi;
+        writeControl    writeTime;
+    }
+    gradPsiErrorCSV
+    {
+        type            gradPsiErrorCSV;
+        libs            ( leiaFunctionObjects );
+        writeControl    timeStep;
+        field           gradPsiError;
+    }
+    TVerrorCSV
+    {
+        type            TVerrorCSV;
+        libs            ( leiaFunctionObjects );
+        writeControl    timeStep;
+        field           psi;
+    }
+}
 
-	// Optional entries (runtime modifiable)    
-	phi         phi;    
-    }    
-}  
+
+// ************************************************************************* //

@@ -53,9 +53,33 @@ Description
 #include "advectionErrors.H"
 #include "phaseIndicator.H"
 #include "redistancer.H"
+#include "NarrowBand.H"
+#include "SDPLSSource.H"
 #include "advectionVerification.H"
 
+// tmp
+#include "fileName.H"
+#include "uncollatedFileOperation.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scalar maxDeltaT(surfaceScalarField phi, const dictionary& dict)
+{
+    scalar maxGrowFactor = 1.2;
+    const fvMesh& mesh = phi.mesh();
+    scalar deltaT = mesh.time().deltaT().value();
+    scalar maxCFL = dict.get<scalar>("CFL");
+    scalarField sumPhi
+    (
+        fvc::surfaceSum(mag(phi))().primitiveField()
+    );
+
+    scalar deltaT_suggestion = maxCFL / (0.5*gMax(sumPhi/mesh.V().field()));
+
+    deltaT = min(deltaT * maxGrowFactor, deltaT_suggestion);
+
+    return deltaT;
+}
 
 
 int main(int argc, char *argv[])
@@ -80,6 +104,9 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+    // CFL based deltaT setting
+    runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+
     Info<< "\nCalculating scalar transport\n" << endl;
 
     #include "errorCalculation.H"
@@ -89,22 +116,21 @@ int main(int argc, char *argv[])
         #include "CourantNo.H"
 
         ++runTime;
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        Info<< "Time = " << runTime.timeName() << endl;
+        Info<< "deltaT = " << runTime.deltaT().value() << nl << endl;
 
         if (velocityModel->isOscillating())
         {
-            const scalar cosFactor = Foam::cos(M_PI * runTime.timeOutputValue() / 
-                runTime.endTime().value()
-            );
-            
-            phi == phi0 * cosFactor;
-            U == U0 * cosFactor;
+            velocityModel->oscillateVelocity(U, U0, phi, phi0, runTime);
         }
 
         fvScalarMatrix psiEqn
         (
             fvm::ddt(psi)
           + fvm::div(phi, psi)
+          ==
+            // fvm::SDPLSSource(psi, U)
+            source->fvmSDPLSSource(psi, U)
         );
 
         psiEqn.solve();
@@ -112,6 +138,8 @@ int main(int argc, char *argv[])
         redist->redistance(psi);
         
         phaseInd->calcPhaseIndicator(alpha, psi);
+
+        narrowBand->calc();
 
         reportErrors(
             errorFile, 
@@ -125,6 +153,17 @@ int main(int argc, char *argv[])
 
         runTime.write();
         runTime.printExecutionTime(Info);
+        
+
+        // CFL based deltaT setting
+        runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+
+        // if last timestep would overshoot endTime, set deltaT
+        if ((runTime.endTime() - runTime) < runTime.deltaT())
+        {
+            runTime.setDeltaT((runTime.endTime() - runTime), false);
+        }
+
     }
 
     psi.write();

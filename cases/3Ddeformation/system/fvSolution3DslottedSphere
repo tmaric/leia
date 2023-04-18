@@ -44,6 +44,14 @@ velocityModel
 
 levelSet
 {
+	interfaceBand	signChange;
+
+		profile
+		{
+			type	signedDistance;
+		}
+
+
     implicitSurface 
     {
         type slottedSphere; 

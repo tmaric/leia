@@ -42,7 +42,7 @@ SunOS*Gcc*/
 platforms/
 
 # Top-level build directories
-/build/
+build/
 /platforms/
 
 # Reinstate wmake rules that might look like build directories
@@ -84,8 +84,8 @@ doc/Doxygen/DTAGS
 
 *polyMesh/
 VTK/
-[0-9]\.*
-[1-9]+/
+[0-9].[0-9]*
+[0-9]/
 *.png
 *.ogv
 *.avi
@@ -93,18 +93,15 @@ PyFoam*
 
 .ipynb_checkpoints/
 *.database
-*_000*_*/
+*_000*/
 log.analyzed/
 log
-*.csv
-*.pvsm
 *.vtp
 *.vtk
 *.vtm
 *.pdf
 processor*/
 dynamicCode/
-*.csv*
 mpirun.schema
 .ipynb_checkpoints/
 *.hpcstruct
@@ -113,3 +110,17 @@ hpctoolkit-*database*/
 postProcessing/
 dynamicCode/
 processor*/
+
+# vscode
+.ccls-cache
+
+# python
+__pycache__
+
+cases/tmp_save_calculated_cases/
+cases/3D*_[0-9][0-9][0-9][0-9][0-9]_3D*/
+cases/**/*.csv
+cases/network-drive
+cases/study_*/
+tmp*
+**/leia.egg-info/**
