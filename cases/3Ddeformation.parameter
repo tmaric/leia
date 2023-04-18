@@ -8,6 +8,81 @@ values
 
     N_CELLS
     (
-        16 32 64 128 
+        32 64 128
     );
+		
+	SOURCE_SCHEME
+	(
+		explicit 
+		simpleLinearImplicit 
+		strictNegativeSpLinearImplicit
+	);
+
+	MOLLIFIER
+	(
+		none
+		m1
+	);
+	
+	GRAD_PSI
+	(
+		fvc
+		narrowLS
+	);
+
+	SDPLS_SOURCE
+	(
+		noSource
+		R
+		Rlin
+		Rquad
+		lin
+		quad
+	);
+	
+	NEIGHBOURS
+	(
+		5
+		10
+	);
+
+	NARROWBAND
+	(
+		signChange
+		neighbours
+		distance
+	);
+	
+	BC
+	(
+		zeroGradient
+		explicitGradient
+		explicitMag1Gradient
+	);
+	
+	DIV
+	(
+		linear
+		$LinearUpwind
+		vanLeer
+		$Gamma1
+		MUSCL 
+		Minmod
+		OSPRE 
+		SFCD
+		SuperBee
+		UMIST
+		vanAlbada 
+	);
+	
+	TANH_LIMIT
+	(
+		0.1
+	);
+
+	PROFILE
+	(
+		signedDistance 
+		tanh
+	);
 }

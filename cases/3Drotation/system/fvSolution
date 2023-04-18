@@ -52,6 +52,17 @@ velocityModel
 
 levelSet
 {
+		narrowBand	
+		{
+			type	signChange;
+		}
+
+		profile
+		{
+			type	signedDistance;
+		}
+
+
     implicitSurface 
     {
         type implicitSphere;
@@ -68,6 +79,12 @@ levelSet
     {
         type noRedistancing;
     }
+
+		SDPLSSource
+		{
+        type noSource;
+        discretization none;
+		}
 }
 
 

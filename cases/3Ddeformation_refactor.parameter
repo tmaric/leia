@@ -1,0 +1,69 @@
+values
+{
+    solver (leiaLevelSetFoam);
+
+    END_TIME (3.0);
+
+    CFL (0.25);
+
+    N_CELLS
+    (
+        32 64 128
+    );
+		
+	SOURCE_SCHEME
+	(
+		R
+	);
+	
+	SOURCE_SCHEME
+
+	SDPLS_SOURCE
+	(
+		noSource
+		R
+		Rlin
+		Rquad
+		lin
+		quad
+	);
+	(
+		none 
+		explicit 
+		simpleLinearImplicit 
+		strictNegativeSpLinearImplicit
+	);
+	
+	BC
+	(
+		zeroGradient
+		explicitGradient
+		explicitMag1Gradient
+	);
+	
+	DIV
+	(
+		linear
+		$LinearUpwind
+		vanLeer
+		$Gamma1
+		MUSCL 
+		Minmod
+		OSPRE 
+		SFCD
+		SuperBee
+		UMIST
+		vanAlbada 
+	);
+	
+	TANH_LIMIT
+	(
+		0.1
+	);
+
+	PROFILE
+	(
+		signedDistance 
+		tanh
+	);
+}

@@ -1,0 +1,5 @@
+
+fields/fvPatchFields/derived/explicitGradient/explicitGradientFvPatchField.C
+fields/fvPatchFields/derived/explicitMag1Gradient/explicitMag1GradientFvPatchField.C
+
+LIB = $(FOAM_USER_LIBBIN)/libleiafiniteVolume

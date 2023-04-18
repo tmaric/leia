@@ -54,20 +54,21 @@ addToRunTimeSelectionTable(phaseIndicator, geometricPhaseIndicator, Mesh);
 geometricPhaseIndicator::geometricPhaseIndicator(const fvMesh& mesh)
     :
         phaseIndicator(mesh),
-        narrowBandTmp_(new volScalarField
-            (
-                IOobject
-                (
-                    "narrowBand",
-                    mesh.time().timeName(), 
-                    mesh,
-                    IOobject::NO_READ, 
-                    IOobject::AUTO_WRITE
-                ),
-                mesh, 
-                dimensionedScalar("narrowBand", dimless, 0)
-            )
-        ),
+        // narrowBandTmp_(new volScalarField
+        //     (
+        //         IOobject
+        //         (
+        //             "narrowBand",
+        //             mesh.time().timeName(), 
+        //             mesh,
+        //             IOobject::NO_READ, 
+        //             IOobject::AUTO_WRITE
+        //         ),
+        //         mesh, 
+        //         dimensionedScalar("narrowBand", dimless, 0)
+        //     )
+        // ),
+        narrowBand_(mesh.lookupObject<volScalarField>("NarrowBand")),
         ncTmp_(new volVectorField
             (
                 IOobject
@@ -118,46 +119,50 @@ void geometricPhaseIndicator::calcPhaseIndicator
             alpha[cellID] = 0;
     }
 
-    const auto& own = mesh.owner();  
-    const auto& nei = mesh.neighbour(); 
-    volScalarField& narrowBand = narrowBandTmp_.ref();
-    narrowBand = dimensionedScalar("narrowBand", narrowBand.dimensions(), 0.);
+    // Approach: Lookup existing narrowBand
+    const volScalarField& narrowBand = narrowBand_;
 
-    // Select the cells in the narrow band using face-connectivity.
-    forAll(own, faceI)
-    {
-        // FIXME: If a cell is clipped by the interface at one of its corners,
-        // and the surrounding cell centers do not switch the iso-sign, it 
-        // may not be picked up by this. May cause numerical inconsistency. TM. 
-        if (psi[own[faceI]] * psi[nei[faceI]] <= 0)
-        {
-            narrowBand[own[faceI]] = 1;
-            narrowBand[nei[faceI]] = 1;
-        }
-    }
-    // Set narrow band values across coupled process boundaries. 
-    const auto& psiBdryField = psi.boundaryField(); // needed for Nc LLSQ contribs
-    const auto& patches = mesh.boundary(); // needed for Nc LLSQ contribs
-    const auto& faceOwner = mesh.faceOwner();
-    forAll(psiBdryField, patchI)
-    {
-        const fvPatch& patch = patches[patchI];
-        if (isA<coupledFvPatch>(patch)) // coupled patch 
-        {
-            const auto& psiPatchField = psiBdryField[patchI]; 
-            auto psiPatchNeiFieldTmp = 
-                psiPatchField.patchNeighbourField();
-            const auto& psiPatchNeiField = psiPatchNeiFieldTmp();
-            forAll(psiPatchNeiField, faceI)
-            {
-                label faceJ = faceI + patch.start(); // Global face label.
-                if (psi[faceOwner[faceJ]] * psiPatchNeiField[faceI] <= 0)
-                {
-                    narrowBand[faceOwner[faceJ]] = 1;
-                }
-            }
-        }
-    }
+    // // Approch: Calc own narrowBand
+    // volScalarField& narrowBand = narrowBandTmp_.ref();
+    // const auto& own = mesh.owner();  
+    // const auto& nei = mesh.neighbour(); 
+    // narrowBand = dimensionedScalar("narrowBand", narrowBand.dimensions(), 0.);
+
+    // // Select the cells in the narrow band using face-connectivity.
+    // forAll(own, faceI)
+    // {
+    //     // FIXME: If a cell is clipped by the interface at one of its corners,
+    //     // and the surrounding cell centers do not switch the iso-sign, it 
+    //     // may not be picked up by this. May cause numerical inconsistency. TM. 
+    //     if (psi[own[faceI]] * psi[nei[faceI]] <= 0)
+    //     {
+    //         narrowBand[own[faceI]] = 1;
+    //         narrowBand[nei[faceI]] = 1;
+    //     }
+    // }
+    // // Set narrow band values across coupled process boundaries. 
+    // const auto& psiBdryField = psi.boundaryField(); // needed for Nc LLSQ contribs
+    // const auto& patches = mesh.boundary(); // needed for Nc LLSQ contribs
+    // const auto& faceOwner = mesh.faceOwner();
+    // forAll(psiBdryField, patchI)
+    // {
+    //     const fvPatch& patch = patches[patchI];
+    //     if (isA<coupledFvPatch>(patch)) // coupled patch 
+    //     {
+    //         const auto& psiPatchField = psiBdryField[patchI]; 
+    //         auto psiPatchNeiFieldTmp = 
+    //             psiPatchField.patchNeighbourField();
+    //         const auto& psiPatchNeiField = psiPatchNeiFieldTmp();
+    //         forAll(psiPatchNeiField, faceI)
+    //         {
+    //             label faceJ = faceI + patch.start(); // Global face label.
+    //             if (psi[faceOwner[faceJ]] * psiPatchNeiField[faceI] <= 0)
+    //             {
+    //                 narrowBand[faceOwner[faceJ]] = 1;
+    //             }
+    //         }
+    //     }
+    // }
     
     // Linear Least-Squares Approximation of \Psi
     // \psi(x,y,z)= nc_x x  + nc_y y + nc_z z + dc
@@ -165,7 +170,9 @@ void geometricPhaseIndicator::calcPhaseIndicator
     nc_ = dimensionedVector("nc", nc_.dimensions(), vector(0,0,0));
     volScalarField& dc_ = dcTmp_.ref();
     dc_ = dimensionedScalar("dc", dc_.dimensions(), 0.);
-   
+
+    const auto& psiBdryField = psi.boundaryField();
+    const auto& patches = mesh.boundary();
     const auto& cellCells = mesh.cellCells(); 
     const auto& cellCenters = mesh.C();
     // Compute the phase indicator in the narrow band.

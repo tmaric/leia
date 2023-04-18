@@ -1,0 +1,61 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2012                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     leiaLevelSetFoam;
+
+startFrom       startTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         0.8;
+
+Umax						1.2;
+
+CFL							@!CFL!@;
+
+// safty factor which is necessary to ensure maxCFL for some reason
+CFLsafty				1.0;
+
+// dummy float value. Will be replaced by Allrun
+deltaX					0.0;
+
+deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+
+writeControl    runTime;
+
+writeInterval   0.05;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable true;
+
+libs ("libleiafiniteVolume.so");
+
+#include "fobjects";
+// ************************************************************************* //
