@@ -96,7 +96,7 @@ scalar Foam::functionObjects::TVerrorCSV::calcTV()
     scalar TV = 0.0;
     forAll(nei, faceI)
     {
-        TV += field_[nei[faceI]] - field_[own[faceI]];
+        TV += mag(field_[nei[faceI]] - field_[own[faceI]]);
     }
 
     // TV across coupled process boundaries. 
