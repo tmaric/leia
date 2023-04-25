@@ -67,6 +67,8 @@ def df_represantive_error_rows(study_df, errorcolumn):
             indices.append(case_df[errorcolumn].idxmax())
         elif strategy == 'endTime':
             indices.append(case_df[errorcolumn].index[-1])
+        elif strategy == 'absendTime':
+            indices.append(case_df[errorcolumn].index[-1])
         else:
             raise RuntimeError(f'No index selection process defined for strategy {strategy}')
     return study_df.iloc[indices]

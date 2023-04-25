@@ -112,7 +112,7 @@ def property_dict(template, study, mesh=''):
                 titlestr = 'total variation error',
                 figstr = 'Etv',
                 labelstr = r'$ E_{TV} $',
-                formula = r'$ E_{TV} = TV(t_e)-TV(t_0) $, $ TV = \sum_f \psi_N - \psi_O $',
+                formula = r'$ E_{TV} = TV(t_e)-TV(t_0) $, $ TV = \sum_f |\psi_N - \psi_O| $',
                 mesh=mesh,   
             ),
 
@@ -124,7 +124,7 @@ def property_dict(template, study, mesh=''):
                 titlestr = 'relative total variation error',
                 figstr = 'Etv-rel',
                 labelstr = r'$ E_{TV} $',
-                formula = r'$ E_{TV} = \frac{TV(t_e)-TV(t_0)}{TV(t_0)} $, $ TV = \sum_f \psi_N - \psi_O $',
+                formula = r'$ E_{TV} = \frac{TV(t_e)-TV(t_0)}{TV(t_0)} $, $ TV = \sum_f |\psi_N - \psi_O| $',
                 mesh=mesh,   
             ),
     }

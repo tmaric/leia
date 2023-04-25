@@ -24,9 +24,13 @@ import numpy as np
 
 
 def get_endvalue(df):
-    """Returns values at endTime."""
+    """Returns value at endTime."""
     return df.iloc[-1,1]
 
+def get_absendvalue(df):
+    """Returns value at endTime."""
+    return abs(get_endvalue(df))
+
 def get_maxvalue(df):
-    """Returns the max values over all times."""
+    """Returns the max value over all times."""
     return df.iloc[:,1].max()
