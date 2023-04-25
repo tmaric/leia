@@ -117,6 +117,13 @@ processor*/
 # python
 __pycache__
 
+# Doxygen generated
+doc/Doxygen/html
+doc/Doxygen/latex
+doc/Doxygen/man
+doc/Doxygen/DTAGS
+
+# by JR
 cases/tmp_save_calculated_cases/
 cases/3D*_[0-9][0-9][0-9][0-9][0-9]_3D*/
 cases/**/*.csv
