@@ -73,6 +73,7 @@ values
 		SuperBee
 		UMIST
 		vanAlbada 
+    upwind
 	);
 	
 	TANH_LIMIT

@@ -31,6 +31,19 @@ values
 		quad
 	);
 	
+	NEIGHBOURS
+	(
+		5
+		10
+	);
+
+	NARROWBAND
+	(
+		signChange
+		neighbours
+		distance
+	);
+	
 	BC
 	(
 		zeroGradient
@@ -51,6 +64,7 @@ values
 		SuperBee
 		UMIST
 		vanAlbada 
+    upwind
 	);
 	
 	TANH_LIMIT

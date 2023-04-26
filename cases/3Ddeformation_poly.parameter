@@ -27,6 +27,18 @@ values
 		strictNegativeSpLinearImplicit
 	);
 
+	MOLLIFIER
+	(
+		none
+		m1
+	);
+	
+	GRAD_PSI
+	(
+		fvc
+		narrowLS
+	);
+
 	SDPLS_SOURCE
 	(
 		noSource
@@ -35,6 +47,19 @@ values
 		Rquad
 		lin
 		quad
+	);
+	
+	NEIGHBOURS
+	(
+		5
+		10
+	);
+
+	NARROWBAND
+	(
+		signChange
+		neighbours
+		distance
 	);
 	
 	BC
