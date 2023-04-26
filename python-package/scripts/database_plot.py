@@ -164,12 +164,16 @@ def main():
                         dest='mesh',
                         )
     
-    parser.add_argument('--filter',
-                        help="Drop a whole column and keep rows which match <value>" \
-                            + "\nExpects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
-                        required=False,
-                        action='append',
-                        nargs=3, 
+ 
+    parser.add_argument('--rm',
+                       help="Removes all rows matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
+                       action='append',
+                       nargs=3,                   
+                       )
+    
+    parser.add_argument('--keep', 
+                       help="Removes all rows not matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
+                       nargs=3, 
                         )
     
     parser.add_argument('-d','--savedir',
@@ -183,14 +187,23 @@ def main():
     study_csv = args.studyCSV
     template = os.path.basename(study_csv).split('_')[1]
     study = os.path.basename(study_csv).rpartition('_')[0]
-
     study_df = pd.read_csv(study_csv, header=[0,1])
 
-    assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
 
-    if args.filter is not None:
-        for fi in args.filter:
-            study_df = filter_studydf(study_df, column=(fi[0], fi[1]), value=fi[2])
+    def column(ls: list):
+        return (ls[0], ls[1])
+    if args.rm:
+        if isinstance(args.rm[0], list): # then multiple --rm are passed
+            rms = args.rm
+        else:
+            rms = [args.rm]
+        for rm in rms: 
+            study_df = studycsv.filter_rm(study_df, column(rm), rm[2])
+    if args.keep:
+        study_df = studycsv.filter_keep(study_df, column(args.keep), args.keep[2], drop=True)
+
+
+    assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
 
     if args.savedir is None:
         args.savedir = os.path.abspath(os.path.dirname(study_csv))
