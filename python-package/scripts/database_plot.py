@@ -163,7 +163,16 @@ def main():
                         required=False,
                         dest='mesh',
                         )
-    
+
+    parser.add_argument('--plot',
+                        choices=['time', 'table', 'conv', 'bestconv'],
+                        help="Just plot following",
+                        default='',
+                        nargs='*',
+                        # action='append',
+                        required=False,
+                        )
+
  
     parser.add_argument('--rm',
                        help="Removes all rows matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
@@ -188,6 +197,7 @@ def main():
     template = os.path.basename(study_csv).split('_')[1]
     study = os.path.basename(study_csv).rpartition('_')[0]
     study_df = pd.read_csv(study_csv, header=[0,1])
+    assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
 
 
     def column(ls: list):
@@ -203,19 +213,26 @@ def main():
         study_df = studycsv.filter_keep(study_df, column(args.keep), args.keep[2], drop=True)
 
 
-    assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
-
     if args.savedir is None:
         args.savedir = os.path.abspath(os.path.dirname(study_csv))
-
     os.makedirs(args.savedir, exist_ok=True)
 
-    # run just timeplot for some properties
-    timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir)
     
     properties = property_dict(template, study, mesh=args.mesh)
     properties = check_properties_in_studydf(properties, study_df)
-    runall(study_df, properties, args.savedir)
+
+
+    if args.plot:
+        choices=['time', 'table', 'conv', 'bestconv']
+        funcs = [timeplot, nsmallest_table, convergenceplot, best_convergenceplot]
+        mapping_dict = dict(zip(choices, funcs))
+        for pl in args.plot:
+            mapping_dict[pl](study_df, properties, args.savedir)
+    else:
+        # run just timeplot for some properties
+        timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir)
+        runall(study_df, properties, args.savedir)
+
 
 def check_properties_in_studydf(properties, study_df):
     properties = dict(filter(lambda item: item[0] in study_df.columns.levels[1], properties.items()))
