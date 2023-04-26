@@ -11,7 +11,7 @@ rm -rf 0 && cp -r 0.org 0
 find 0/ -name "*.template" -delete && \
 touch "$(basename ${PWD}).foam" && \
 set -o errexit
-cp system/controlDict_poly system/controlDict
+cp system/fvSchemes.non-orthogonal system/fvSchemes
 pMesh 
 
 checkMesh | tee log.checkMesh

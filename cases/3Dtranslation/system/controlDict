@@ -33,7 +33,7 @@ CFL							0.5;
 CFLsafty				1.0;
 
 // dummy float value. Will be replaced by Allrun
-deltaX					3.125000e-02;
+deltaX					3.125000e-1.0;
 
 deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
 
