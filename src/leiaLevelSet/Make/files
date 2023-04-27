@@ -9,4 +9,32 @@ redistancer/lsqRedistancer.C
 surfaceTensionForce/surfaceTensionForce.C
 surfaceTensionForce/traceGradGeoNormalSnGradAlpha.C
 
+SDPLSSource/SDPLSSource.C
+SDPLSSource/SDPLS_R.C
+SDPLSSource/SDPLS_Rlin.C
+SDPLSSource/SDPLS_Rquad.C
+SDPLSSource/SDPLS_quad.C
+SDPLSSource/SDPLS_lin.C
+
+SDPLSSource/SourceScheme/SourceScheme.C
+SDPLSSource/SourceScheme/explicitScheme.C
+SDPLSSource/SourceScheme/simpleLinearImplicitScheme.C
+SDPLSSource/SourceScheme/strictNegativeSpLinearImplicitScheme.C
+
+SDPLSSource/Mollifier/Mollifier.C
+SDPLSSource/Mollifier/Mollifier1.C
+
+SDPLSSource/GradPsi/GradPsi.C
+SDPLSSource/GradPsi/NarrowLS.C
+
+NarrowBand/NarrowBand.C
+NarrowBand/EmptyNarrowBand.C
+NarrowBand/SignChangeNarrowBand.C
+NarrowBand/NeighbourNarrowBand.C
+NarrowBand/DistanceNarrowBand.C
+
+profile/profile.C
+profile/signedDistance.C
+profile/tanh.C
+
 LIB = $(FOAM_USER_LIBBIN)/libleiaLevelSet

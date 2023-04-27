@@ -26,20 +26,27 @@ stopAt          endTime;
 endTime         @!END_TIME!@;
 
 // Maximal velocity in the rotation around an axis for a unit-cube domain is sqrt(0.5^2 + 0.5^2)
-// A global CFL is set based on this maximal global velocity 
-deltaTinitial   #calc "@!END_TIME!@ / floor(@!END_TIME!@ / ( @!CFL!@ / (@!N_CELLS!@ * 0.7071067811865476)))"; 
+Umax						0.7071067811865476;
 
-writeInterval   #calc "floor(0.1 * ($endTime / $deltaTinitial))";
+CFL							@!CFL!@;
 
-deltaT          #calc "$endTime / (10 * $writeInterval)"; 
+// safty factor which is necessary to ensure maxCFL for some reason
+CFLsafty				1.0;
 
-writeControl    timeStep;
+// dummy float value. Will be replaced by Allrun
+deltaX					0.0;
+
+deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+
+writeControl    runTime;
+
+writeInterval   0.3;
 
 purgeWrite      0;
 
 writeFormat     ascii;
 
-writePrecision  12;
+writePrecision  16;
 
 writeCompression off;
 
@@ -48,6 +55,8 @@ timeFormat      general;
 timePrecision   6;
 
 runTimeModifiable true;
+
+libs ("libleiafiniteVolume.so");
 
 #include "fobjects";
 // ************************************************************************* //

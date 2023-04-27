@@ -15,10 +15,10 @@ FoamFile
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-// maxCellSize     0.021; // 270kCells
-maxCellSize     0.015; // 700kCells
+ maxCellSize     0.021; // 270kCells
+//maxCellSize     0.015; // 700kCells
 // maxCellSize     0.008; // 1.7MCells
-surfaceFile     "box-edges.stl";
+surfaceFile     "box-translation-edges.stl";
 
 renameBoundary
 {

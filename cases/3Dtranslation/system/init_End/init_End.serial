@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+readonly SCRIPT_PATH=$(realpath "${BASH_SOURCE[0]}")
+readonly SUPPORT_CASE="$(dirname $SCRIPT_PATH)"
+readonly CASE="$(realpath $SUPPORT_CASE/../../)"
+
+if [[ ! -d "$CASE/0" ]]; then
+	echo "0/ directory is missing in $CASE"
+	exit 1
+fi
+
+function rename() {
+	if [[ -z "${1}" ]]; then
+		echo "No argument provided to rename()"
+		exit 2
+	fi
+	sed -i "s/${1}/${1}End/" "0/${1}"
+	mv "0/${1}" "0/${1}End"
+}
+
+set -e
+cd "$SUPPORT_CASE"
+cp -a 0.org 0
+leiaSetFields 
+rename psi
+rename alpha
+mv 0/psiEnd "$CASE/0"
+mv 0/alphaEnd "$CASE/0"
+echo "Initialised endTime state in 0/"
+set +e
+./clean
+cd "$OLDPWD" 

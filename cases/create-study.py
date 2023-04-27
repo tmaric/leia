@@ -2,7 +2,8 @@
 
 from optparse import OptionParser
 import sys
-from subprocess import call
+from subprocess import call, run
+from shlex import quote
 import os
 
 
@@ -55,3 +56,7 @@ if __name__ == "__main__":
           "--parameter-file=default.parameter",
           "--every-variant-one-case-execution",
           "--create-database", options.casedir, options.paramfile])
+    
+    run(f"pyFoamRunParameterVariation.py --list-variation {quote(options.casedir)} {quote(options.paramfile)} > {options.studyname + '_pyFoam-variation.txt'}",
+        shell=True,
+        )

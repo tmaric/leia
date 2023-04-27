@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+readonly SCRIPT_PATH=$(realpath "${BASH_SOURCE[0]}")
+readonly DIR_PATH="$(dirname $SCRIPT_PATH)"
+
+cd "${DIR_PATH}"
+
+rm -rf 0 dynamicCode 2> /dev/null
+rm  *.vtk log processor* *.csv 2> /dev/null
+exit 0

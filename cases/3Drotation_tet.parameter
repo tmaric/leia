@@ -22,4 +22,54 @@ values
     (
     	0.05
     );
+		
+	SOURCE_SCHEME
+	(
+		explicit 
+		simpleLinearImplicit 
+		strictNegativeSpLinearImplicit
+	);
+
+	SDPLS_SOURCE
+	(
+		noSource
+		R
+		Rlin
+		Rquad
+		lin
+		quad
+	);
+	
+	BC
+	(
+		zeroGradient
+		explicitGradient
+		explicitMag1Gradient
+	);
+	
+	DIV
+	(
+		linear
+		$LinearUpwind
+		vanLeer
+		$Gamma1
+		MUSCL 
+		Minmod
+		OSPRE 
+		SFCD
+		SuperBee
+		UMIST
+		vanAlbada 
+	);
+	
+	TANH_LIMIT
+	(
+		0.1
+	);
+
+	PROFILE
+	(
+		signedDistance 
+		tanh
+	);
 }
