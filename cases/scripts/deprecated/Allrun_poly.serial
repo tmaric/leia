@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+if [[ $# -eq 0 ]]; then
+	echo "Provide base case as 1st argument" >&2
+	exit 1
+fi
+./Allclean && \
+touch "$(basename ${PWD}).foam" && \
+foamJob eval '\
+  rm -rf 0 && cp -r 0.org 0 && \
+  find 0/ -name "*.template" -delete && \
+	( rm system/controlDict || true ) && cp system/controlDict${1}_poly system/controlDict && \
+	pMesh && leiaSetFields  && \
+	{
+	./system/init_End/init_End.serial ; \
+	leiaLevelSetFoam 
+	}'
+

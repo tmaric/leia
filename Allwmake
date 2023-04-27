@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-WITH_BEAR=$1
+g++ --version | head -n 1
 
-wmake $WITH_BEAR src/levelSetImplicitSurfaces 
-wmake $WITH_BEAR src/functionObjects
-wmake $WITH_BEAR src/leiaLevelSet
+WITH_BEAR=""
+if bear --version; then
+	WITH_BEAR="-with-bear"
+fi
 
-wmake $WITH_BEAR all applications
+wmake $WITH_BEAR $1 src/levelSetImplicitSurfaces 
+wmake $WITH_BEAR $1 src/functionObjects
+wmake $WITH_BEAR $1 src/leiaLevelSet
+wmake $WITH_BEAR $1 src/finiteVolume
+
+wmake $WITH_BEAR $1 all applications
 
 

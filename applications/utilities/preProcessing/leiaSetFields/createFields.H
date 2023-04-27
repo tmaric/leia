@@ -38,6 +38,20 @@ autoPtr<implicitSurface> implSurf = implicitSurface::New
     implSurfDict 
 );
 
+// RTS of the level-set profile
+const dictionary& profileDict = levelSetDict.subDict("profile");
+const word profileType = profileDict.get<word>("type");
+autoPtr<profile> LSprofile_ptr = profile::New
+(
+    mesh, 
+    implSurf.ref() 
+);
+profile LSprofile = LSprofile_ptr.ref();
+
+// RTS of the narrowBand model
+autoPtr<NarrowBand> narrowBand = NarrowBand::New(mesh, psi); 
+narrowBand->calc();
+
 //- RTS of the phase indicator model.
 autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh);
 
