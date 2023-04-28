@@ -182,6 +182,7 @@ def main():
     
     parser.add_argument('--keep', 
                        help="Removes all rows not matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
+                       action='append',
                        nargs=3, 
                         )
     
@@ -210,8 +211,12 @@ def main():
         for rm in rms: 
             study_df = studycsv.filter_rm(study_df, column(rm), rm[2])
     if args.keep:
-        study_df = studycsv.filter_keep(study_df, column(args.keep), args.keep[2], drop=True)
-
+        if isinstance(args.keep[0], list): # then multiple --keep are passed
+            keeps = args.keep
+        else:
+            keeps = [args.keep]
+        for keep in keeps: 
+            study_df = studycsv.filter_keep(study_df, column(keep), keep[2], drop=True)
 
     if args.savedir is None:
         args.savedir = os.path.abspath(os.path.dirname(study_csv))
