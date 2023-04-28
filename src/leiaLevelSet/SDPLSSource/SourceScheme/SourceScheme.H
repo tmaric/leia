@@ -31,6 +31,39 @@ Description
     The source term is defined in "A locally signed-distance preserving level set method (SDPLS) for moving interfaces" by M. Fricke et. al..
     https://arxiv.org/abs/2208.01269
 
+      \f[ y = mx + b \f]
+ 
+     \f[ y \approx mx + b \f]
+ 
+     The distance between \f$(x_1,y_1)\f$ and \f$(x_2,y_2)\f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
+ 
+     \f[
+       |I_2|=\left| \int_{0}^T \psi(t) 
+                \left\{ 
+                   u(a,t)-
+                   \int_{\gamma(t)}^a 
+                   \frac{d\theta}{k(\theta,t)}
+                   \int_{a}^\theta c(\xi)u_t(\xi,t)\,d\xi
+                \right\} dt
+             \right|
+     \f]
+ 
+   \f[
+    \hat{S}(\phi(\x,t)) \approx \hat{S}_c + \hat{S}_{p} \phi(\x,t)
+   \f] 
+       
+   \f{equation}{
+       \label{eq:linearization}
+       \hat{S}(\phi(\x,t)) \approx \hat{S}_c + \hat{S}_{p} \phi(\x,t)
+   \f}
+  
+   \f{equation}{
+   \begin{aligned}
+     a + b &= 1 \\
+     b &= 456
+   \end{aligned}
+   \f}
+
 SourceFiles
     SourceScheme.C
 
