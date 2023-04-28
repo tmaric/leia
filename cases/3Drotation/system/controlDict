@@ -23,7 +23,7 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         #eval "2*pi()";
+endTime         6.283185307179586;
 
 // Maximal velocity in the rotation around an axis for a unit-cube domain is sqrt(0.5^2 + 0.5^2)
 Umax						0.7071067811865476;
