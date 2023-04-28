@@ -64,7 +64,13 @@ def latestTime_endTime(case):
     """
     latestTime = run(f"foamLatestTime.sh {case}", shell=True, check=True, capture_output=True, encoding='utf-8').stdout
     latestTime = float(latestTime)
-    endTime = run(f"foamDictionary -entry endTime -value {os.path.join(case, 'system/controlDict')}", 
+    # endTime = run(f"foamDictionary -entry endTime -value {os.path.join(case, 'system/controlDict')}",  # Issue: Rounds to the 5th digit
+    #             shell=True, 
+    #             check=True, 
+    #             capture_output=True, 
+    #             encoding='utf-8'
+    #             ).stdout
+    endTime = run(f"sed -n '/^endTime\>/p' {os.path.join(case, 'system/controlDict')} | grep -o '[0-9.]*", 
                 shell=True, 
                 check=True, 
                 capture_output=True, 

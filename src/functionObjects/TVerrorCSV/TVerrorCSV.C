@@ -114,7 +114,7 @@ scalar Foam::functionObjects::TVerrorCSV::calcTV()
             forAll(patchNeiField, faceI)
             {
                 label faceJ = faceI + patch.start(); // Global face label.
-                TV += patchNeiField[faceJ] - field_[faceOwner[faceJ]];
+                TV += mag(patchNeiField[faceJ] - field_[faceOwner[faceJ]]);
             }
         }
     }
