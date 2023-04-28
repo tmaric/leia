@@ -31,6 +31,24 @@ Description
     The source term is defined in "A locally signed-distance preserving level set method (SDPLS) for moving interfaces" by M. Fricke et. al..
     https://arxiv.org/abs/2208.01269
 
+    The class \verb|SDPLSSource| builds the root for the model hierarchy of the \gls{SDPLS} method and is the only class the user should interact with. The \gls{SDPLS} method extends the standard \gls{LS} advection equation with the here called \gls{SDPLS} source term. For this, the r.h.s. of the \gls{LS} equation in the solver application is extended by calling
+    %
+    \f{verbatim}{
+    fvmSDPLSSource(const volScalarField& psi, const volVectorField& U)
+    \f}
+    %
+    at the \gls{RTS} selected model and passing a reference to the \gls{LS} field \verb|psi| and the velocity field \verb|U|. Returned is a temporary \verb|tmp<fvScalarMatrix>| object for implicit incorporation into the \gls{LS} equation.
+    This class hierarchy has the responsibility to provide implementations for the formula of non-linear \gls{SDPLS} source terms. Discretization is done separately by the class hierarchy \verb|SourceScheme|, which is in relation via the strategy pattern.
+    It is assumed that all \gls{SDPLS} source term variants share this structure
+    %
+    \f{equation}{
+        S_{SDPLS}(\psi) = \psi f_{nl}(\psi)
+    \f}
+    %
+    with \f$f_{nl}\f$ being some non-linear function. 
+    All inherited classes have the responsibility to implement this non-linear function by overloading the member function \verb|nonLinearPart()|. 
+
+
 SourceFiles
     SDPLSSource.C
 
