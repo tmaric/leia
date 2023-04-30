@@ -18,6 +18,7 @@ readonly DIR_PATH="$(dirname $SCRIPT_PATH)"
 #sed 's/%.*$//' 															# delete comments at the end of a line
 #sed 's/\\\(gls\){\([a-zA-Z]*\)}/\2/g' 				# delete \gls command, but not its content
 #sed 's/\\\(verb\)|\([a-zA-Z]*\)|/\2/g' 			# delete \verb command, but not its content
+#sed 's/(\\ref{eq.*})//g'											# delete \ref equations
 #sed 's/\\cite{\([a-zA-Z0-9_]*\)}/\\cite \1/'	# replace \cite command
 
 ## final command, as concatenation
@@ -25,12 +26,13 @@ if [[ ! -t 0 ]]; then # stdin is provided
 
 sed '
 s/\$/\\f$/g;
-s/\\begin{\([a-z*]*\)}/\\f{\1}{/;
-s/\\end{\([a-z*]*\)}/\\f}/;
+s/\\begin{\(equation\|verbatim\)}/\\f{\1}{/;
+s/\\end{\(equation\|verbatim\)}/\\f}/;
 /^%/d;
 s/%.*$//;
 s/\\\(gls\){\([a-zA-Z]*\)}/\2/g;
-s/\\\(verb\)|\([a-zA-Z()<>]*\)|/\2/g;
+s/\\\(verb\)|\([^|]*\)|/\2/g;
+s/(\\ref{eq.*})//g;
 s/\\cite{\([a-zA-Z0-9_]*\)}/\\cite \1/
 ' <&0
 
