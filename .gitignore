@@ -122,6 +122,7 @@ doc/Doxygen/html
 doc/Doxygen/latex
 doc/Doxygen/man
 doc/Doxygen/DTAGS
+doc/Doxygen/Doxygen.warnings
 
 # by JR
 cases/tmp_save_calculated_cases/
