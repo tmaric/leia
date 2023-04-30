@@ -27,7 +27,20 @@ Class
     Foam::simpleLinearImplicitScheme
 
 Description
-    Concrete class which calculates the SDPLS source term simpleLinearImplicitly.
+    The class simpleLinearImplicitScheme implements an implicit discretization of the source term in the most simplest way.
+    
+    The linearization constants are calculated as 
+    \f{equation}{
+    \begin{aligned}
+        S_{simpleLinearImplicit,\,c} &= 0\\
+        S_{simpleLinearImplicit,\,p} &= f_{nl}(\psi^n),
+    \end{aligned}
+    \f}
+    resulting in the simpleLinearImplicit source
+    \f{equation}{
+        S_{simpleLinearImplicit}(\psi^{n+1}) = f_{nl}(\psi^n)\psi^{n+1}_c.
+    \f}
+
 
 SourceFiles
     simpleLinearImplicitScheme.C

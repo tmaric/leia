@@ -27,26 +27,33 @@ Class
     Foam::SDPLSSource
 
 Description
-    The base class SDPLSSource builds the root for the model hierarchy of the
-    SDPLS method by Fricke et. al. \cite fricke_locally_2022 and is the only class
-    the user should interact with. The SDPLS method extends the standard LS
-    advection equation with the here called SDPLS source term. For this, the r.h.s.
-    of the LS equation in the solver application is extended by calling
-    \f{verbatim}{ fvmSDPLSSource(const volScalarField& psi, const volVectorField& U)
-    \f} at the RTS selected model and passing a reference to the LS field psi and
-    the velocity field U. Returned is a temporary tmp<fvScalarMatrix> object for
-    implicit incorporation into the LS equation. This class hierarchy has the
-    responsibility to provide implementations for the formula of non-linear SDPLS
-    source terms. Discretization is done separately by the class hierarchy
-    SourceScheme, which is in relation via the strategy pattern. It is assumed that
-    all SDPLS source term variants share this structure 
-    \f{equation}{
-        S_{SDPLS}(\psi) = \psi f_{nl}(\psi)
+    The base class SDPLSSource is the root for the model hierarchy of the SDPLS
+    method by Fricke et. al. \cite fricke_locally_2022. 
+    It is the only class with which the user of the SDPLS method should interact. 
+    The SDPLS method extends the standard LS advection equation with the SDPLS source term. 
+    This is done by extending the r.h.s. of the LS equation in the solver application by calling
+
+    fvmSDPLSSource(const volScalarField& psi, const volVectorField& U)
+
+    on the RTS selected model and passing a reference to the LS field psi and the
+    velocity field U. It returns a tmp<fvScalarMatrix> object for integration into
+    the LS equation. This class hierarchy is responsible for providing
+    implementations for the formula of non-linear SDPLS source terms. It is assumed
+    that all SDPLS source term variants have the following structure and evaluate
+    the source in cell \f$\Omega_c\f$ as 
+    \f{equation}{ \label{eq:SDPLS source}
+        S_{SDPLS}(\psi^{n+1}) = f_{nl}(\psi^{n+1}) \psi^{n+1}_c
     \f}
-    with \f$f_{nl}(\psi)\f$ being some non-linear function.
-    All inherited classes have the responsibility to implement this non-linear
-    function by overloading the member function nonLinearPart(). This base class
-    implements the case of inactive source term.
+    with the solution field \f$\psi^{n+1}\f$ at time \f$t^{n+1}\f$, some non-linear
+    scalar function \f$f_{nl}(\psi^{n+1})\f$ and \f$\psi^{n+1}_c\f$ the solution
+    value in cell \f$\Omega_c\f$. All inherited classes are responsible for
+    implementing this non-linear function by overloading the member function
+    nonLinearPart(). This base class implements the case of an inactive source term.
+    The discretization is done separately by the class hierarchy SourceScheme, which
+    is related via the strategy pattern. Furthermore, this class has a strategy for
+    a Mollifier, which restricts the active source term to a narrow band around the
+    interface.
+
 
 SourceFiles
     SDPLSSource.C
@@ -86,8 +93,12 @@ private:
     autoPtr<GradPsi> gradPsi_;
     autoPtr<Mollifier> mollifier_;
 
+    // TODO
+	// - put R() into SDPLS_R
+	// - Don't store R_, nonLinearPart_ member variables
+	// - Currently they are member variables to be registered and written
+	// - Currently R() is in SDPLS_SOURCE to see the R field even for noSource 
     volScalarField R_;
-
     volScalarField nonLinearPart_;
 
 public:

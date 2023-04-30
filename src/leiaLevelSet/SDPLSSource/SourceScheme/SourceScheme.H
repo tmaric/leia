@@ -27,42 +27,28 @@ Class
     Foam::SourceScheme
 
 Description
-    This is the absract baseclass for the source term in the level-set-equation for two-phase-flow simulation.
-    The source term is defined in "A locally signed-distance preserving level set method (SDPLS) for moving interfaces" by M. Fricke et. al..
-    https://arxiv.org/abs/2208.01269
+    The base class SourceScheme forms the root for the discretization hierarchy of
+    the SDPLS source term implemented in SDPLSSource.
 
-      \f[ y = mx + b \f]
- 
-     \f[ y \approx mx + b \f]
- 
-     The distance between \f$(x_1,y_1)\f$ and \f$(x_2,y_2)\f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
- 
-     \f[
-       |I_2|=\left| \int_{0}^T \psi(t) 
-                \left\{ 
-                   u(a,t)-
-                   \int_{\gamma(t)}^a 
-                   \frac{d\theta}{k(\theta,t)}
-                   \int_{a}^\theta c(\xi)u_t(\xi,t)\,d\xi
-                \right\} dt
-             \right|
-     \f]
- 
-   \f[
-    \hat{S}(\phi(\x,t)) \approx \hat{S}_c + \hat{S}_{p} \phi(\x,t)
-   \f] 
-       
-   \f{equation}{
-       \label{eq:linearization}
-       \hat{S}(\phi(\x,t)) \approx \hat{S}_c + \hat{S}_{p} \phi(\x,t)
-   \f}
-  
-   \f{equation}{
-   \begin{aligned}
-     a + b &= 1 \\
-     b &= 456
-   \end{aligned}
-   \f}
+    For the discretization, the non-linear SDPLS source term \f$S_{SDPLS}\f$ is
+    linearized as 
+    \f{equation}{ 
+        S_{SDPLS}(\psi^{n+1}) \approx S_c + S_{p} \psi^{n+1}_c, 
+    \f} 
+    where \f$S_c\f$ is a constant and \f$S_{p}\f$ is the
+    proportionality constant for the linear part. Initializing the discretization
+    and returning the tmp<fvScalarMatrix> is done by the public method
+
+    discretize(nonLinearPart, psi),
+
+    which takes the nonLinearPart and the LS field psi from the source term
+    implementing the class SDPLSSource. Inheriting classes are responsible for
+    implementing updateSc() for \f$S_c\f$ and updateSp() for \f$S_p\f$, which are
+    called by discretize(). This base class implements the case of no discretization
+    with 
+    \f{equation}{ 
+        S_{noSource}(\psi^{n+1})=0. 
+    \f}
 
 SourceFiles
     SourceScheme.C
