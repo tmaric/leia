@@ -11,13 +11,14 @@ readonly SCRIPT_PATH=$(realpath "${BASH_SOURCE[0]}")
 readonly DIR_PATH="$(dirname $SCRIPT_PATH)"
 
 ## latex -> doxygen
-#sed 's/\$/\\f$/g' $1												# replace inline math environment
-#sed 's/\\begin{\([a-z*]*\)}/\\f{\1}{/' $1	# replace begin of some environment
-#sed 's/\\end{\([a-z*]*\)}/\\f}/' $1				# replace end of some environment
-#sed '/^%$/d' $1														# delete comment lines
-#sed 's/%.*$//' $1													# delete comments at the end of a line
-#sed 's/\\\(gls\){\([a-zA-Z]*\)}/\2/g' $1		# delete \gls command, but not its content
-#sed 's/\\\(verb\)|\([a-zA-Z]*\)|/\2/g' $1	# delete \verb command, but not its content
+#sed 's/\$/\\f$/g' 														# replace inline math environment
+#sed 's/\\begin{\([a-z*]*\)}/\\f{\1}{/' 			# replace begin of some environment
+#sed 's/\\end{\([a-z*]*\)}/\\f}/' 						# replace end of some environment
+#sed '/^%$/d' 																# delete comment lines
+#sed 's/%.*$//' 															# delete comments at the end of a line
+#sed 's/\\\(gls\){\([a-zA-Z]*\)}/\2/g' 				# delete \gls command, but not its content
+#sed 's/\\\(verb\)|\([a-zA-Z]*\)|/\2/g' 			# delete \verb command, but not its content
+#sed 's/\\cite{\([a-zA-Z0-9_]*\)}/\\cite \1/'	# replace \cite command
 
 ## final command, as concatenation
 if [[ ! -t 0 ]]; then # stdin is provided
@@ -29,7 +30,8 @@ s/\\end{\([a-z*]*\)}/\\f}/;
 /^%/d;
 s/%.*$//;
 s/\\\(gls\){\([a-zA-Z]*\)}/\2/g;
-s/\\\(verb\)|\([a-zA-Z()<>]*\)|/\2/g
+s/\\\(verb\)|\([a-zA-Z()<>]*\)|/\2/g;
+s/\\cite{\([a-zA-Z0-9_]*\)}/\\cite \1/
 ' <&0
 
 else

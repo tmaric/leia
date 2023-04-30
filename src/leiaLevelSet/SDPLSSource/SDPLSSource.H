@@ -27,23 +27,19 @@ Class
     Foam::SDPLSSource
 
 Description
-
-    Base class for the implementation of "A locally signed-distance preserving
-    level set method (SDPLS) for moving interfaces" by Fricke et. al..
-    https://arxiv.org/abs/2208.01269
-
-    The base class SDPLSSource builds the root for the model hierarchy of the SDPLS
-    method and is the only class the user should interact with. The SDPLS method
-    extends the standard LS advection equation with the here called SDPLS source
-    term. For this, the r.h.s. of the LS equation in the solver application is
-    extended by calling \f{verbatim}{ fvmSDPLSSource(const volScalarField& psi,
-    const volVectorField& U) \f} at the RTS selected model and passing a reference
-    to the LS field psi and the velocity field U. Returned is a temporary
-    tmp<fvScalarMatrix> object for implicit incorporation into the LS equation. This
-    class hierarchy has the responsibility to provide implementations for the
-    formula of non-linear SDPLS source terms. Discretization is done separately by
-    the class hierarchy SourceScheme, which is in relation via the strategy pattern.
-    It is assumed that all SDPLS source term variants share this structure
+    The base class SDPLSSource builds the root for the model hierarchy of the
+    SDPLS method by Fricke et. al. \cite fricke_locally_2022 and is the only class
+    the user should interact with. The SDPLS method extends the standard LS
+    advection equation with the here called SDPLS source term. For this, the r.h.s.
+    of the LS equation in the solver application is extended by calling
+    \f{verbatim}{ fvmSDPLSSource(const volScalarField& psi, const volVectorField& U)
+    \f} at the RTS selected model and passing a reference to the LS field psi and
+    the velocity field U. Returned is a temporary tmp<fvScalarMatrix> object for
+    implicit incorporation into the LS equation. This class hierarchy has the
+    responsibility to provide implementations for the formula of non-linear SDPLS
+    source terms. Discretization is done separately by the class hierarchy
+    SourceScheme, which is in relation via the strategy pattern. It is assumed that
+    all SDPLS source term variants share this structure 
     \f{equation}{
         S_{SDPLS}(\psi) = \psi f_{nl}(\psi)
     \f}
