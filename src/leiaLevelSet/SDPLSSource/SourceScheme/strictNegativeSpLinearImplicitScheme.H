@@ -36,7 +36,7 @@ Description
         S_{strictNegativeSpLinearImplicit,\,p} &= \min(f_{nl}(\psi^n),0),
     \end{aligned}
     \f}
-    which ensures that the constant \f$S_p \le 0\f$ for all cells. 
+    which ensures that the constant \f$S_p \le 0\f$ for all cells \cite patankar_numerical_1980. 
     The resulting source term, written as
     \f{equation}{
         S_{strictNegativeSpLinearImplicit}(\psi^{n+1}) = \max(f_{nl}(\psi^n),0)\psi^n_c

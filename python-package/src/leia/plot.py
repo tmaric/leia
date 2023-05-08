@@ -21,6 +21,7 @@ def legendlabel(dict, key):
 def timeplot(study_df, prop, *,
                 time=('case', 'TIME'), 
                 caselabel=('database','CASE'), 
+                **kwargs
              ):
     column = prop.column
     ylabel = prop.figTime.ylabel
@@ -36,15 +37,17 @@ def timeplot(study_df, prop, *,
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
     ax.grid('on')
-    ax.set_title(title)
+    ax.set_title(title, pad=10.0)
     return fig
 
 def convergenceplot(study_df, prop, *,
                     time=('case', 'TIME'), 
-                    deltaX=('case', 'DELTA_X'), 
+                    deltaX=('case', 'DELTA_X'),
+                    **kwargs 
                     ):
     column = prop.column
-    ylabel = prop.figConv.ylabel
+    # ylabel = prop.figConv.ylabel
+    ylabel = prop.labelstr_conv if prop.labelstr_conv else prop.figTime.ylabel
     xlabel = prop.figConv.xlabel
     title = prop.figConv.title
     
@@ -77,7 +80,7 @@ def convergenceplot(study_df, prop, *,
     ax.set_xticks(xtick_values, minor=False) 
     ax.set_xticklabels(xtick_labels)
     ax.minorticks_off()
-    plt.title(f"{title}")
+    plt.title(f"{title}", pad=10.0)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     
@@ -105,8 +108,10 @@ def convergenceplot(study_df, prop, *,
     ax.plot(h_01,Ev_error2nd_01,"k--",label="second-order")
     ax.plot(h_01,Ev_error1st_01,"r:",label="first-order")
     
-    # ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
+    if kwargs.get('legend') == 'below':
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
+    else: # right
+        ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
     return fig
 
 #-- START function block: Splitting many lines on multiple plots -----------------------------------
