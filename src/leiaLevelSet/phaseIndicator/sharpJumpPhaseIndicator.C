@@ -57,7 +57,7 @@ void sharpJumpPhaseIndicator::calcPhaseIndicator
 {
     forAll(alpha, cellID)
     {
-        if (psi[cellID] < 0)
+        if (psi[cellID] <= 0)
             alpha[cellID] = 1;
         else 
             alpha[cellID] = 0;

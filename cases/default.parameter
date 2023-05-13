@@ -1,4 +1,4 @@
 MAX_CELL_SIZE -1.0; // cfmesh pMesh (polyhedral mesh) not used
 N_CELLS       -1.0; // blockMesh not used   
-CFL 	      0.5;
+CFL 	      0.3;
 SURFACE_FILE  none; // cfmesh pMesh (polyhedral mesh) not used
