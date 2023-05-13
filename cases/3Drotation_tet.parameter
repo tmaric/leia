@@ -19,9 +19,7 @@ values
     );
 
     CFL
-    (
-    	0.05
-    );
+    ( 0.3 );
 		
 	SOURCE_SCHEME
 	(
