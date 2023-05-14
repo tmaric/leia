@@ -185,6 +185,13 @@ def main():
                         required=False,
                         )
  
+    parser.add_argument('--deltaX',
+                        choices=['min', 'max', 'mean'],
+                        help="Characteristic grid spacing h / deltaX for convergence plots. Default 'mean'",
+                        default='mean',
+                        required=False,
+                        )
+
     parser.add_argument('--rm',
                        help="Removes all rows matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
                        action='append',
@@ -235,6 +242,14 @@ def main():
 
     kwargs = dict()
     kwargs['legend'] = args.legend
+    
+    if args.deltaX:
+        map_ = {
+            'min': ('case','DELTA_X'),
+            'max': ('case','MAX_DELTA_X'),
+            'mean': ('case','MEAN_DELTA_X'),
+        }
+        kwargs['deltaX'] = map_[args.deltaX]
 
     
     properties = property_dict(template, study, mesh=args.mesh)
