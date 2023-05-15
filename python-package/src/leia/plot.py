@@ -86,6 +86,13 @@ def convergenceplot(study_df, prop, *,
     
     convergence_ref = 1e6
 
+    if 'cmap' in kwargs:
+        cmap = plt.get_cmap(kwargs['cmap'])
+        cmap_it = cycle(map(cmap, range(cmap.N)))
+    else:
+        cmap = plt.get_cmap('tab10')
+        cmap_it = cycle(map(cmap, range(cmap.N)))
+
     for parameters, refinement_df in refinement_gb:
         res_val_np = convergence.get_values(refinement_df, 
                                             column, 
@@ -100,7 +107,7 @@ def convergenceplot(study_df, prop, *,
                                 refinement_df.drop(studycsv.get_refinementlabel(refinement_df), axis='columns')
                     )
         leg_label = detox_label(leg_label)
-        ax.plot(resolutions, values, marker='x',label=leg_label)
+        ax.plot(resolutions, values, marker='x',label=leg_label, color=next(cmap_it))
     
     h_01 = [np.max(study_resolutions), np.min(study_resolutions)]
     Ev_error2nd_01 = [convergence_ref, convergence_ref*(h_01[1]/h_01[0])**2]

@@ -185,6 +185,12 @@ def main():
                         required=False,
                         )
  
+    parser.add_argument('--cmap',
+                        help="Matplotlib colormap for lines in convergenceplot. Default 'tab10'",
+                        default='tab10',
+                        required=False,
+                        )
+
     parser.add_argument('--deltaX',
                         choices=['min', 'max', 'mean'],
                         help="Characteristic grid spacing h / deltaX for convergence plots. Default 'mean'",
@@ -242,6 +248,7 @@ def main():
 
     kwargs = dict()
     kwargs['legend'] = args.legend
+    kwargs['cmap'] = args.cmap
     
     if args.deltaX:
         map_ = {
