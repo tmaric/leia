@@ -5,8 +5,9 @@
 
 latex -v > /dev/null 2>&1 # check if tex live is installed
 if [[ $? -eq 0 ]]; then
-	mkdir -p $HOME/texmf/tex/latex/commonstuff
-	cp -av ./Macros/* $HOME/texmf/tex/latex/commonstuff/
+	pkg_path="$(kpsewhich -var-value=TEXMFHOME)/tex/latex/commonstuff/"
+	mkdir -p $pkg_path
+	cp -av ./Macros/* $pkg_path
 else
 	echo "Could not find path to local latex packages."
 fi

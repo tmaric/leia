@@ -1,0 +1,53 @@
+name: Documentation
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: tmaric/openfoam-v2206_ubuntu-focal
+    defaults:
+        run:
+            shell: bash
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+      - name: Update system
+        run: apt update -y && apt upgrade -y
+      - name: Install Latex and graphviz
+        run: |
+          apt install -y texlive texlive-latex-base \
+            texlive-fonts-recommended texlive-science texlive-xetex \
+            dvipng ghostscript cm-super \
+            graphviz
+      - name: Install doxygen and Build doc # version 1.9
+        run: |
+          wget https://www.doxygen.nl/files/doxygen-1.9.6.linux.bin.tar.gz
+          tar -xzf doxygen-1.9.6.linux.bin.tar.gz
+          export PATH="$(realpath doxygen-1.9.6/bin):$PATH"
+          ls /opt/OpenFOAM && . /opt/OpenFOAM/OpenFOAM-v2206/etc/bashrc && true
+          cd doc/Doxygen/
+          ./update-macros.sh
+          ./Allwmake
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: doc/Doxygen/html
+  deploy:  
+    # Add a dependency to the build job
+    needs: build
+
+    # Grant GITHUB_TOKEN the permissions required to make a Pages deployment
+    permissions:
+      pages: write      # to deploy to Pages
+      id-token: write   # to verify the deployment originates from an appropriate source
+
+    # Deploy to the github-pages environment
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    # Specify runner + deployment step
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2 # or the latest "vX.X.X" version tag for this action
