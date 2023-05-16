@@ -4,7 +4,7 @@ values
 
     END_TIME (3.0);
 
-    CFL (0.2);
+    CFL (0.3);
 
     MAX_CELL_SIZE // cfmesh pMesh 
     (
@@ -82,6 +82,7 @@ values
 		SuperBee
 		UMIST
 		vanAlbada 
+    upwind
 	);
 	
 	TANH_LIMIT
