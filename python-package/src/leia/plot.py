@@ -9,7 +9,8 @@ from itertools import cycle
 
 def detox_label(label: str):
     dict_ = {
-        '$': ''
+        '$': '',
+        'SDPLS_SOURCE': 'SDPLS',
     }
     for key in dict_:
         label = label.replace(key, dict_[key])
@@ -80,7 +81,7 @@ def convergenceplot(study_df, prop, *,
     ax.set_xticks(xtick_values, minor=False) 
     ax.set_xticklabels(xtick_labels)
     ax.minorticks_off()
-    plt.title(f"{title}", pad=10.0)
+    # plt.title(f"{title}", pad=10.0)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     
@@ -114,11 +115,20 @@ def convergenceplot(study_df, prop, *,
     Ev_error1st_01 = [convergence_ref, convergence_ref*(h_01[1]/h_01[0])]
     ax.plot(h_01,Ev_error2nd_01,"k--",label="second-order")
     ax.plot(h_01,Ev_error1st_01,"r:",label="first-order")
+
+    leg_title = studycsv.get_raw_title(
+                                refinement_df.drop(studycsv.get_refinementlabel(refinement_df), axis='columns')
+                    )
     
     if kwargs.get('legend') == 'below':
-        ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12), title=leg_title)
+        # ax.set_title(f"{title}", pad =10 )
+        fig.suptitle(f"{title}")
     else: # right
-        ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
+        ax.legend(loc='center left', bbox_to_anchor=(1,0.5), title=leg_title)
+        # ax.set_title(f"{title}", loc='left', pad =10 )
+        fig.suptitle(f"{title}", x=0, y=1, ha='left')
+    
     return fig
 
 #-- START function block: Splitting many lines on multiple plots -----------------------------------

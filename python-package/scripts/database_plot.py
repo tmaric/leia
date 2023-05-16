@@ -347,6 +347,8 @@ def convergenceplot(study_df, properties, savedir, **kwargs):
                 fig = plot.convergenceplot(group_df, prop, **kwargs) 
                 fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
                 fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
+                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'))
+                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'))
                 plt.close(fig)
 
 def best_convergenceplot(study_df, properties, savedir, **kwargs):

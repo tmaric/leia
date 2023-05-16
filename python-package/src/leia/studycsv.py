@@ -81,6 +81,18 @@ def get_refinementlabel(study_df):
         return None
     
 
+def get_raw_title(df):
+    """
+    Provide a DataFrame and get a raw label of all unique studyparameters and their values.
+    """
+    studyparameters = get_studyparameters(df.columns)
+    list_ = []
+    for param in studyparameters:
+        unique = df[param].unique()
+        if len(unique) == 1:
+            list_.append(f'{param[1]}')
+    return ' / '.join(list_)
+
 def get_raw_label(df):
     """
     Provide a DataFrame and get a raw label of all unique studyparameters and their values.
@@ -90,8 +102,8 @@ def get_raw_label(df):
     for param in studyparameters:
         unique = df[param].unique()
         if len(unique) == 1:
-            list_.append(f'{param[1]}: {unique[0]}')
-    return ', '.join(list_)
+            list_.append(f'{unique[0]}')
+    return ' / '.join(list_)
     
 def smallest_refinement_gb(study_df, by, deltaX=('case','DELTA_X')):
     """
