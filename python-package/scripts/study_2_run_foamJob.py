@@ -10,20 +10,22 @@ import yaml
 
 
 usage = """
-    Script starts the simulations of a parameter study with foamJob and a provided Allrun-script inside every case directory.
+Starts the simulations of the STUDYDIR study using `foamJob`.
+It submits the specified ALLRUN script for all cases listed in <STUDYDIR>.cases.
+The ALLRUN script is in each case.
 """
 
 def parse_arguments():
     parser = ArgumentParser(description=usage, formatter_class=RawTextHelpFormatter)
 
 
-    parser.add_argument("studydir", 
-                    help=""
-                    )
+    parser.add_argument("studydir",  
+                    help="Study directory with the templatecase, parameter file and the info file inside.",
+                    metavar='STUDYDIR')
     
-    parser.add_argument("allrun_script", 
-                    help=""
-                    )
+    parser.add_argument("allrun", 
+                    help="Script that will be submitted and contains preprocessing, mesh building and execution.",
+                    metavar='ALLRUN')
     
     return parser.parse_args()
     
@@ -39,7 +41,7 @@ def main():
     os.chdir(args.studydir)
 
     cmd = f"""
-    cat {info['casesfile']} | xargs -I[] bash -c 'cd [] && foamJob ./{args.allrun_script};  sleep 1s'
+    cat {info['casesfile']} | xargs -I[] bash -c 'cd [] && foamJob ./{args.allrun};  sleep 1s'
     """
     run(cmd, shell=True)
 

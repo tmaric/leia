@@ -12,14 +12,12 @@ from leia.studycsv import time_format
 import time
 
 usage = """
-A wrapper for pyFoamRunParameterVariation.py.
-Script takes the study directory with the templatecase and parameter files inside it and
+Initialises a parameter study, basically using `pyFoamRunParameterVariation.py`. 
+The script takes the study directory STUDYDIR created by `study_0_create.py`
 and generates concrete simulation cases and some meta files. 
+No meshes are generated, only the pyFoam instantiations with some extra meta data files.
+"""
 
-Meshes are not generated and preprocessing is not done. 
-Used to prepare for execution on a cluster.
-
-Usage: ./study_1_init.py STUDYDIR"""
 
 def parse_arguments():
     parser = ArgumentParser(description=usage, formatter_class=RawTextHelpFormatter)
@@ -33,7 +31,7 @@ def parse_arguments():
     #                     )
 
     parser.add_argument("studydir",  
-                    help="Directory with the templatecase and parameterfile inside.",
+                    help="Study directory with the templatecase, parameter file and the info file inside.",
                     metavar='STUDYDIR')
     
     return parser.parse_args()
@@ -45,14 +43,14 @@ def create_parameterstudy(args):
         "--no-mesh-create", "--no-case-setup", "--cloned-case-prefix=%s" % args.studyname,
         "--parameter-file=default.parameter",
         "--every-variant-one-case-execution",
-        "--create-database", args.casedir, args.paramfile
+        "--create-database", args.case, args.paramfile
         ],
         check=True
     )
 
 def create_pyFoam_variationfile(args):
     pyFoamVariation_file = args.metaname + '.pyFoam-variation'
-    run(f"pyFoamRunParameterVariation.py --list-variation {quote(args.casedir)} {quote(args.paramfile)} > {pyFoamVariation_file}",
+    run(f"pyFoamRunParameterVariation.py --list-variation {quote(args.case)} {quote(args.paramfile)} > {pyFoamVariation_file}",
         shell=True, check=True
         )
     args.pyFoam_variationfile = pyFoamVariation_file
@@ -83,18 +81,13 @@ def add_to_infofile(args):
         ) >> {args.infofile}"""
     run(cmd, shell=True, check=True)
 
-
-# def get_concrete_cases(casesfile) -> list[str]:
-#     with open(casesfile, 'r', encoding='utf-8') as file:
-#         cases_ls = file.readlines()
-#     return cases_ls
     
 def cp_extrafiles_to_concrete_cases(args, extrafiles, casesfile):
     # extrafiles = [
     #     '*.stl',
     #     'Allrun*',
     # ]
-    extrafiles = [os.path.join(args.casedir, file) for file in extrafiles]
+    extrafiles = [os.path.join(args.case, file) for file in extrafiles]
     extrafiles_str = ' '.join(extrafiles)
     cmd = f"""
     cat {casesfile} | xargs -I[] bash -c 'cp {extrafiles_str} []/ 2>/dev/null'
@@ -112,7 +105,7 @@ def main():
 
     args.metaname = info['metaname']
     args.studyname = info['studyname']
-    args.casedir = info['templatecase']
+    args.case = info['templatecase']
     args.paramfile = info['parameterfile']
 
     os.chdir(args.studydir)

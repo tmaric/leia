@@ -10,10 +10,8 @@ import time
 from leia.studycsv import time_format
 
 usage = """
-Creates a directory for a pyFoam study, copies the templatecase, parameterfiles in it and
-saves some meta data to a .info file.
-
-Usage: ./study_0_create_empty.py -c templateCase -p paramFile -s studyName
+Creates the directory study_<STUDYNAME> for a pyFoam study, copies the templatecase, parameterfiles into it and 
+creates the study_<STUDYNAME>.info file with some meta data in it.
 """
 
 def parse_arguments():
@@ -28,14 +26,14 @@ def parse_arguments():
     #                     )
 
     parser.add_argument("-c", "--case", 
-                    dest="casedir",
-                    help="Template case directory.", 
+                    dest="case",
+                    help="Template case.", 
                     required=True,
-                    metavar="CASEDIR")
+                    metavar="CASE")
 
     parser.add_argument("-p", "--parameter-file", 
                     dest="paramfile", 
-                    help="PyFoam parameter file used by pyFoamRunParameterVariation.py.", 
+                    help="PyFoam parameter file.", 
                     required=True,
                     metavar="PARAMFILE")
 
@@ -57,7 +55,7 @@ def create_studydir(studyname: str) -> str:
 
 def cp_templatecase_paramfile_to_studydir(args):
     cmd = f"""
-        cp -a {quote(args.casedir)} {os.path.join(args.studydir, args.casedir)};
+        cp -a {quote(args.case)} {os.path.join(args.studydir, args.case)};
         cp -a {args.paramfile} default.parameter {args.studydir}/
     """
     run(cmd, shell=True, check=True)
@@ -71,7 +69,7 @@ def create_infofile(args):
             echo "studydir: {args.studydir}";
             echo "metaname: {args.metaname}";
             echo "studyname: {args.studydir.removeprefix('study_')}";
-            echo "templatecase: {args.casedir}";
+            echo "templatecase: {args.case}";
             echo "parameterfile: {args.paramfile}";
             echo "creationtime: {time.strftime(time_format)}";
             echo "";
