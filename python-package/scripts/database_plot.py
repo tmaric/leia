@@ -191,6 +191,12 @@ def main():
                         required=False,
                         )
 
+    parser.add_argument('-s','--sorted',
+                        help="Sort the lines in the convergence plots according the the studyparameters before plotting",
+                        action='store_true',
+                        required=False,
+                        )
+
     parser.add_argument('--deltaX',
                         choices=['min', 'max', 'mean'],
                         help="Characteristic grid spacing h / deltaX for convergence plots. Default 'mean'",
@@ -249,6 +255,8 @@ def main():
     kwargs = dict()
     kwargs['legend'] = args.legend
     kwargs['cmap'] = args.cmap
+    if args.sorted:
+        kwargs['sorted'] = True
     
     if args.deltaX:
         map_ = {

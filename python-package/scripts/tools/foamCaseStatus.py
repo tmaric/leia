@@ -70,7 +70,7 @@ def latestTime_endTime(case):
     #             capture_output=True, 
     #             encoding='utf-8'
     #             ).stdout
-    endTime = run(f"sed -n '/^endTime\>/p' {os.path.join(case, 'system/controlDict')} | grep -o '[0-9.]*", 
+    endTime = run(f"sed -n '/^endTime\>/p' {os.path.join(case, 'system/controlDict')} | grep -o '[0-9.]*'", 
                 shell=True, 
                 check=True, 
                 capture_output=True, 

@@ -11,6 +11,11 @@ function foamLatestTime()
     return 2
   fi
 
+  foamListTimes
+  if [[ $? -ne 0 ]]; then
+    return 3
+  fi
+
   time=$(foamListTimes -latestTime -processor -case ${case} 2> /dev/null || foamListTimes -latestTime -case ${case}) 
   echo "${time:-0}"
   return 0  

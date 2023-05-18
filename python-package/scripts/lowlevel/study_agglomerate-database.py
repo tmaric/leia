@@ -11,10 +11,10 @@ import json
 
 app_description = \
 f"""
-Agglomerate {leia.studydir.CASE_CSVs} of all cases with metadata and studyparameters into one CSV file.
+Script merges and concatenates case specific {leia.studydir.CASE_CSVs} CSV files into one large database CSV file.
 
 Note:
-Call this script from inside the directory where the concrete study cases lie.
+Run this script from within the directory where the actual study cases reside.
 """
 
 def merge_time_csv(CSVs):
@@ -64,11 +64,13 @@ def agglomerate_study_data(args, cases, CSVs):
 
 def parse_arguments():
     parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
-    parser.add_argument("studydir",
-                    help="Top level study directory with the .info file.",
-                    )
+    parser.add_argument("studydir",  
+                    help="Study directory with the templatecase, parameter file and the info file inside.",
+                    metavar='STUDYDIR')
+    
     parser.add_argument("studyCSV",
                     help="File where aggolomerated DataFrame will be stored.",
+                    metavar='DATABASE'
                     )
     parser.add_argument("--flat-columns",
                     help="Provide if you don't want the 2-level columns structure, just one column level. ",

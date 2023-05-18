@@ -94,6 +94,9 @@ def convergenceplot(study_df, prop, *,
         cmap = plt.get_cmap('tab10')
         cmap_it = cycle(map(cmap, range(cmap.N)))
 
+    if kwargs.get('sorted', False):
+        refinement_gb = sorted(refinement_gb)
+
     for parameters, refinement_df in refinement_gb:
         res_val_np = convergence.get_values(refinement_df, 
                                             column, 
