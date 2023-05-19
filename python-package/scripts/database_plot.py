@@ -216,6 +216,13 @@ def main():
                        nargs=3, 
                         )
     
+    parser.add_argument('--keep-drop', 
+                       help="Removes all rows not matching the value and drops the column. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
+                       action='append',
+                       nargs=3,
+                       dest='keepdrop' 
+                        )
+    
     parser.add_argument('-d','--savedir',
                         help="Directory where plots are saved. Default: dirname(studyCSV)",
                         required=False,
@@ -245,6 +252,13 @@ def main():
             keeps = args.keep
         else:
             keeps = [args.keep]
+        for keep in keeps: 
+            study_df = studycsv.filter_keep(study_df, column(keep), keep[2], drop=False)
+    if args.keepdrop:
+        if isinstance(args.keepdrop[0], list): # then multiple --keep are passed
+            keeps = args.keepdrop
+        else:
+            keeps = [args.keepdrop]
         for keep in keeps: 
             study_df = studycsv.filter_keep(study_df, column(keep), keep[2], drop=True)
 

@@ -10,7 +10,7 @@ import time
 from leia.studycsv import time_format
 
 usage = """
-Creates the directory study_<STUDYNAME> for a pyFoam study, copies the templatecase, parameterfiles into it and 
+Creates the directory study_<STUDYNAME> for a pyFoam study, copies the template case, parameter files into it and 
 creates the study_<STUDYNAME>.info file with some meta data in it.
 """
 
@@ -27,19 +27,19 @@ def parse_arguments():
 
     parser.add_argument("-c", "--case", 
                     dest="case",
-                    help="Template case.", 
+                    help="Template case", 
                     required=True,
                     metavar="CASE")
 
     parser.add_argument("-p", "--parameter-file", 
                     dest="paramfile", 
-                    help="PyFoam parameter file.", 
+                    help="PyFoam parameter file", 
                     required=True,
                     metavar="PARAMFILE")
 
     parser.add_argument("-s", "--study-name", 
                     dest="studyname", 
-                    help="Name of the parameter study.", 
+                    help="Name of the parameter study", 
                     required=True,
                     metavar="STUDYNAME")
     
