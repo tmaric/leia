@@ -28,16 +28,14 @@ Class
 
 Description
     The base class SourceScheme forms the root for the discretization hierarchy of
-    the SDPLS source term implemented in SDPLSSource.
-
-    For the discretization, the non-linear SDPLS source term \f$S_{SDPLS}\f$ is
-    linearized as 
-    \f{equation}{ 
-        S_{SDPLS}(\psi^{n+1}) \approx S_c + S_{p} \psi^{n+1}_c, 
-    \f} 
-    where \f$S_c\f$ is a constant and \f$S_{p}\f$ is the
-    proportionality constant for the linear part. Initializing the discretization
-    and returning the tmp<fvScalarMatrix> is done by the public method
+    the SDPLS source term implemented in SDPLSSource. For the discretization, the
+    non-linear SDPLS source term \f$S_{SDPLS}\f$ is linearized as 
+    \f{equation}{
+        S_{SDPLS}(\psi^{n+1}) \approx S_c + S_{p} \psi^{n+1}_c,
+    \f}
+    where \f$S_c\f$ is a constant and \f$S_{p}\f$ is the proportionality constant
+    for the linear part. Initializing the discretization and returning the
+    tmp<fvScalarMatrix> is done by the public method
 
     discretize(nonLinearPart, psi),
 

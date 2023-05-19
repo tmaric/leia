@@ -27,25 +27,28 @@ Class
     Foam::strictNegativeSpLinearImplicitScheme
 
 Description
-    The class strictNegativeSpLinearImplicitScheme implements an implicit discretization of the source term that ensures contributions to the diagonal dominance of the resulting algebraic linear system.
-    
-    The linearization constants are computed as 
-    \f{equation}{
-    \begin{aligned}
+    The class strictNegativeSpLinearImplicitScheme implements an implicit
+    discretization of the source term that ensures contributions to the diagonal
+    dominance of the resulting algebraic linear system. The linearization constants
+    are computed as 
+    \f{equation}{ \begin{aligned}
         S_{strictNegativeSpLinearImplicit,\,c} &= \max(f_{nl}(\psi^n),0)\psi^n_c\\
         S_{strictNegativeSpLinearImplicit,\,p} &= \min(f_{nl}(\psi^n),0),
     \end{aligned}
     \f}
-    which ensures that the constant \f$S_p \le 0\f$ for all cells \cite patankar_numerical_1980. 
-    The resulting source term, written as
+    which ensures that the constant \f$S_p \le 0\f$ for all cells \cite
+    patankar_numerical_1980. The resulting source term, written as 
     \f{equation}{
-        S_{strictNegativeSpLinearImplicit}(\psi^{n+1}) = \max(f_{nl}(\psi^n),0)\psi^n_c
+        S_{strictNegativeSpLinearImplicit}(\psi^{n+1}) =
+        \max(f_{nl}(\psi^n),0)\psi^n_c
         + \min(f_{nl}(\psi^n),0)\psi^{n+1}_c,
     \f}
-    thus switches between explicit and implicit discretization cell by cell and depending on the sign of \f$f(\psi^n)\f$.
-    This addresses the problem that unconditional implicit treatment can cause the solution to diverge. The reason
-    is that a positive \f$S_p\f$ reduces the diagonal coefficient in the assembled linear system. This harms the diagonal dominance of the matrix, 
-    which may then lose its M-matrix and discrete stability property. 
+    thus switches between explicit and implicit discretization cell by cell
+    depending on the sign of \f$f(\psi^n)\f$. This addresses the problem that
+    unconditional implicit treatment can cause the solution to diverge. The reason
+    is that a positive \f$S_p\f$ reduces the diagonal coefficient in the assembled
+    linear system. This harms the diagonal dominance of the matrix, which then may
+    lose its M-matrix and discrete stability property.
 
 SourceFiles
     strictNegativeSpLinearImplicitScheme.C
