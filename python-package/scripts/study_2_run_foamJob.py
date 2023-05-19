@@ -20,7 +20,7 @@ def parse_arguments():
 
 
     parser.add_argument("studydir",  
-                    help="Study directory with the templatecase, parameter file and the info file inside.",
+                    help="Study directory with the template case, parameter file and the info file inside.",
                     metavar='STUDYDIR')
     
     parser.add_argument("allrun", 
