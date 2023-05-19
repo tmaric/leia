@@ -46,21 +46,21 @@ velocityModel
 {
     type periodic2D; 
     oscillation on;
-		tau 				0.4;
+    tau         0.4;
 }
 
 levelSet
 {
-		narrowBand	
-		{
-			type	signChange;
-		}
-		
-		profile
-		{
-			type	@!PROFILE!@;
-			limit	@!TANH_LIMIT!@;
-		}
+    narrowBand  
+    {
+      type  signChange;
+    }
+    
+    profile
+    {
+      type  @!PROFILE!@;
+      limit  @!TANH_LIMIT!@;
+    }
 
 
     implicitSurface 
@@ -80,16 +80,16 @@ levelSet
         type noRedistancing;
     }
 
-		SDPLSSource
-		{
+    SDPLSSource
+    {
         type @!SDPLS_SOURCE!@;
         discretization @!SOURCE_SCHEME!@;
-				mollifier
-				{
-					type 	@!MOLLIFIER!@;
-					w1		0.05;
-				}
-		}
+        mollifier
+        {
+          type   @!MOLLIFIER!@;
+          w1    0.05;
+        }
+    }
 }
 
 

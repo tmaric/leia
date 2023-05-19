@@ -50,18 +50,18 @@ velocityModel
 
 levelSet
 {
-		narrowBand	
-		{
-			type	@!NARROWBAND!@;
-			n			@!NEIGHBOURS!@;
-		}
+    narrowBand  
+    {
+      type  @!NARROWBAND!@;
+      n      @!NEIGHBOURS!@;
+    }
 
 
-		profile
-		{
-			type	@!PROFILE!@;
-			limit	@!TANH_LIMIT!@;
-		}
+    profile
+    {
+      type  @!PROFILE!@;
+      limit  @!TANH_LIMIT!@;
+    }
 
 
     implicitSurface 
@@ -80,18 +80,18 @@ levelSet
     {
         type noRedistancing;
     }
-		
-		SDPLSSource
-		{
-        type 						@!SDPLS_SOURCE!@;
-        discretization 	@!SOURCE_SCHEME!@;
-				gradPsi					@!GRAD_PSI!@;
-				mollifier
-				{
-					type 	@!MOLLIFIER!@;
-					w1		0.05;
-				}
-		}
+    
+    SDPLSSource
+    {
+        type             @!SDPLS_SOURCE!@;
+        discretization   @!SOURCE_SCHEME!@;
+        gradPsi          @!GRAD_PSI!@;
+        mollifier
+        {
+          type   @!MOLLIFIER!@;
+          w1    0.05;
+        }
+    }
 }
 
 

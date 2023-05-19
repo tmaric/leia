@@ -44,12 +44,12 @@ velocityModel
 
 levelSet
 {
-	interfaceBand	signChange;
+  interfaceBand  signChange;
 
-		profile
-		{
-			type	signedDistance;
-		}
+    profile
+    {
+      type  signedDistance;
+    }
 
 
     implicitSurface 

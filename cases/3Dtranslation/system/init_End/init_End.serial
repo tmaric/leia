@@ -5,17 +5,17 @@ readonly SUPPORT_CASE="$(dirname $SCRIPT_PATH)"
 readonly CASE="$(realpath $SUPPORT_CASE/../../)"
 
 if [[ ! -d "$CASE/0" ]]; then
-	echo "0/ directory is missing in $CASE"
-	exit 1
+  echo "0/ directory is missing in $CASE"
+  exit 1
 fi
 
 function rename() {
-	if [[ -z "${1}" ]]; then
-		echo "No argument provided to rename()"
-		exit 2
-	fi
-	sed -i "s/${1}/${1}End/" "0/${1}"
-	mv "0/${1}" "0/${1}End"
+  if [[ -z "${1}" ]]; then
+    echo "No argument provided to rename()"
+    exit 2
+  fi
+  sed -i "s/${1}/${1}End/" "0/${1}"
+  mv "0/${1}" "0/${1}End"
 }
 
 set -e

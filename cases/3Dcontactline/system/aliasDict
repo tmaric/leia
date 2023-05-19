@@ -9,5 +9,5 @@
 
 // ## Convection schemes
 
-LinearUpwind			linearUpwind grad(U);
+LinearUpwind      linearUpwind grad(U);
 Gamma1            Gamma 1;
