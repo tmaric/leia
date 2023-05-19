@@ -27,11 +27,10 @@ Class
     Foam::simpleLinearImplicitScheme
 
 Description
-    The class simpleLinearImplicitScheme implements an implicit discretization of the source term in the most simplest way.
-    
-    The linearization constants are calculated as 
-    \f{equation}{
-    \begin{aligned}
+    The class simpleLinearImplicitScheme implements an implicit discretization of
+    the source term in the most simplest way. The linearization constants are
+    calculated as 
+    \f{equation}{ \begin{aligned}
         S_{simpleLinearImplicit,\,c} &= 0\\
         S_{simpleLinearImplicit,\,p} &= f_{nl}(\psi^n),
     \end{aligned}
@@ -40,6 +39,9 @@ Description
     \f{equation}{
         S_{simpleLinearImplicit}(\psi^{n+1}) = f_{nl}(\psi^n)\psi^{n+1}_c.
     \f}
+    This is the most accurate linearization as the approximation fits the tangent of
+    the relation \f$S_{SDPLS}(\psi^{n+1}) \sim \psi^{n+1}\f$ 
+    \cite patankar_numerical_1980, see the SDPLSSource equation .
 
 
 SourceFiles
