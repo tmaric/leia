@@ -25,15 +25,15 @@ stopAt          endTime;
 
 endTime         3; 
 
-Umax						2.0;
+Umax            2.0;
 
-CFL							0.25;
+CFL              0.25;
 
 // safty factor which is necessary to ensure maxCFL for some reason
-CFLsafty				1.0;
+CFLsafty        1.0;
 
 // dummy float value. Will be replaced by Allrun
-deltaX					1.0;
+deltaX          1.0;
 
 deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
 

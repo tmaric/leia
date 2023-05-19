@@ -16,7 +16,7 @@ FoamFile
 
 scale   1;
 
-n_cells	64;
+n_cells  64;
 
 vertices
 (
