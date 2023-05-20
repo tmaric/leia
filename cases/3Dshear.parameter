@@ -5,9 +5,7 @@ values
     END_TIME (3.0);
 
     CFL
-    (
-    	0.5
-    );
+    ( 0.3 );
 
     N_CELLS
     (
@@ -31,6 +29,19 @@ values
 		quad
 	);
 	
+	NEIGHBOURS
+	(
+		5
+		10
+	);
+
+	NARROWBAND
+	(
+		signChange
+		neighbours
+		distance
+	);
+	
 	BC
 	(
 		zeroGradient
@@ -51,6 +62,7 @@ values
 		SuperBee
 		UMIST
 		vanAlbada 
+    upwind
 	);
 	
 	TANH_LIMIT

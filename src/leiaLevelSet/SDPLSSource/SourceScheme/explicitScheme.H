@@ -27,7 +27,21 @@ Class
     Foam::explicitScheme
 
 Description
-    Concrete class which calculates the SDPLS source term explicitly.
+    The class explicitScheme implements the explicit discretization of the source
+    term. The linearization constants are calculated as 
+    \f{equation}{
+    \begin{aligned}
+        S_{explicit,\,c} &= f_{nl}(\psi^n) \psi^n_c\\
+        S_{explicit,\,p} &= 0
+    \end{aligned}
+    \f}
+    where the constant \f$S_c\f$ explicitly evaluates the entire SDPLS source term.
+    With this, the explicit source is written as 
+    \f{equation}{
+        S_{explicit}(\psi^{n+1}) = f_{nl}(\psi^n) \psi^n
+    \f}
+    Without any implicit part, this discretized source term only contributes to the
+    r.h.s. of the resulting algebraic linear system.
 
 SourceFiles
     explicitScheme.C

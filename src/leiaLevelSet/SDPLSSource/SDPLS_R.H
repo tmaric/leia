@@ -27,7 +27,17 @@ Class
     Foam::SDPLS_R
 
 Description
-    Concrete class which calculates the SDPLS source term explicitly.
+    The class SDPLS_R implements the concrete SDPLS source term formula proposed by
+    Fricke et al. \cite fricke_locally_2022. As described in the base class
+    SDPLSSource, the explicit evaluation of the SDPLS source term instance is
+    implemented in the member function nonLinearPart() as 
+    \f{equation}{
+        f_{nl,\,R}(\psi^{n}) = \left \langle (\nabla \U)_c \frac{(\nabla
+        \psi)_c^n}{\|(\nabla\psi)_c^n\|_2},  \frac{(\nabla
+        \psi)_c^n}{\|(\nabla\psi)_c^n\|_2} \right \rangle, 
+    \f} 
+    with the use of the
+    gradient schemes specified in the fvSchemes dictionary.
 
 SourceFiles
     SDPLS_R.C

@@ -81,6 +81,18 @@ def get_refinementlabel(study_df):
         return None
     
 
+def get_raw_title(df):
+    """
+    Provide a DataFrame and get a raw label of all unique studyparameters and their values.
+    """
+    studyparameters = get_studyparameters(df.columns)
+    list_ = []
+    for param in studyparameters:
+        unique = df[param].unique()
+        if len(unique) == 1:
+            list_.append(f'{param[1]}')
+    return ' / '.join(list_)
+
 def get_raw_label(df):
     """
     Provide a DataFrame and get a raw label of all unique studyparameters and their values.
@@ -90,8 +102,8 @@ def get_raw_label(df):
     for param in studyparameters:
         unique = df[param].unique()
         if len(unique) == 1:
-            list_.append(f'{param[1]}: {unique[0]}')
-    return ', '.join(list_)
+            list_.append(f'{unique[0]}')
+    return ' / '.join(list_)
     
 def smallest_refinement_gb(study_df, by, deltaX=('case','DELTA_X')):
     """
@@ -130,3 +142,34 @@ def smallest_refinement_gb(study_df, by, deltaX=('case','DELTA_X')):
         return convergence.get_value(finest_case_df[[time_label, by]])
     
     return sorted(study_ref_gb, key=key)
+
+
+def filter_keep(study_df, column, value, drop=False):
+    """
+    Takes a study_df and removes all rows which do not match the value to keep in the provided column.
+    Also drops column for drop = True
+    """
+    study_df = study_df.loc[study_df[column] == value]
+    if drop:
+        study_df = filter_drop(study_df, column)
+    study_df.reset_index()
+    return study_df
+
+def filter_rm(study_df, column, value):
+    """
+    Takes a study_df and removes all rows which do match the value to remove in the provided column.
+    """
+    study_df = study_df.loc[study_df[column] != value]
+    # study_df = study_df.drop(column, axis='columns', inplace=False)
+    study_df.reset_index()
+    return study_df
+
+def filter_drop(study_df, column):
+    """
+    Takes a study_df and drops a whole column if the values are unique.
+    """
+    if len(study_df[column].unique()) == 1: 
+        study_df = study_df.drop(column, axis='columns', inplace=False) # inplace=False otherwise SettingWithCopyWarning
+    else:
+        print("Did nothing. Column values are not unique.")
+    return study_df

@@ -10,20 +10,21 @@ import yaml
 
 
 usage = """
-    Script submits siulation cases inside a studydir to SLURM.
-    Provide a the relative path to a SLURM script from inside a concrete case.
+Submitts the simulations of the STUDYDIR study to Slurm using `sbatch`.
+It submits the specified Slurm ALLRUN script for all cases listed in <STUDYDIR>.cases.
+The ALLRUN script is in each case.
 """
 
 def parse_arguments():
     parser = ArgumentParser(description=usage, formatter_class=RawTextHelpFormatter)
 
-    parser.add_argument("studydir", 
-                    help=""
-                    )
+    parser.add_argument("studydir",  
+                    help="Study directory with the template case, parameter file and the info file inside.",
+                    metavar='STUDYDIR')
     
-    parser.add_argument("slurm_allrun_script", 
-                    help="",
-                    )
+    parser.add_argument("allrun", 
+                    help="Slurm script that will be submitted and contains preprocessing, mesh building and execution.",
+                    metavar='ALLRUN')
     
     return parser.parse_args()
 
@@ -39,7 +40,7 @@ def main():
     os.chdir(args.studydir)
 
     cmd = f"""
-    cat {info['casesfile']} | xargs -I[] bash -c 'cd [] && sbatch {args.slurm_allrun_script};  sleep 1s'
+    cat {info['casesfile']} | xargs -I[] bash -c 'cd [] && sbatch {args.allrun};  sleep 1s'
     """
 
     run(cmd, shell=True)
