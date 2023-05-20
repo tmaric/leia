@@ -24,27 +24,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::traceGradGeoNormalSnGradAlpha
+    Foam::constantCurvatureSurfaceTension
 
 Description
 
-    Computes the face-centered surface tension force using the trace
-    of the gradient of the geometrical normal field computed in the 
-    narrow band by the geometrical phase indicator. The field is fetched
-    from the mesh (registry). Outside of the narrow band, the normal field
-    is computed as a normalized gradient of the level set field (psi). 
+    A constant-curvature surface-tension force for testing if the pressure-
+    velocity coupling algorithm is force-balanced. 
 
 SourceFiles
-    traceGradGeoNormalSnGradAlpha.C
+    constantCurvatureSurfaceTension.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef traceGradGeoNormalSnGradAlpha_H
-#define traceGradGeoNormalSnGradAlpha_H
+#ifndef constantCurvatureSurfaceTension_H
+#define constantCurvatureSurfaceTension_H
 
 #include "IOdictionary.H"
 #include "surfaceTensionForce.H"
-#include "ITstream.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,10 +48,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class traceGradGeoNormalSnGradAlpha Declaration
+                         Class constantCurvatureSurfaceTension Declaration
 \*---------------------------------------------------------------------------*/
 
-class traceGradGeoNormalSnGradAlpha
+class constantCurvatureSurfaceTension
 :
     public surfaceTensionForce
 {
@@ -65,25 +61,20 @@ class traceGradGeoNormalSnGradAlpha
         const dictionary& levelSetDict_; 
         const dictionary& surfTensionDict_;
         
-        // Interface normals from the geometrical phase indicator. 
-        const volVectorField& normals_;
         // Volume fraction
+        const dimensionedScalar curvature_;
         const volScalarField& alpha_;
-        // Level set field 
-        const volScalarField& psi_;
-        // Narrow band indicator
-        const volScalarField& narrowBand_;
 
 public:
 
     // Static Data Members
-    TypeName ("traceGradGeoNormalSnGradAlpha");
+    TypeName ("constantCurvatureSurfaceTension");
 
     // Constructors
-    traceGradGeoNormalSnGradAlpha(const fvMesh& mesh);
+    constantCurvatureSurfaceTension(const fvMesh& mesh);
 
     //- Destructor
-    virtual ~traceGradGeoNormalSnGradAlpha() = default;
+    virtual ~constantCurvatureSurfaceTension() = default;
 
     // Member Functions
     virtual tmp<surfaceScalarField> faceSurfaceTensionForce() const; 

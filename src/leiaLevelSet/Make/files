@@ -7,7 +7,9 @@ redistancer/redistancer.C
 redistancer/lsqRedistancer.C
 
 surfaceTensionForce/surfaceTensionForce.C
+surfaceTensionForce/constantCurvatureSurfTension.C
 surfaceTensionForce/traceGradGeoNormalSnGradAlpha.C
+surfaceTensionForce/traceGradGradPsiSnGradAlpha.C
 
 SDPLSSource/SDPLSSource.C
 SDPLSSource/SDPLS_R.C
