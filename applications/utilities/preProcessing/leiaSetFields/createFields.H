@@ -12,12 +12,12 @@ volScalarField psi
     mesh
 );
 
-Info<< "Reading field alpha\n" << endl;
+Info<< "Reading field " << alphaName << "\n" << endl;
 volScalarField alpha
 (
     IOobject
     (
-        "alpha",
+        alphaName,
         runTime.timeName(),
         mesh,
         IOobject::MUST_READ,

@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 Tomislav Maric, TU Darmstadt
+    Copyright (C) 2023 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -24,28 +24,23 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::geometricPhaseIndicator
+    Foam::constantCurvatureSurfaceTension
 
 Description
 
-    Computes the phase indicator as a volume fraction from a field \psi_c. 
-    
-    In each cell \Omega_c, a piecewise-planer approximation \psi^l_c is
-    computed using linear least squares. This implicit plane is then used to
-    truncate the cell and compute the phase-specific volume \Omega_c^-,
-    resulting in the volume fraction 
-
-    \alpha_c = |\Omega_c^-| / |\Omega_c| 
+    A constant-curvature surface-tension force for testing if the pressure-
+    velocity coupling algorithm is force-balanced. 
 
 SourceFiles
-    geometricPhaseIndicator.C
+    constantCurvatureSurfaceTension.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef geometricPhaseIndicator_H
-#define geometricPhaseIndicator_H
+#ifndef constantCurvatureSurfaceTension_H
+#define constantCurvatureSurfaceTension_H
 
-#include "phaseIndicator.H"
+#include "IOdictionary.H"
+#include "surfaceTensionForce.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,45 +48,36 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class geometricPhaseIndicator Declaration
+                         Class constantCurvatureSurfaceTension Declaration
 \*---------------------------------------------------------------------------*/
 
-class geometricPhaseIndicator
+class constantCurvatureSurfaceTension
 :
-    public phaseIndicator
+    public surfaceTensionForce
 {
-    
-protected:
-
-    // Narrow-band marker
-    const volScalarField& narrowBand_;
-
-    // Linear Least-Squares Approximation of \Psi
-    // \psi(x,y,z)= nc_x x  + nc_y y + nc_z z + dc
-    tmp<volVectorField> ncTmp_;
-    tmp<volScalarField> dcTmp_;
+    protected:
+        
+        const fvSolution& fvSolutionDict_;
+        const dictionary& levelSetDict_; 
+        const dictionary& surfTensionDict_;
+        
+        // Volume fraction
+        const dimensionedScalar curvature_;
+        const volScalarField& alpha_;
 
 public:
 
     // Static Data Members
-    
-    TypeName ("geometric");
+    TypeName ("constantCurvatureSurfaceTension");
 
     // Constructors
-
-    //- Construct from components
-    geometricPhaseIndicator(const fvMesh& mesh);
+    constantCurvatureSurfaceTension(const fvMesh& mesh);
 
     //- Destructor
-    virtual ~geometricPhaseIndicator() = default;
+    virtual ~constantCurvatureSurfaceTension() = default;
 
     // Member Functions
-    virtual void calcPhaseIndicator
-    (
-        volScalarField& alpha, 
-        const volScalarField& psi 
-    ); 
-    
+    virtual tmp<surfaceScalarField> faceSurfaceTensionForce() const; 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
