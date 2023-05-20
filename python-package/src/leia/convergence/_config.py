@@ -15,6 +15,9 @@ DICT = {
 
     'E_VOL_ALPHA'               : 'max',
     'E_VOL_ALPHA_REL'           : 'max',
+
+    "E_TV"                      : 'absendTime',
+    "E_TV_REL"                  : 'absendTime',
     
 }
 
@@ -24,4 +27,5 @@ def get_strategy(label):
 dict_get_values = {
     'max': get_maxvalue,
     'endTime': get_endvalue,
+    'absendTime': get_absendvalue,
 }

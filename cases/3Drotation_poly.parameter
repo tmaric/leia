@@ -19,9 +19,7 @@ values
     );
 
     CFL
-    (
-				0.1
-    );
+    ( 0.3 );
 		
 	SOURCE_SCHEME
 	(
@@ -60,6 +58,7 @@ values
 		SuperBee
 		UMIST
 		vanAlbada 
+    upwind
 	);
 	
 	TANH_LIMIT

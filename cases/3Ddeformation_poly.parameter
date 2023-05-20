@@ -4,7 +4,7 @@ values
 
     END_TIME (3.0);
 
-    CFL (0.2);
+    CFL (0.3);
 
     MAX_CELL_SIZE // cfmesh pMesh 
     (
@@ -27,6 +27,18 @@ values
 		strictNegativeSpLinearImplicit
 	);
 
+	MOLLIFIER
+	(
+		none
+		m1
+	);
+	
+	GRAD_PSI
+	(
+		fvc
+		narrowLS
+	);
+
 	SDPLS_SOURCE
 	(
 		noSource
@@ -35,6 +47,19 @@ values
 		Rquad
 		lin
 		quad
+	);
+	
+	NEIGHBOURS
+	(
+		5
+		10
+	);
+
+	NARROWBAND
+	(
+		signChange
+		neighbours
+		distance
 	);
 	
 	BC
@@ -57,6 +82,7 @@ values
 		SuperBee
 		UMIST
 		vanAlbada 
+    upwind
 	);
 	
 	TANH_LIMIT

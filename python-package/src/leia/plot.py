@@ -9,7 +9,8 @@ from itertools import cycle
 
 def detox_label(label: str):
     dict_ = {
-        '$': ''
+        '$': '',
+        'SDPLS_SOURCE': 'SDPLS',
     }
     for key in dict_:
         label = label.replace(key, dict_[key])
@@ -21,6 +22,7 @@ def legendlabel(dict, key):
 def timeplot(study_df, prop, *,
                 time=('case', 'TIME'), 
                 caselabel=('database','CASE'), 
+                **kwargs
              ):
     column = prop.column
     ylabel = prop.figTime.ylabel
@@ -36,15 +38,17 @@ def timeplot(study_df, prop, *,
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
     ax.grid('on')
-    ax.set_title(title)
+    ax.set_title(title, pad=10.0)
     return fig
 
 def convergenceplot(study_df, prop, *,
                     time=('case', 'TIME'), 
-                    deltaX=('case', 'DELTA_X'), 
+                    deltaX=('case', 'DELTA_X'),
+                    **kwargs 
                     ):
     column = prop.column
-    ylabel = prop.figConv.ylabel
+    # ylabel = prop.figConv.ylabel
+    ylabel = prop.labelstr_conv if prop.labelstr_conv else prop.figTime.ylabel
     xlabel = prop.figConv.xlabel
     title = prop.figConv.title
     
@@ -77,11 +81,21 @@ def convergenceplot(study_df, prop, *,
     ax.set_xticks(xtick_values, minor=False) 
     ax.set_xticklabels(xtick_labels)
     ax.minorticks_off()
-    plt.title(f"{title}")
+    # plt.title(f"{title}", pad=10.0)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     
     convergence_ref = 1e6
+
+    if 'cmap' in kwargs:
+        cmap = plt.get_cmap(kwargs['cmap'])
+        cmap_it = cycle(map(cmap, range(cmap.N)))
+    else:
+        cmap = plt.get_cmap('tab10')
+        cmap_it = cycle(map(cmap, range(cmap.N)))
+
+    if kwargs.get('sorted', False):
+        refinement_gb = sorted(refinement_gb)
 
     for parameters, refinement_df in refinement_gb:
         res_val_np = convergence.get_values(refinement_df, 
@@ -97,16 +111,27 @@ def convergenceplot(study_df, prop, *,
                                 refinement_df.drop(studycsv.get_refinementlabel(refinement_df), axis='columns')
                     )
         leg_label = detox_label(leg_label)
-        ax.plot(resolutions, values, marker='x',label=leg_label)
+        ax.plot(resolutions, values, marker='x',label=leg_label, color=next(cmap_it))
     
     h_01 = [np.max(study_resolutions), np.min(study_resolutions)]
     Ev_error2nd_01 = [convergence_ref, convergence_ref*(h_01[1]/h_01[0])**2]
     Ev_error1st_01 = [convergence_ref, convergence_ref*(h_01[1]/h_01[0])]
     ax.plot(h_01,Ev_error2nd_01,"k--",label="second-order")
     ax.plot(h_01,Ev_error1st_01,"r:",label="first-order")
+
+    leg_title = studycsv.get_raw_title(
+                                refinement_df.drop(studycsv.get_refinementlabel(refinement_df), axis='columns')
+                    )
     
-    # ax.legend(loc='center left', bbox_to_anchor=(1,0.5))
-    ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
+    if kwargs.get('legend') == 'below':
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12), title=leg_title)
+        # ax.set_title(f"{title}", pad =10 )
+        fig.suptitle(f"{title}")
+    else: # right
+        ax.legend(loc='center left', bbox_to_anchor=(1,0.5), title=leg_title)
+        # ax.set_title(f"{title}", loc='left', pad =10 )
+        fig.suptitle(f"{title}", x=0, y=1, ha='left')
+    
     return fig
 
 #-- START function block: Splitting many lines on multiple plots -----------------------------------

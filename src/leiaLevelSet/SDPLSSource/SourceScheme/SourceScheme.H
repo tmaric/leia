@@ -27,9 +27,26 @@ Class
     Foam::SourceScheme
 
 Description
-    This is the absract baseclass for the source term in the level-set-equation for two-phase-flow simulation.
-    The source term is defined in "A locally signed-distance preserving level set method (SDPLS) for moving interfaces" by M. Fricke et. al..
-    https://arxiv.org/abs/2208.01269
+    The base class SourceScheme forms the root for the discretization hierarchy of
+    the SDPLS source term implemented in SDPLSSource. For the discretization, the
+    non-linear SDPLS source term \f$S_{SDPLS}\f$ is linearized as 
+    \f{equation}{
+        S_{SDPLS}(\psi^{n+1}) \approx S_c + S_{p} \psi^{n+1}_c,
+    \f}
+    where \f$S_c\f$ is a constant and \f$S_{p}\f$ is the proportionality constant
+    for the linear part. Initializing the discretization and returning the
+    tmp<fvScalarMatrix> is done by the public method
+
+    discretize(nonLinearPart, psi),
+
+    which takes the nonLinearPart and the LS field psi from the source term
+    implementing the class SDPLSSource. Inheriting classes are responsible for
+    implementing updateSc() for \f$S_c\f$ and updateSp() for \f$S_p\f$, which are
+    called by discretize(). This base class implements the case of no discretization
+    with 
+    \f{equation}{ 
+        S_{noSource}(\psi^{n+1})=0. 
+    \f}
 
 SourceFiles
     SourceScheme.C

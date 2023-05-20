@@ -50,17 +50,17 @@ velocityModel
 
 levelSet
 {
-		narrowBand	
-		{
-			type	signChange;
-		}
+    narrowBand  
+    {
+      type  signChange;
+    }
 
 
-		profile
-		{
-			type	@!PROFILE!@;
-			limit	@!TANH_LIMIT!@;
-		}
+    profile
+    {
+      type  @!PROFILE!@;
+      limit  @!TANH_LIMIT!@;
+    }
 
 
     implicitSurface 
@@ -80,11 +80,11 @@ levelSet
         type noRedistancing;
     }
 
-		SDPLSSource
-		{
+    SDPLSSource
+    {
         type @!SDPLS_SOURCE!@;
         discretization @!SOURCE_SCHEME!@;
-		}
+    }
 }
 
 
