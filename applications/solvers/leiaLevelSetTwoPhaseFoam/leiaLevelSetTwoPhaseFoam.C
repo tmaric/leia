@@ -62,6 +62,7 @@ Description
 #include "phaseIndicator.H"
 #include "redistancer.H"
 #include "surfaceTensionForce.H"
+#include "NarrowBand.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -89,6 +90,9 @@ int main(int argc, char *argv[])
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info<< "\nStarting time loop\n" << endl;
+    
+    #include "YoungLaplaceEqn.H"
+    p_rgh.write();
 
     while (runTime.run())
     {

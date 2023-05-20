@@ -62,6 +62,10 @@ protected:
     const fvMesh& mesh_;
     
     const Time& runTime_;
+    
+    // Surface tension coefficient.
+    IOdictionary transportProperties_;
+    dimensionedScalar sigma_; 
 
 public:
 

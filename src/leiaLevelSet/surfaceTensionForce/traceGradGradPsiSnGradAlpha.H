@@ -24,7 +24,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::traceGradGeoNormalSnGradAlpha
+    Foam::traceGradGradPsiSnGradAlpha
 
 Description
 
@@ -35,12 +35,12 @@ Description
     is computed as a normalized gradient of the level set field (psi). 
 
 SourceFiles
-    traceGradGeoNormalSnGradAlpha.C
+    traceGradGradPsiSnGradAlpha.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef traceGradGeoNormalSnGradAlpha_H
-#define traceGradGeoNormalSnGradAlpha_H
+#ifndef traceGradGradPsiSnGradAlpha_H
+#define traceGradGradPsiSnGradAlpha_H
 
 #include "IOdictionary.H"
 #include "surfaceTensionForce.H"
@@ -52,10 +52,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class traceGradGeoNormalSnGradAlpha Declaration
+                         Class traceGradGradPsiSnGradAlpha Declaration
 \*---------------------------------------------------------------------------*/
 
-class traceGradGeoNormalSnGradAlpha
+class traceGradGradPsiSnGradAlpha
 :
     public surfaceTensionForce
 {
@@ -71,19 +71,17 @@ class traceGradGeoNormalSnGradAlpha
         const volScalarField& alpha_;
         // Level set field 
         const volScalarField& psi_;
-        // Narrow band indicator
-        const volScalarField& narrowBand_;
 
 public:
 
     // Static Data Members
-    TypeName ("traceGradGeoNormalSnGradAlpha");
+    TypeName ("traceGradGradPsiSnGradAlpha");
 
     // Constructors
-    traceGradGeoNormalSnGradAlpha(const fvMesh& mesh);
+    traceGradGradPsiSnGradAlpha(const fvMesh& mesh);
 
     //- Destructor
-    virtual ~traceGradGeoNormalSnGradAlpha() = default;
+    virtual ~traceGradGradPsiSnGradAlpha() = default;
 
     // Member Functions
     virtual tmp<surfaceScalarField> faceSurfaceTensionForce() const; 

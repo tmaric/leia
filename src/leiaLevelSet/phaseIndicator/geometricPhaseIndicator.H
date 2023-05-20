@@ -64,7 +64,6 @@ class geometricPhaseIndicator
 protected:
 
     // Narrow-band marker
-    // tmp<volScalarField> narrowBandTmp_;
     const volScalarField& narrowBand_;
 
     // Linear Least-Squares Approximation of \Psi
@@ -93,10 +92,6 @@ public:
         const volScalarField& psi 
     ); 
     
-    // tmp<volScalarField> narrowBand() const
-    // {
-    //    return narrowBandTmp_; 
-    // }
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

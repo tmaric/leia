@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2021 AUTHOR,AFFILIATION
+    Copyright (C) 2023 Tomislav Maric, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -25,70 +25,51 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "surfaceFieldsFwd.H"
+#include "fvPatchFieldsFwd.H"
+#include "primitiveFieldsFwd.H"
 #include "surfaceTensionForce.H"
+#include "constantCurvatureSurfaceTension.H"
+#include "addToRunTimeSelectionTable.H"
+#include "volFields.H"
+#include "surfaceFields.H"
+#include "fvcGrad.H"
+#include "fvcSnGrad.H"
+#include "surfaceInterpolate.H"
+#include "volFieldsFwd.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
 
-defineTypeNameAndDebug(surfaceTensionForce, false);
-defineRunTimeSelectionTable(surfaceTensionForce, Mesh);
-
-// * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
-
-Foam::autoPtr<Foam::surfaceTensionForce>
-Foam::surfaceTensionForce::New(const fvMesh& mesh)
-{
-    const fvSolution& fvSolution (mesh);
-    const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-    const dictionary& dict = levelSetDict.subDict("surfaceTensionForce");
-    const word& modelType = dict.get<word>("type");
-    auto* ctorPtr = MeshConstructorTable(modelType);
-
-    if (!ctorPtr)
-    {
-        FatalIOErrorInLookup
-        (
-            dict,
-            "surfaceTensionForce",
-            modelType,
-            *MeshConstructorTablePtr_
-        ) << exit(FatalIOError);
-    }
-
-    // Construct the model and return the autoPtr to the object. 
-    return autoPtr<surfaceTensionForce>(ctorPtr(mesh));
-}
+defineTypeNameAndDebug(constantCurvatureSurfaceTension, false);
+addToRunTimeSelectionTable(surfaceTensionForce, constantCurvatureSurfaceTension, Mesh);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-surfaceTensionForce::surfaceTensionForce(const fvMesh& mesh)
+constantCurvatureSurfaceTension::constantCurvatureSurfaceTension(const fvMesh& mesh)
 :
-    mesh_(mesh),
-    runTime_(mesh.time()), 
-    transportProperties_
+    surfaceTensionForce(mesh),
+    fvSolutionDict_(mesh_),
+    levelSetDict_(fvSolutionDict_.subDict("levelSet")),
+    surfTensionDict_(levelSetDict_.subDict("surfaceTensionForce")),
+    curvature_
     (
-        IOobject
-        (
-            "transportProperties", 
-            "constant", 
-            runTime_,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )    
-    ), 
-    sigma_
-    (
-        "sigma",
-        dimForce / dimLength, 
-        transportProperties_.get<scalar>("sigma")
-    )
+        "curvature", 
+        pow(dimLength, -1), 
+        surfTensionDict_.get<scalar>("curvature")
+    ),
+    alpha_(mesh_.lookupObject<volScalarField>(surfTensionDict_.getOrDefault<word>("alpha", "alpha.dispersed")))
 {}
 
-// ************************************************************************* //
+// * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
+
+tmp<surfaceScalarField> constantCurvatureSurfaceTension::faceSurfaceTensionForce() const 
+{
+    return sigma_ * curvature_ * fvc::snGrad(alpha_);
+}
 
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ************************************************************************* //

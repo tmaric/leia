@@ -147,6 +147,11 @@ volScalarField psi
 // Leve Set re-distancing model
 autoPtr<redistancer> redist = redistancer::New(mesh);
 
+// Level Set narrowBand model
+autoPtr<NarrowBand> narrowBand = NarrowBand::New(mesh, psi); 
+narrowBand->calc();
+narrowBand->write();
+
 // Level Set phase-indicator model
 autoPtr<phaseIndicator> phaseInd = phaseIndicator::New(mesh); 
 

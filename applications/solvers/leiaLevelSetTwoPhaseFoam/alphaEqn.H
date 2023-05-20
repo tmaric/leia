@@ -18,6 +18,8 @@
     
     phaseInd->calcPhaseIndicator(alpha1, psi);
 
+    narrowBand->calc();
+
     // Making U absolute again after advection step
     if (mesh.moving())
     {
