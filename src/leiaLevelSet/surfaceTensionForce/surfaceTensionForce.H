@@ -24,28 +24,26 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::geometricPhaseIndicator
+    Foam::surfaceTensionForce
 
 Description
-
-    Computes the phase indicator as a volume fraction from a field \psi_c. 
-    
-    In each cell \Omega_c, a piecewise-planer approximation \psi^l_c is
-    computed using linear least squares. This implicit plane is then used to
-    truncate the cell and compute the phase-specific volume \Omega_c^-,
-    resulting in the volume fraction 
-
-    \alpha_c = |\Omega_c^-| / |\Omega_c| 
+    Abstract base class for surface tension force modeling.
 
 SourceFiles
-    geometricPhaseIndicator.C
+    surfaceTensionForce.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef geometricPhaseIndicator_H
-#define geometricPhaseIndicator_H
+#ifndef surfaceTensionForce_H
+#define surfaceTensionForce_H
 
-#include "phaseIndicator.H"
+#include "messageStream.H"
+#include "surfaceFieldsFwd.H"
+#include "typeInfo.H"
+#include "autoPtr.H"
+#include "runTimeSelectionTables.H"
+#include "fvSolution.H"
+#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,45 +51,56 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class geometricPhaseIndicator Declaration
+                         Class surfaceTensionForce Declaration
 \*---------------------------------------------------------------------------*/
 
-class geometricPhaseIndicator
-:
-    public phaseIndicator
+class surfaceTensionForce
 {
     
 protected:
-
-    // Narrow-band marker
-    const volScalarField& narrowBand_;
-
-    // Linear Least-Squares Approximation of \Psi
-    // \psi(x,y,z)= nc_x x  + nc_y y + nc_z z + dc
-    tmp<volVectorField> ncTmp_;
-    tmp<volScalarField> dcTmp_;
+    
+    const fvMesh& mesh_;
+    
+    const Time& runTime_;
+    
+    // Surface tension coefficient.
+    IOdictionary transportProperties_;
+    dimensionedScalar sigma_; 
 
 public:
 
     // Static Data Members
-    
-    TypeName ("geometric");
+
+    TypeName("none");
+
+    declareRunTimeSelectionTable
+    (
+        autoPtr,
+        surfaceTensionForce, 
+        Mesh, 
+        (
+            const fvMesh& mesh 
+        ), 
+        (mesh)
+    );
 
     // Constructors
+    
+        //- Construct from components
+        surfaceTensionForce(const fvMesh& mesh);
 
-    //- Construct from components
-    geometricPhaseIndicator(const fvMesh& mesh);
+    // Selectors
+
+        //- Select default constructed
+        static autoPtr<surfaceTensionForce> New(const fvMesh& mesh);
 
     //- Destructor
-    virtual ~geometricPhaseIndicator() = default;
+    virtual ~surfaceTensionForce() = default;
 
     // Member Functions
-    virtual void calcPhaseIndicator
-    (
-        volScalarField& alpha, 
-        const volScalarField& psi 
-    ); 
-    
+    // - Face-centered surface tension force 
+    virtual tmp<surfaceScalarField> faceSurfaceTensionForce() const = 0;
+
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

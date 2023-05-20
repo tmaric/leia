@@ -24,28 +24,25 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::geometricPhaseIndicator
+    Foam::divGradPsiSnGradAlpha
 
 Description
 
-    Computes the phase indicator as a volume fraction from a field \psi_c. 
-    
-    In each cell \Omega_c, a piecewise-planer approximation \psi^l_c is
-    computed using linear least squares. This implicit plane is then used to
-    truncate the cell and compute the phase-specific volume \Omega_c^-,
-    resulting in the volume fraction 
+    Computes the face-centered surface tension force using the trace
+    of the gradient of the level set function, multiplied by the face-
+    normal gradient of the phase indicator (CSF model)
 
-    \alpha_c = |\Omega_c^-| / |\Omega_c| 
+    f_{\Sigma,f} = \sigma_f [trace(\nabla(\psi))]_f snGrad(alpha)
 
 SourceFiles
-    geometricPhaseIndicator.C
+    divGradPsiSnGradAlpha.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef geometricPhaseIndicator_H
-#define geometricPhaseIndicator_H
+#ifndef divGradPsiSnGradAlpha_H
+#define divGradPsiSnGradAlpha_H
 
-#include "phaseIndicator.H"
+#include "surfaceTensionForce.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,45 +50,36 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class geometricPhaseIndicator Declaration
+                         Class divGradPsiSnGradAlpha Declaration
 \*---------------------------------------------------------------------------*/
 
-class geometricPhaseIndicator
+class divGradPsiSnGradAlpha
 :
-    public phaseIndicator
+    public surfaceTensionForce
 {
-    
-protected:
-
-    // Narrow-band marker
-    const volScalarField& narrowBand_;
-
-    // Linear Least-Squares Approximation of \Psi
-    // \psi(x,y,z)= nc_x x  + nc_y y + nc_z z + dc
-    tmp<volVectorField> ncTmp_;
-    tmp<volScalarField> dcTmp_;
 
 public:
 
     // Static Data Members
-    
-    TypeName ("geometric");
+
+    TypeName ("divGradPsiSnGradAlpha");
 
     // Constructors
 
-    //- Construct from components
-    geometricPhaseIndicator(const fvMesh& mesh);
+    divGradPsiSnGradAlpha();
+
+    divGradPsiSnGradAlpha(const dictionary& dict);
 
     //- Destructor
-    virtual ~geometricPhaseIndicator() = default;
+    virtual ~divGradPsiSnGradAlpha() = default;
 
     // Member Functions
-    virtual void calcPhaseIndicator
-    (
-        volScalarField& alpha, 
-        const volScalarField& psi 
-    ); 
     
+    virtual tmp<surfaceScalarField> faceSurfaceTensionForce 
+    (
+        const volScalarField& alpha, 
+        const volScalarField& psi 
+    ) const; 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -129,9 +129,13 @@ void setField
 
 int main(int argc, char *argv[])
 {
+    argList::addOption("alphaName", "word", "Name of the volume fraction field.");
+    
     #include "setRootCase.H"
     #include "createTime.H"
     #include "createMesh.H"
+    
+    const auto alphaName = args.getOrDefault<word>("alphaName", "alpha");
 
     #include "createFields.H"
 
