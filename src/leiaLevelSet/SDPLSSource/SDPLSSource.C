@@ -29,27 +29,25 @@ License
 #include "addToRunTimeSelectionTable.H"
 #include "fvSolution.H"
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-// namespace fv
-// {
-
-defineTypeNameAndDebug(SDPLSSource, false);
-defineRunTimeSelectionTable(SDPLSSource, Dictionary);
-addToRunTimeSelectionTable(SDPLSSource, SDPLSSource, Dictionary);
+    defineTypeNameAndDebug(SDPLSSource, false);
+    defineRunTimeSelectionTable(SDPLSSource, Dictionary);
+    addToRunTimeSelectionTable(SDPLSSource, SDPLSSource, Dictionary);
+} 
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
 
 Foam::autoPtr<SDPLSSource>
-SDPLSSource::New(const fvMesh& mesh)
+Foam::SDPLSSource::New(const fvMesh& mesh)
 {
     const fvSolution& fvSolution (mesh);
     const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-    // const dictionary& sourceTermDict = levelSetDict.optionalSubDict("SDPLSSourceTerm");
-    const dictionary& sourceTermDict = levelSetDict.optionalSubDict("SDPLSSource");
+    const dictionary& sourceTermDict = 
+        levelSetDict.optionalSubDict("SDPLSSource");
     const word& type = sourceTermDict.getOrDefault<word>("type", "noSource");
 
     auto* ctorPtr = DictionaryConstructorTable(type);
@@ -71,14 +69,18 @@ SDPLSSource::New(const fvMesh& mesh)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
+Foam::SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
     :
-        discretization_(SourceScheme::New(dict.getOrDefault<word>("discretization","none"))),
+        discretization_
+            (
+                SourceScheme::
+                New(dict.getOrDefault<word>("discretization","none"))
+            ),
         gradPsi_(GradPsi::New(dict.getOrDefault<word>("gradPsi","fvc"), mesh)),
         mollifier_(Mollifier::New(dict.subOrEmptyDict("mollifier"))),
         R_(
             IOobject(
-                "minusR",
+                "R",
                 mesh.time().timeName(),
                 mesh,
                 IOobject::NO_READ,
@@ -90,7 +92,7 @@ SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
         nonLinearPart_(
             IOobject
             (
-                "SDPLSSource_nonLinearPart",
+                "SDPLS_nonLinearPart",
                 mesh.time().timeName(),
                 mesh,
                 IOobject::NO_READ,
@@ -103,48 +105,59 @@ SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<fvScalarMatrix> SDPLSSource::fvmSDPLSSource(const volScalarField& psi, const volVectorField& U)
+Foam::tmp<fvScalarMatrix> 
+Foam::SDPLSSource::
+fvmSDPLSSource(const volScalarField& psi, const volVectorField& U)
 {
     update(psi, U);
     tmp<fvScalarMatrix> tfvm;
-    // if(mollifier_->TypeName() == "none")
     if(mollifier_->type() == "none")
     {
         tfvm = discretization_->discretize(nonLinearPart_, psi);
     }
     else
     {
-        volScalarField mollified_nonLinearPart = nonLinearPart_ * mollifier_->field(psi);
+        volScalarField mollified_nonLinearPart =
+            nonLinearPart_*mollifier_->field(psi);
         tfvm = discretization_->discretize(mollified_nonLinearPart, psi);
     }
 
     return tfvm;
 }
 
-void SDPLSSource::update(const volScalarField& psi, const volVectorField& U)
+void
+Foam::SDPLSSource::update(const volScalarField& psi, const volVectorField& U)
 {
     R_ = R(psi, U);
     nonLinearPart_ = nonLinearPart(R_, psi, U);
 }
 
 
-// old name 'minusR', new name 'R', wich mean the same term. 
-tmp<volScalarField> SDPLSSource::R(const volScalarField& psi, const volVectorField& U) const
+Foam::tmp<volScalarField> 
+Foam::SDPLSSource::R(const volScalarField& psi, const volVectorField& U) const
 {
     volVectorField const grad_psi = gradPsi(psi);
     volTensorField const grad_U = fvc::grad(U).cref();
     dimensioned<scalar> const eps = dimensioned(grad_psi.dimensions(), SMALL);
-    volVectorField const normal_interface = (grad_psi / (mag(grad_psi) + eps)).cref();
+    volVectorField const normal_interface = 
+        (grad_psi/(mag(grad_psi) + eps)).cref();
 
     return (grad_U & normal_interface) & normal_interface;
 }
 
-tmp<volVectorField> SDPLSSource::gradPsi(const volScalarField& psi) const
+Foam::tmp<volVectorField>
+Foam::SDPLSSource::gradPsi(const volScalarField& psi) const
 {
     return gradPsi_->grad(psi);
 }
 
-tmp<volScalarField> SDPLSSource::nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const
+Foam::tmp<volScalarField> 
+Foam::SDPLSSource::nonLinearPart
+    (
+        const volScalarField& R,
+        const volScalarField& psi,
+        const volVectorField& U
+    ) const
 {
     const fvMesh& mesh = psi.mesh();
     return tmp<volScalarField>
@@ -166,26 +179,25 @@ tmp<volScalarField> SDPLSSource::nonLinearPart(const volScalarField& R, const vo
     );
 }
 
-void SDPLSSource::write() const
+void Foam::SDPLSSource::write() const
 {
     R_.write();
     nonLinearPart_.write();
 }
 
-// } // End namespace fv
+
 
 // * * * * * * * * * * * * * *  Global functions  * * * * * * * * * * * * * * //
-namespace fvm
+
+Foam::tmp<fvScalarMatrix> 
+Foam::fvm::SDPLSSource(const volScalarField& psi, const volVectorField& U)
 {
-tmp<fvScalarMatrix> SDPLSSource(const volScalarField& psi, const volVectorField& U)
-{
-    // return fv::SDPLSSource::New(psi.mesh()).ref().fvmSDPLSSource(psi, U); 
-    return SDPLSSource::New(psi.mesh()).ref().fvmSDPLSSource(psi, U); 
+    return SDPLSSource::New(psi.mesh()).ref().fvmSDPLSSource(psi, U);
 }
 
 // ************************************************************************* //
 
-} // End namespace fvm
-} // End namespace Foam
+
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

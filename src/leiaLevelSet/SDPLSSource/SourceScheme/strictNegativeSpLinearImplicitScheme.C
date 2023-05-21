@@ -46,22 +46,24 @@ strictNegativeSpLinearImplicitScheme::strictNegativeSpLinearImplicitScheme()
         SourceScheme()
 {}
 
-void strictNegativeSpLinearImplicitScheme::updateSc(const volScalarField& nonLinearPart, const volScalarField& psi)
+tmp<scalarField> strictNegativeSpLinearImplicitScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
 {
-    Sc_ = scalarField(nonLinearPart.size(), 0.0);
+    tmp<scalarField> tSc(new scalarField(nonLinearPart.size(), 0.0));
     forAll(nonLinearPart, cellID)
     {
-        Sc_[cellID] = Foam::max(nonLinearPart[cellID], 0) *psi[cellID];
+        tSc.ref()[cellID] = Foam::max(nonLinearPart[cellID], 0) *psi[cellID];
     }
+    return tSc;
 }
 
-void strictNegativeSpLinearImplicitScheme::updateSp(const volScalarField& nonLinearPart)
+tmp<scalarField> strictNegativeSpLinearImplicitScheme::Sp(const volScalarField& nonLinearPart)
 {
-    Sp_ = scalarField(nonLinearPart.size(), 0.0);
+    tmp<scalarField> tSp(new scalarField(nonLinearPart.size(), 0.0));
     forAll(nonLinearPart, cellID)
     {
-        Sp_[cellID] = Foam::min(nonLinearPart[cellID], 0);
+        tSp.ref()[cellID] = Foam::min(nonLinearPart[cellID], 0);
     }
+    return tSp;
 }
 
 // ************************************************************************* //

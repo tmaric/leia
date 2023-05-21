@@ -85,8 +85,8 @@ public:
     // Member Functions
 
 protected:
-    virtual void updateSc(const volScalarField& nonLinearPart, const volScalarField& psi);
-    virtual void updateSp(const volScalarField& nonLinearPart);
+    virtual tmp<scalarField> Sc(const volScalarField& nonLinearPart, const volScalarField& psi);
+    virtual tmp<scalarField> Sp(const volScalarField& nonLinearPart);
 
 
 };

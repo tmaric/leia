@@ -41,7 +41,7 @@ Description
 
     which takes the nonLinearPart and the LS field psi from the source term
     implementing the class SDPLSSource. Inheriting classes are responsible for
-    implementing updateSc() for \f$S_c\f$ and updateSp() for \f$S_p\f$, which are
+    implementing Sc() for \f$S_c\f$ and Sp() for \f$S_p\f$, which are
     called by discretize(). This base class implements the case of no discretization
     with 
     \f{equation}{ 
@@ -81,8 +81,8 @@ class SourceScheme
 {
 protected:
 
-    scalarField Sc_;
-    scalarField Sp_;
+    // scalarField Sc_;
+    // scalarField Sp_;
 
 public:
 
@@ -117,8 +117,8 @@ public:
     tmp<fvScalarMatrix> discretize(const volScalarField& nonLinearPart, const volScalarField& psi);
 
 protected:
-    virtual void updateSc(const volScalarField& nonLinearPart, const volScalarField& psi);
-    virtual void updateSp(const volScalarField& nonLinearPart);
+    virtual tmp<scalarField> Sc(const volScalarField& nonLinearPart, const volScalarField& psi);
+    virtual tmp<scalarField> Sp(const volScalarField& nonLinearPart);
 
 
 };

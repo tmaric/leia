@@ -58,8 +58,7 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
+
 /*---------------------------------------------------------------------------*\
                          Class explicitScheme Declaration
 \*---------------------------------------------------------------------------*/
@@ -73,28 +72,36 @@ public:
 
     // Static Data Members
     
-    TypeName("explicit");
+        TypeName("explicit");
 
     // Constructors
-    explicitScheme();
+        explicitScheme();
 
     //- Destructor
     virtual ~explicitScheme() = default;
 
-    // Member Functions
 
 protected:
-    virtual void updateSc(const volScalarField& nonLinearPart, const volScalarField& psi);
-    virtual void updateSp(const volScalarField& nonLinearPart);
+
+    // Protected Member Functions
+
+        //- 
+        virtual tmp<scalarField> Sc
+            (
+                const volScalarField& nonLinearPart, 
+                const volScalarField& psi
+            );
+
+        virtual tmp<scalarField> Sp
+            (
+                const volScalarField& nonLinearPart
+            );
 
 
 };
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
-// } // End namespace fv
 } // End namespace Foam
 
 #endif

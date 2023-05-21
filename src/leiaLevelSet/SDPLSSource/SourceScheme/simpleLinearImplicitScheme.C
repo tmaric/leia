@@ -46,14 +46,14 @@ simpleLinearImplicitScheme::simpleLinearImplicitScheme()
         SourceScheme()
 {}
 
-void simpleLinearImplicitScheme::updateSc(const volScalarField& nonLinearPart, const volScalarField& psi)
+tmp<scalarField> simpleLinearImplicitScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
 {
-    Sc_ = scalarField(nonLinearPart.size(), 0.0);
+    return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
-void simpleLinearImplicitScheme::updateSp(const volScalarField& nonLinearPart)
+tmp<scalarField> simpleLinearImplicitScheme::Sp(const volScalarField& nonLinearPart)
 {
-    Sp_ = nonLinearPart.field();
+    return nonLinearPart.field();
 }
 
 // ************************************************************************* //

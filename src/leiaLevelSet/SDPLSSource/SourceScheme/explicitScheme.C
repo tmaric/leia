@@ -33,8 +33,6 @@ License
 
 namespace Foam
 {
-// namespace fv
-// {
 
 
 defineTypeNameAndDebug(explicitScheme, false);
@@ -46,19 +44,19 @@ explicitScheme::explicitScheme()
         SourceScheme()
 {}
 
-void explicitScheme::updateSc(const volScalarField& nonLinearPart, const volScalarField& psi)
+tmp<scalarField> explicitScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
 {
-    Sc_ = (nonLinearPart * psi)().field();
+    return (nonLinearPart * psi)().field();
 }
 
-void explicitScheme::updateSp(const volScalarField& nonLinearPart)
+tmp<scalarField> explicitScheme::Sp(const volScalarField& nonLinearPart)
 {
-    Sp_ = scalarField(nonLinearPart.size(), 0.0);
+    return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
 // ************************************************************************* //
 
-// } // End namespace fv
+
 } // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

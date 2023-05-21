@@ -63,9 +63,6 @@ SourceScheme::New(const word type)
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 SourceScheme::SourceScheme()
-    :
-        Sc_(zeroField()),
-        Sp_(zeroField())
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
@@ -84,22 +81,19 @@ tmp<fvScalarMatrix> SourceScheme::discretize(const volScalarField& nonLinearPart
     fvScalarMatrix& fvm = tfvm.ref();
     const fvMesh& mesh = psi.mesh();
 
-    updateSc(nonLinearPart, psi);
-    updateSp(nonLinearPart);
-
-    fvm.source()    = mesh.V().field() * Sc_;
-    fvm.diag()      = mesh.V().field() * Sp_;
+    fvm.source()    = mesh.V().field() * Sc(nonLinearPart, psi);
+    fvm.diag()      = mesh.V().field() * Sp(nonLinearPart);
     return tfvm;
 }
 
-void SourceScheme::updateSc(const volScalarField& nonLinearPart, const volScalarField& psi)
+tmp<scalarField> SourceScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
 {
-    Sc_ = scalarField(nonLinearPart.size(), 0.0);
+    return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
-void SourceScheme::updateSp(const volScalarField& nonLinearPart)
+tmp<scalarField> SourceScheme::Sp(const volScalarField& nonLinearPart)
 {
-    Sp_ = scalarField(nonLinearPart.size(), 0.0);
+    return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
 
