@@ -10,6 +10,7 @@ surfaceTensionForce/surfaceTensionForce.C
 surfaceTensionForce/constantCurvatureSurfTension.C
 surfaceTensionForce/traceGradGeoNormalSnGradAlpha.C
 surfaceTensionForce/traceGradGradPsiSnGradAlpha.C
+surfaceTensionForce/correctionKang.C
 
 SDPLSSource/SDPLSSource.C
 SDPLSSource/SDPLS_R.C
