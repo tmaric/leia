@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,24 +27,21 @@ License
 
 #include "Mollifier.H"
 #include "addToRunTimeSelectionTable.H"
-// #include "fvSolution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-// namespace fv
-// {
-
-defineTypeNameAndDebug(Mollifier, false);
-defineRunTimeSelectionTable(Mollifier, Dictionary);
-addToRunTimeSelectionTable(Mollifier, Mollifier, Dictionary);
+    defineTypeNameAndDebug(Mollifier, false);
+    defineRunTimeSelectionTable(Mollifier, Dictionary);
+    addToRunTimeSelectionTable(Mollifier, Mollifier, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
 
 Foam::autoPtr<Mollifier>
-Mollifier::New(const dictionary& dict)
+Foam::Mollifier::New(const dictionary& dict)
 {
     const word& type = dict.getOrDefault<word>("type", "none");
 
@@ -67,12 +64,13 @@ Mollifier::New(const dictionary& dict)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Mollifier::Mollifier(const dictionary& dict)
+Foam::Mollifier::Mollifier(const dictionary& dict)
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<volScalarField> Mollifier::field(const volScalarField& psi) const
+Foam::tmp<volScalarField> 
+Foam::Mollifier::field(const volScalarField& psi) const
 {
     tmp<volScalarField> tfield
     (
@@ -101,15 +99,10 @@ tmp<volScalarField> Mollifier::field(const volScalarField& psi) const
 }
 
 
-double Mollifier::mollify(double x) const
+double Foam::Mollifier::mollify(double x) const
 {
     return 1.0;
 }
 
-
-
-// } // End namespace fv
-
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

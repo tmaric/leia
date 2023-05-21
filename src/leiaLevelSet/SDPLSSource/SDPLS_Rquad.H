@@ -27,7 +27,10 @@ Class
     Foam::SDPLS_Rquad
 
 Description
-    Concrete class which calculates the SDPLS source term explicitly.
+    SDPLS R-quadratic source term
+    \f{equation}{
+        f_{nl,\,lin}(\psi^{n}) = R + \| \nabla \psi \|_2^{-2} - 1
+    \f} 
 
 SourceFiles
     SDPLS_Rquad.C
@@ -48,8 +51,7 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
+
 /*---------------------------------------------------------------------------*\
                          Class SDPLS_Rquad Declaration
 \*---------------------------------------------------------------------------*/
@@ -66,23 +68,31 @@ public:
     TypeName("Rquad");
 
     // Constructors
-    SDPLS_Rquad(const dictionary& dict, const fvMesh& mesh);
+    
+        //- Construct from fvSolution
+        SDPLS_Rquad(const dictionary& dict, const fvMesh& mesh);
 
     //- Destructor
     virtual ~SDPLS_Rquad() = default;
 
-    // Member Functions
+protected:
 
-    virtual tmp<volScalarField> nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const;
+    // Protected Member Functions
 
+        //- Calculate the non-linear function \f$f_{nl}(\psi^{n})\f$.
+        //  The calculation is explicit, using the values from the old time 
+        //  step. 
+        virtual tmp<volScalarField> nonLinearPart
+        (
+            const volScalarField& R,
+            const volScalarField& psi,
+            const volVectorField& U
+        ) const;
 
 };
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
-// } // End namespace fv
 } // End namespace Foam
 
 #endif

@@ -32,7 +32,7 @@ Description
     SDPLSSource, the explicit evaluation of the SDPLS source term instance is
     implemented in the member function nonLinearPart() as 
     \f{equation}{
-        f_{nl,\,R}(\psi^{n}) = \left \langle (\nabla \U)_c \frac{(\nabla
+        f_{nl,\,R}(\psi^{n}) = R = \left \langle (\nabla \U)_c \frac{(\nabla
         \psi)_c^n}{\|(\nabla\psi)_c^n\|_2},  \frac{(\nabla
         \psi)_c^n}{\|(\nabla\psi)_c^n\|_2} \right \rangle, 
     \f} 
@@ -58,8 +58,7 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
+
 /*---------------------------------------------------------------------------*\
                          Class SDPLS_R Declaration
 \*---------------------------------------------------------------------------*/
@@ -81,10 +80,19 @@ public:
     //- Destructor
     virtual ~SDPLS_R() = default;
 
-    // Member Functions
+protected:
 
-    virtual tmp<volScalarField> nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const;
+    // Protected Member Functions
 
+        //- Calculate the non-linear function \f$f_{nl}(\psi^{n})\f$.
+        //  The calculation is explicit, using the values from the old time 
+        //  step. This instance returns R.
+        virtual tmp<volScalarField> nonLinearPart
+        (
+            const volScalarField& R,
+            const volScalarField& psi,
+            const volVectorField& U
+        ) const;
 
 };
 

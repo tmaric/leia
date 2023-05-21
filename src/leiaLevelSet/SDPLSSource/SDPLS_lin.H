@@ -27,7 +27,10 @@ Class
     Foam::SDPLS_lin
 
 Description
-    Concrete class which calculates the SDPLS source term explicitly.
+    SDPLS linear source term
+    \f{equation}{
+        f_{nl,\,lin}(\psi^{n}) = 1 - \| \nabla \psi \|_2
+    \f} 
 
 SourceFiles
     SDPLS_lin.C
@@ -48,13 +51,12 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
+
 /*---------------------------------------------------------------------------*\
                          Class SDPLS_lin Declaration
 \*---------------------------------------------------------------------------*/
 
-// template<class Type>
+
 class SDPLS_lin
 : 
     public SDPLSSource
@@ -66,23 +68,31 @@ public:
     TypeName("lin");
 
     // Constructors
-    SDPLS_lin(const dictionary& dict, const fvMesh& mesh);
+        
+        //- Construct from fvSolution
+        SDPLS_lin(const dictionary& dict, const fvMesh& mesh);
 
     //- Destructor
     virtual ~SDPLS_lin() = default;
 
-    // Member Functions
+protected:
 
-    virtual tmp<volScalarField> nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const;
+    // Protected Member Functions
 
-
+        //- Calculate the non-linear function \f$f_{nl}(\psi^{n})\f$.
+        //  The calculation is explicit, using the values from the old time 
+        //  step. 
+        virtual tmp<volScalarField> nonLinearPart
+        (
+            const volScalarField& R,
+            const volScalarField& psi,
+            const volVectorField& U
+        ) const;
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
-// } // End namespace fv
 } // End namespace Foam
 
 #endif

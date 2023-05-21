@@ -27,7 +27,10 @@ Class
     Foam::SDPLS_Rlin
 
 Description
-    Concrete class which calculates the SDPLS source term explicitly.
+    SDPLS R-linear source term
+    \f{equation}{
+        f_{nl,\,lin}(\psi^{n}) = R + 1 - \| \nabla \psi \|_2
+    \f} 
 
 SourceFiles
     SDPLS_Rlin.C
@@ -66,16 +69,26 @@ public:
     TypeName("Rlin");
 
     // Constructors
-    SDPLS_Rlin(const dictionary& dict, const fvMesh& mesh);
+
+        //- Construct from fvSolution
+        SDPLS_Rlin(const dictionary& dict, const fvMesh& mesh);
 
     //- Destructor
     virtual ~SDPLS_Rlin() = default;
 
-    // Member Functions
+protected:
 
-    virtual tmp<volScalarField> nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const;
+    // Protected Member Functions
 
-
+        //- Calculate the non-linear function \f$f_{nl}(\psi^{n})\f$.
+        //  The calculation is explicit, using the values from the old time 
+        //  step. 
+        virtual tmp<volScalarField> nonLinearPart
+        (
+            const volScalarField& R,
+            const volScalarField& psi,
+            const volVectorField& U
+        ) const;
 };
 
 

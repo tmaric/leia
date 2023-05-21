@@ -24,13 +24,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::GradPsi1
+    Foam::GradPsi
 
 Description
+    Strategy base class for evaluating gradient psi.
 
+    This instance uses fvc::grad(psi)
 
 SourceFiles
-    GradPsi1.C
+    GradPsi.C
 
 \*---------------------------------------------------------------------------*/
 
@@ -47,8 +49,6 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
 
 
 /*---------------------------------------------------------------------------*\
@@ -76,7 +76,7 @@ public:
 
     // Constructors
 
-        //- Construct from components
+        //- Construct from fvSolution
         GradPsi(const fvMesh& mesh);
 
     // Selectors
@@ -89,12 +89,12 @@ public:
 
     // Member functions
 
-    virtual tmp<volVectorField> grad(const volScalarField& psi) const;
+        //- Strategy for evaluating gradient of psi.
+        //  This instance uses fvc::grad(psi)
+        virtual tmp<volVectorField> grad(const volScalarField& psi) const;
 
 
 };
-
-// } // End namespace fv
 
 } // End namespace Foam
 

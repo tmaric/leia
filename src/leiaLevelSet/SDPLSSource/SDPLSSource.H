@@ -51,7 +51,8 @@ Description
     unknown solution value in cell \f$\Omega_c\f$ at time \f$t^{n+1}\f$. All
     inherited classes are responsible for implementing the explicit evaluation
     of the non-linear function by overloading the member function
-    nonLinearPart(). This base class implements the case of an inactive source term.
+    nonLinearPart(). This base class implements the case of an inactive source term
+    \f$f_{nl}=0\f$.
     The discretization is done separately by the class hierarchy SourceScheme, which
     is related via the strategy pattern. Furthermore, this class has a strategy for
     a Mollifier, which restricts the active source term to a narrow band around the
@@ -113,8 +114,8 @@ private:
         //      noSource 
         volScalarField R_;
 
-        //- Registered field for visualizing the non-linear part of an SDPLS 
-        //  source term.
+        //- Registered field for visualizing the non-linear part 
+        //  \f$f_{nl}(\psi^{n})\f$ of an SDPLS source term.
         volScalarField nonLinearPart_;
 
 
@@ -124,7 +125,11 @@ private:
         //  The calculation is explicit, using the values from the old time 
         //  step. The method is placed in the base class on purpose. The R_ 
         //  field is written also for 'noSource' for development purpose.
-        //
+        //  \f{equation}{
+        //      R = \left \langle (\nabla \U)_c \frac{(\nabla
+        //      \psi)_c^n}{\|(\nabla\psi)_c^n\|_2},  \frac{(\nabla
+        //      \psi)_c^n}{\|(\nabla\psi)_c^n\|_2} \right \rangle, 
+        //  \f} 
         //  Note: This 'R' corresponds to '-R' of Fricke et al.
         //  
         //  @param psi is the Level Set field
@@ -195,10 +200,9 @@ protected:
 
     // Protected Member Functions
 
-        //- Calculate the non-linear function.
+        //- Calculate the non-linear function \f$f_{nl}(\psi^{n})\f$.
         //  The calculation is explicit, using the values from the old time 
         //  step. This instance returns a zero field.
-        //
         virtual tmp<volScalarField> nonLinearPart
         (
             const volScalarField& R,

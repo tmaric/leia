@@ -24,18 +24,27 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::Mollifier11
+    Foam::Mollifier1
 
 Description
+    Implements the mollifier m1 proposed by Fricke et al. \cite fricke_locally_2022.
+    \f{equation}{
+        m1(x) = 
+        \begin{cases}
+        1 & \text{if} \quad 0 \le x \le w_1,\\
+        \exp \left( - \ln(10^3) \frac{(x-w_1)^2}{(w_2-w_1)^2} \right) & \text{if} \quad w_1 < x,\\
+        m1(-x) & \text{if} \quad x<0
+        \end{cases}
+    \f} 
 
 
 SourceFiles
-    Mollifier11.C
+    Mollifier1.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Mollifier11_H
-#define Mollifier11_H
+#ifndef Mollifier1_H
+#define Mollifier1_H
 
 #include "Mollifier.H"
 
@@ -44,40 +53,49 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
 
 
 /*---------------------------------------------------------------------------*\
-                         Class Mollifier11 Declaration
+                         Class Mollifier1 Declaration
 \*---------------------------------------------------------------------------*/
 
 class Mollifier1
     :   public Mollifier
 {
 private:
+
+    // Private Data Members
+
+        //- is the width of the plateau
         scalar w1_;
+        
+        //- is the width before the mollifier is close to 0 (Default: 10^-3).  
         scalar w2_; 
 public:
 
     // Static Data Members
     
-    TypeName("m1");
+        TypeName("m1");
 
     // Constructors
 
-        //- Construct from components
+        //- Construct from fvSolution
         Mollifier1(const dictionary& dict);
+    
     //- Destructor
     virtual ~Mollifier1() = default;
 
 protected:
-    virtual double mollify(double x) const;
+
+    // Protected Member functions
+        
+        //- Mollifier formula for a cell
+        //
+        //  @param x is the Level Set value
+        virtual double mollify(double x) const;
 
 
 };
-
-// } // End namespace fv
 
 } // End namespace Foam
 

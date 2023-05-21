@@ -36,8 +36,8 @@ Description
         S_{strictNegativeSpLinearImplicit,\,p} &= \min(f_{nl}(\psi^n),0),
     \end{aligned}
     \f}
-    which ensures that the constant \f$S_p \le 0\f$ for all cells \cite
-    patankar_numerical_1980. The resulting source term, written as 
+    which ensures that the constant \f$S_p \le 0\f$ for all cells 
+    \cite patankar_numerical_1980. The resulting source term, written as 
     \f{equation}{
         S_{strictNegativeSpLinearImplicit}(\psi^{n+1}) =
         \max(f_{nl}(\psi^n),0)\psi^n_c
@@ -65,10 +65,9 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
+
 /*---------------------------------------------------------------------------*\
-                         Class strictNegativeSpLinearImplicitScheme Declaration
+            Class strictNegativeSpLinearImplicitScheme Declaration
 \*---------------------------------------------------------------------------*/
 
 // template<class Type>
@@ -83,25 +82,31 @@ public:
     TypeName("strictNegativeSpLinearImplicit");
 
     // Constructors
-    strictNegativeSpLinearImplicitScheme();
+
+        //- Default construct
+        strictNegativeSpLinearImplicitScheme();
 
     //- Destructor
     virtual ~strictNegativeSpLinearImplicitScheme() = default;
 
-    // Member Functions
-
 protected:
-    virtual tmp<scalarField> Sc(const volScalarField& nonLinearPart, const volScalarField& psi);
-    virtual tmp<scalarField> Sp(const volScalarField& nonLinearPart);
 
+    // Protected Member Functions
 
+        //- Calculates the constant of the source term linearization.
+        virtual tmp<scalarField> Sc
+            (
+                const volScalarField& nonLinearPart, 
+                const volScalarField& psi
+            ) const;
+
+        //- Calculates the proportional constant of the source term 
+        //  linearization.
+        virtual tmp<scalarField> Sp(const volScalarField& nonLinearPart) const;
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
-// } // End namespace fv
 } // End namespace Foam
 
 #endif

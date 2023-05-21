@@ -60,10 +60,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class explicitScheme Declaration
+                    Class explicitScheme Declaration
 \*---------------------------------------------------------------------------*/
 
-// template<class Type>
+
 class explicitScheme
 : 
     public SourceScheme
@@ -85,19 +85,19 @@ protected:
 
     // Protected Member Functions
 
-        //- 
+        //- Calculates the constant of the source term linearization.
         virtual tmp<scalarField> Sc
             (
                 const volScalarField& nonLinearPart, 
                 const volScalarField& psi
-            );
+            ) const;
 
+        //- Calculates the proportional constant of the source term 
+        //  linearization.
         virtual tmp<scalarField> Sp
             (
                 const volScalarField& nonLinearPart
-            );
-
-
+            ) const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

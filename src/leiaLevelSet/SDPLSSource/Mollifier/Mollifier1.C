@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,22 +27,18 @@ License
 
 #include "Mollifier1.H"
 #include "addToRunTimeSelectionTable.H"
-// #include "fvSolution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-// namespace fv
-// {
-
-defineTypeNameAndDebug(Mollifier1, false);
-addToRunTimeSelectionTable(Mollifier, Mollifier1, Dictionary);
-
+    defineTypeNameAndDebug(Mollifier1, false);
+    addToRunTimeSelectionTable(Mollifier, Mollifier1, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Mollifier1::Mollifier1(const dictionary& dict)
+Foam::Mollifier1::Mollifier1(const dictionary& dict)
     :
         Mollifier(dict),
         w1_(dict.get<scalar>("w1")),
@@ -51,31 +47,20 @@ Mollifier1::Mollifier1(const dictionary& dict)
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-double Mollifier1::mollify(double x) const
+double Foam::Mollifier1::mollify(double x) const
 {
-    double w1 = w1_; 
-    double w2 = w2_;
-    // w1 is the width of the plateau
-    // w2 is the width before the mollifier is close to 0 (here 10^-3).  
-    double s=1.0; // help variable  
-    s = log(1000.0)/pow((w2-w1),2);    
+    double s = log(1000.0)/pow((w2_-w1_),2); // help variable  
     if (x >= 0) {
-        if (x < w1) {
+        if (x < w1_) {
             return 1.0;
         } 
         else {
-            return exp(- s*pow(x-w1, 2));
+            return exp(- s*pow(x-w1_, 2));
         }
     } 
     else {
         return mollify(-x);
     }
 }
-
-
-
-// } // End namespace fv
-
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

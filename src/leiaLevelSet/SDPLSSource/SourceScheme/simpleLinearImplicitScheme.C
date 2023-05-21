@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -33,32 +33,37 @@ License
 
 namespace Foam
 {
-// namespace fv
-// {
-
-
-defineTypeNameAndDebug(simpleLinearImplicitScheme, false);
-addToRunTimeSelectionTable(SourceScheme, simpleLinearImplicitScheme, Dictionary);
+    defineTypeNameAndDebug(simpleLinearImplicitScheme, false);
+    addToRunTimeSelectionTable
+        (
+            SourceScheme,
+            simpleLinearImplicitScheme,
+            Dictionary
+        );
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-simpleLinearImplicitScheme::simpleLinearImplicitScheme()
+Foam::simpleLinearImplicitScheme::simpleLinearImplicitScheme()
     :
         SourceScheme()
 {}
 
-tmp<scalarField> simpleLinearImplicitScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
+// * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
+
+Foam::tmp<scalarField> 
+Foam::simpleLinearImplicitScheme::
+Sc(const volScalarField& nonLinearPart, const volScalarField& psi) const
 {
     return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
-tmp<scalarField> simpleLinearImplicitScheme::Sp(const volScalarField& nonLinearPart)
+Foam::tmp<scalarField> 
+Foam::simpleLinearImplicitScheme::Sp(const volScalarField& nonLinearPart) const
 {
     return nonLinearPart.field();
 }
 
 // ************************************************************************* //
 
-// } // End namespace fv
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

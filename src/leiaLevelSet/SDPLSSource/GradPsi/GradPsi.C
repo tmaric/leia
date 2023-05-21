@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,24 +27,21 @@ License
 
 #include "GradPsi.H"
 #include "addToRunTimeSelectionTable.H"
-// #include "fvSolution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-// namespace fv
-// {
-
-defineTypeNameAndDebug(GradPsi, false);
-defineRunTimeSelectionTable(GradPsi, Dictionary);
-addToRunTimeSelectionTable(GradPsi, GradPsi, Dictionary);
+    defineTypeNameAndDebug(GradPsi, false);
+    defineRunTimeSelectionTable(GradPsi, Dictionary);
+    addToRunTimeSelectionTable(GradPsi, GradPsi, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
 
 Foam::autoPtr<GradPsi>
-GradPsi::New(const word type, const fvMesh& mesh)
+Foam::GradPsi::New(const word type, const fvMesh& mesh)
 {
     auto* ctorPtr = DictionaryConstructorTable(type);
 
@@ -62,22 +59,15 @@ GradPsi::New(const word type, const fvMesh& mesh)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-GradPsi::GradPsi(const fvMesh& mesh)
+Foam::GradPsi::GradPsi(const fvMesh& mesh)
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<volVectorField> GradPsi::grad(const volScalarField& psi) const
+Foam::tmp<volVectorField> Foam::GradPsi::grad(const volScalarField& psi) const
 {
     return fvc::grad(psi);
 }
 
-
-
-
-
-// } // End namespace fv
-
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

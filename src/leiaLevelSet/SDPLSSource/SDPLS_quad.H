@@ -27,7 +27,10 @@ Class
     Foam::SDPLS_quad
 
 Description
-    Concrete class which calculates the SDPLS source term explicitly.
+    SDPLS quadratic source term
+    \f{equation}{
+        f_{nl,\,lin}(\psi^{n}) = \| \nabla \psi \|_2^{-2} - 1
+    \f} 
 
 SourceFiles
     SDPLS_quad.C
@@ -48,8 +51,7 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
+
 /*---------------------------------------------------------------------------*\
                          Class SDPLS_quad Declaration
 \*---------------------------------------------------------------------------*/
@@ -71,18 +73,25 @@ public:
     //- Destructor
     virtual ~SDPLS_quad() = default;
 
-    // Member Functions
+protected:
 
-    virtual tmp<volScalarField> nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const;
+    // Protected Member Functions
 
+        //- Calculate the non-linear function \f$f_{nl}(\psi^{n})\f$.
+        //  The calculation is explicit, using the values from the old time 
+        //  step. 
+        virtual tmp<volScalarField> nonLinearPart
+        (
+            const volScalarField& R,
+            const volScalarField& psi,
+            const volVectorField& U
+        ) const;
 
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
-// } // End namespace fv
 } // End namespace Foam
 
 #endif

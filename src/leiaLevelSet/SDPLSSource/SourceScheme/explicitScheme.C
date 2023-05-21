@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -33,30 +33,31 @@ License
 
 namespace Foam
 {
-
-
-defineTypeNameAndDebug(explicitScheme, false);
-addToRunTimeSelectionTable(SourceScheme, explicitScheme, Dictionary);
+    defineTypeNameAndDebug(explicitScheme, false);
+    addToRunTimeSelectionTable(SourceScheme, explicitScheme, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-explicitScheme::explicitScheme()
+Foam::explicitScheme::explicitScheme()
     :
         SourceScheme()
 {}
 
-tmp<scalarField> explicitScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
+// * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
+
+Foam::tmp<scalarField> 
+Foam::explicitScheme::
+Sc(const volScalarField& nonLinearPart, const volScalarField& psi) const
 {
     return (nonLinearPart * psi)().field();
 }
 
-tmp<scalarField> explicitScheme::Sp(const volScalarField& nonLinearPart)
+Foam::tmp<scalarField> 
+Foam::explicitScheme::Sp(const volScalarField& nonLinearPart) const
 {
     return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
 // ************************************************************************* //
-
-
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

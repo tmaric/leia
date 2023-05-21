@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -33,18 +33,15 @@ License
 
 namespace Foam
 {
-// namespace fv
-// {
-
-defineTypeNameAndDebug(SourceScheme, false);
-defineRunTimeSelectionTable(SourceScheme, Dictionary);
-addToRunTimeSelectionTable(SourceScheme, SourceScheme, Dictionary);
+    defineTypeNameAndDebug(SourceScheme, false);
+    defineRunTimeSelectionTable(SourceScheme, Dictionary);
+    addToRunTimeSelectionTable(SourceScheme, SourceScheme, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Selectors * * * * * * * * * * * * * * * * //
 
 
-Foam::autoPtr<SourceScheme>
-SourceScheme::New(const word type)
+Foam::autoPtr<SourceScheme> Foam::SourceScheme::New(const word type)
 {
     auto* ctorPtr = DictionaryConstructorTable(type);
 
@@ -62,12 +59,14 @@ SourceScheme::New(const word type)
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-SourceScheme::SourceScheme()
+Foam::SourceScheme::SourceScheme()
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<fvScalarMatrix> SourceScheme::discretize(const volScalarField& nonLinearPart, const volScalarField& psi)
+Foam::tmp<fvScalarMatrix> 
+Foam::SourceScheme::
+discretize(const volScalarField& nonLinearPart, const volScalarField& psi) const
 {
     tmp<fvScalarMatrix> tfvm
     (
@@ -86,19 +85,17 @@ tmp<fvScalarMatrix> SourceScheme::discretize(const volScalarField& nonLinearPart
     return tfvm;
 }
 
-tmp<scalarField> SourceScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
+Foam::tmp<scalarField> 
+Foam::SourceScheme::
+Sc(const volScalarField& nonLinearPart, const volScalarField& psi) const
 {
     return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
-tmp<scalarField> SourceScheme::Sp(const volScalarField& nonLinearPart)
+Foam::tmp<scalarField> 
+Foam::SourceScheme::Sp(const volScalarField& nonLinearPart) const
 {
     return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
-
-
-// } // End namespace fv
-
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

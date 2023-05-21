@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -32,25 +32,28 @@ License
 
 namespace Foam
 {
-// namespace fv
-// {
-
-
-defineTypeNameAndDebug(SDPLS_test, false);
-addToRunTimeSelectionTable(SDPLSSource, SDPLS_test, Dictionary);
+    defineTypeNameAndDebug(SDPLS_test, false);
+    addToRunTimeSelectionTable(SDPLSSource, SDPLS_test, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-SDPLS_test::SDPLS_test(const dictionary& dict, const fvMesh& mesh)
+Foam::SDPLS_test::SDPLS_test(const dictionary& dict, const fvMesh& mesh)
     :
         SDPLSSource(dict, mesh)
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-tmp<volScalarField> SDPLS_test::nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const
+Foam::tmp<volScalarField> 
+Foam::SDPLS_test::
+nonLinearPart
+    (
+        const volScalarField& R, 
+        const volScalarField& psi, 
+        const volVectorField& U
+    ) const
 {
     const fvMesh& mesh = psi.mesh();
-    // const Time& runtime = mesh.time(); 
 
     return tmp<volScalarField>
     (
@@ -72,8 +75,5 @@ tmp<volScalarField> SDPLS_test::nonLinearPart(const volScalarField& R, const vol
 }
 
 // ************************************************************************* //
-
-// } // End namespace fv
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

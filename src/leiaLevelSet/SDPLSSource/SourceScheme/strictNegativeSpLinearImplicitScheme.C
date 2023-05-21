@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -33,20 +33,27 @@ License
 
 namespace Foam
 {
-// namespace fv
-// {
-
-
-defineTypeNameAndDebug(strictNegativeSpLinearImplicitScheme, false);
-addToRunTimeSelectionTable(SourceScheme, strictNegativeSpLinearImplicitScheme, Dictionary);
+    defineTypeNameAndDebug(strictNegativeSpLinearImplicitScheme, false);
+    addToRunTimeSelectionTable
+        (
+            SourceScheme,
+            strictNegativeSpLinearImplicitScheme,
+            Dictionary
+        );
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-strictNegativeSpLinearImplicitScheme::strictNegativeSpLinearImplicitScheme()
+Foam::strictNegativeSpLinearImplicitScheme::
+strictNegativeSpLinearImplicitScheme()
     :
         SourceScheme()
 {}
 
-tmp<scalarField> strictNegativeSpLinearImplicitScheme::Sc(const volScalarField& nonLinearPart, const volScalarField& psi)
+// * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
+
+Foam::tmp<scalarField> 
+Foam::strictNegativeSpLinearImplicitScheme::
+Sc(const volScalarField& nonLinearPart, const volScalarField& psi) const
 {
     tmp<scalarField> tSc(new scalarField(nonLinearPart.size(), 0.0));
     forAll(nonLinearPart, cellID)
@@ -56,7 +63,9 @@ tmp<scalarField> strictNegativeSpLinearImplicitScheme::Sc(const volScalarField& 
     return tSc;
 }
 
-tmp<scalarField> strictNegativeSpLinearImplicitScheme::Sp(const volScalarField& nonLinearPart)
+Foam::tmp<scalarField> 
+Foam::strictNegativeSpLinearImplicitScheme::
+Sp(const volScalarField& nonLinearPart) const
 {
     tmp<scalarField> tSp(new scalarField(nonLinearPart.size(), 0.0));
     forAll(nonLinearPart, cellID)
@@ -68,7 +77,5 @@ tmp<scalarField> strictNegativeSpLinearImplicitScheme::Sp(const volScalarField& 
 
 // ************************************************************************* //
 
-// } // End namespace fv
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

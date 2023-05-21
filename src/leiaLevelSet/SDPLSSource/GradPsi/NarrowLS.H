@@ -24,18 +24,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::NarrowLS1
+    Foam::NarrowLS
 
 Description
+    Strategy class for evaluating gradient psi.
 
+    This instance uses the normals of the LLSQ fit in the
+    narrowBand and fvc::grad(psi) in the far-field.
 
 SourceFiles
-    NarrowLS1.C
+    NarrowLS.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef NarrowLS1_H
-#define NarrowLS1_H
+#ifndef NarrowLS_H
+#define NarrowLS_H
 
 #include "GradPsi.H"
 
@@ -44,8 +47,6 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
 
 
 /*---------------------------------------------------------------------------*\
@@ -57,7 +58,10 @@ class NarrowLS
 {
 private:
 
+    //- Reference to a narrowBand around the interface
     const volScalarField& narrowBand_;
+
+    //- Reference to the LLSQ normals of the geometricalPhaseIndicator
     const volVectorField& nc_;
 
 public:
@@ -68,18 +72,21 @@ public:
 
     // Constructors
 
-        //- Construct from components
+        //- Construct from fvSolution
 
         NarrowLS(const fvMesh& mesh);
     //- Destructor
     virtual ~NarrowLS() = default;
 
-    virtual tmp<volVectorField> grad(const volScalarField& psi) const;
+    // Member functions
 
+        //- Strategy for evaluating gradient of psi.
+        //  This instance uses the normals of the LLSQ fit in the
+        //  narrowBand and fvc::grad(psi) in the far-field.
+        virtual tmp<volVectorField> grad(const volScalarField& psi) const;
 
 };
 
-// } // End namespace fv
 
 } // End namespace Foam
 

@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -32,25 +32,28 @@ License
 
 namespace Foam
 {
-// namespace fv
-// {
-
-
-defineTypeNameAndDebug(SDPLS_lin, false);
-addToRunTimeSelectionTable(SDPLSSource, SDPLS_lin, Dictionary);
+    defineTypeNameAndDebug(SDPLS_lin, false);
+    addToRunTimeSelectionTable(SDPLSSource, SDPLS_lin, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-SDPLS_lin::SDPLS_lin(const dictionary& dict, const fvMesh& mesh)
+Foam::SDPLS_lin::SDPLS_lin(const dictionary& dict, const fvMesh& mesh)
     :
         SDPLSSource(dict, mesh)
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-tmp<volScalarField> SDPLS_lin::nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const
+Foam::tmp<volScalarField> 
+Foam::SDPLS_lin::
+nonLinearPart
+    (
+        const volScalarField& R, 
+        const volScalarField& psi, 
+        const volVectorField& U
+    ) const
 {
     const fvMesh& mesh = psi.mesh();
-    // const Time& runtime = mesh.time(); 
 
     return tmp<volScalarField>
     (
@@ -65,14 +68,13 @@ tmp<volScalarField> SDPLS_lin::nonLinearPart(const volScalarField& R, const volS
                 IOobject::NO_WRITE,
                 false
             ),
-            dimensioned<scalar>(dimless/dimTime, 1.0)*(dimensioned<scalar>(1.0) - mag(gradPsi(psi)))
+            dimensioned<scalar>(dimless/dimTime, 1.0)
+            *(dimensioned<scalar>(1.0) - mag(gradPsi(psi)))
         )
     );
 }
 
 // ************************************************************************* //
 
-// } // End namespace fv
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

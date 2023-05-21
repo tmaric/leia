@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -27,22 +27,18 @@ License
 
 #include "NarrowLS.H"
 #include "addToRunTimeSelectionTable.H"
-// #include "fvSolution.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-// namespace fv
-// {
-
-defineTypeNameAndDebug(NarrowLS, false);
-addToRunTimeSelectionTable(GradPsi, NarrowLS, Dictionary);
-
+    defineTypeNameAndDebug(NarrowLS, false);
+    addToRunTimeSelectionTable(GradPsi, NarrowLS, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-NarrowLS::NarrowLS(const fvMesh& mesh)
+Foam::NarrowLS::NarrowLS(const fvMesh& mesh)
     :
         GradPsi(mesh),
         narrowBand_(mesh.lookupObject<volScalarField>("NarrowBand")),
@@ -51,7 +47,7 @@ NarrowLS::NarrowLS(const fvMesh& mesh)
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
-tmp<volVectorField> NarrowLS::grad(const volScalarField& psi) const
+Foam::tmp<volVectorField> Foam::NarrowLS::grad(const volScalarField& psi) const
 {
     tmp<volVectorField> tgradpsi = fvc::grad(psi);
     forAll(narrowBand_, cellID)
@@ -63,11 +59,5 @@ tmp<volVectorField> NarrowLS::grad(const volScalarField& psi) const
     }
     return tgradpsi;
 }
-
-
-
-// } // End namespace fv
-
-} // End namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

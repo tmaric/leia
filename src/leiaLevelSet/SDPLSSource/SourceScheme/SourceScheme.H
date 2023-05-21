@@ -66,65 +66,72 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
 
 class SDPLSSource;
-
 
 /*---------------------------------------------------------------------------*\
                          Class SourceScheme Declaration
 \*---------------------------------------------------------------------------*/
 
-// template<class Type>
+
 class SourceScheme
 {
-protected:
-
-    // scalarField Sc_;
-    // scalarField Sp_;
-
 public:
 
     // Static Data Members
     
-    TypeName("none");
+        TypeName("none");
 
-    declareRunTimeSelectionTable
-    (
-        autoPtr,
-        SourceScheme, 
-        Dictionary, 
-        (), 
-        ()
-    );
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            SourceScheme, 
+            Dictionary, 
+            (), 
+            ()
+        );
 
     // Constructors
 
-    //- Construct from components
-    SourceScheme();
+        //- Default construct
+        SourceScheme();
 
     // Selectors
 
-    //- Select default constructed
-    static autoPtr<SourceScheme> New(const word type);
+        //- Select default constructed
+        static autoPtr<SourceScheme> New(const word type);
 
     //- Destructor
     virtual ~SourceScheme() = default;
 
     // Member functions
 
-    tmp<fvScalarMatrix> discretize(const volScalarField& nonLinearPart, const volScalarField& psi);
+        //- Discretize the SDPLS source term provided by nonLinearPart and psi.
+        //
+        //  @param nonLinearPart corresponds to \f$f_{nl}(\psi^{n})\f$
+        //  @param psi is the Level Set field
+        tmp<fvScalarMatrix> discretize
+            (
+                const volScalarField& nonLinearPart,
+                const volScalarField& psi
+            ) const;
+
 
 protected:
-    virtual tmp<scalarField> Sc(const volScalarField& nonLinearPart, const volScalarField& psi);
-    virtual tmp<scalarField> Sp(const volScalarField& nonLinearPart);
 
+    // Protected Member functions
 
+        //- Calculates the constant of the source term linearization.
+        virtual tmp<scalarField> Sc
+            (
+                const volScalarField& nonLinearPart,
+                const volScalarField& psi
+            ) const;
+
+        //- Calculates the proportional constant of the source term 
+        //  linearization.
+        virtual tmp<scalarField> Sp(const volScalarField& nonLinearPart) const;
 };
-
-// } // End namespace fv
-
 
 } // End namespace Foam
 

@@ -24,18 +24,21 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::Mollifier1
+    Foam::Mollifier
 
 Description
+    Base class for implementing mollfier / cut-off fields for SDPLS source terms.
 
+    This class implements the mollifier 'none' which does not scale the Level
+    Set field.
 
 SourceFiles
-    Mollifier1.C
+    Mollifier.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef Mollifier1_H
-#define Mollifier1_H
+#ifndef Mollifier_H
+#define Mollifier_H
 
 #include "typeInfo.H"
 #include "autoPtr.H"
@@ -47,8 +50,6 @@ SourceFiles
 
 namespace Foam
 {
-// namespace fv
-// {
 
 
 /*---------------------------------------------------------------------------*\
@@ -89,15 +90,22 @@ public:
 
     // Member functions
 
-    tmp<volScalarField> field(const volScalarField& psi) const;
+        //- Calculates the mollifier field 
+        //
+        //  @param psi is the Level Set field
+        tmp<volScalarField> field(const volScalarField& psi) const;
 
 protected:
-    virtual double mollify(double x) const;
+
+    // Protected Member functions
+        
+        //- Mollifier formula for a cell
+        //
+        //  @param x is the Level Set value
+        virtual double mollify(double x) const;
 
 
 };
-
-// } // End namespace fv
 
 } // End namespace Foam
 

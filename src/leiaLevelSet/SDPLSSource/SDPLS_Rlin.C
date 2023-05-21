@@ -5,7 +5,7 @@
     \\  /    A nd           | www.openfoam.com
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
-    Copyright (C) 2022 AUTHOR,AFFILIATION
+    Copyright (C) 2022 Julian Reitzel, TU Darmstadt
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
@@ -32,25 +32,28 @@ License
 
 namespace Foam
 {
-// namespace fv
-// {
-
-
-defineTypeNameAndDebug(SDPLS_Rlin, false);
-addToRunTimeSelectionTable(SDPLSSource, SDPLS_Rlin, Dictionary);
+    defineTypeNameAndDebug(SDPLS_Rlin, false);
+    addToRunTimeSelectionTable(SDPLSSource, SDPLS_Rlin, Dictionary);
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-SDPLS_Rlin::SDPLS_Rlin(const dictionary& dict, const fvMesh& mesh)
+Foam::SDPLS_Rlin::SDPLS_Rlin(const dictionary& dict, const fvMesh& mesh)
     :
         SDPLSSource(dict, mesh)
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-tmp<volScalarField> SDPLS_Rlin::nonLinearPart(const volScalarField& R, const volScalarField& psi, const volVectorField& U) const
+Foam::tmp<volScalarField> 
+Foam::SDPLS_Rlin::
+nonLinearPart
+    (
+        const volScalarField& R, 
+        const volScalarField& psi, 
+        const volVectorField& U
+    ) const
 {
     const fvMesh& mesh = psi.mesh();
-    // const Time& runtime = mesh.time(); 
 
     return tmp<volScalarField>
     (
@@ -65,14 +68,14 @@ tmp<volScalarField> SDPLS_Rlin::nonLinearPart(const volScalarField& R, const vol
                 IOobject::NO_WRITE,
                 false
             ),
-            R + dimensioned<scalar>(dimless/dimTime, 1.0)*(dimensioned<scalar>(1.0) - mag(gradPsi(psi)))
+            R + dimensioned<scalar>(dimless/dimTime, 1.0)
+            *(dimensioned<scalar>(1.0) - mag(gradPsi(psi)))
         )
     );
 }
 
 // ************************************************************************* //
 
-// } // End namespace fv
-} // End namespace Foam
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
