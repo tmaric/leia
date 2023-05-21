@@ -58,6 +58,31 @@ Description
     a Mollifier, which restricts the active source term to a narrow band around the
     interface.
 
+Usage
+    For selecting the \c noSource SDPLS source term you may provide the 
+    sub-dictionary 
+    \verbatim
+    SDPLSSource
+    {
+        type noSource;
+    }
+    \endverbatim
+    in \c system/fvSolution.levelSet, but \c noSource is selected by default.
+    The Level Set equation in a solver application needs to call 
+    \c fvmSDPLSSource() and may look like
+    \verbatim
+    fvScalarMatrix psiEqn
+    (
+        fvm::ddt(psi)
+        + fvm::div(phi, psi)
+        ==
+        source->fvmSDPLSSource(psi, U)
+    );
+    \endverbatim
+    with \c source being selected in \c createFields.H as
+    \verbatim
+    autoPtr<SDPLSSource> source = SDPLSSource::New(mesh); 
+    \endverbatim
 
 SourceFiles
     SDPLSSource.C

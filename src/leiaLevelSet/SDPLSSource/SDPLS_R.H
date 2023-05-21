@@ -39,6 +39,17 @@ Description
     with the use of the
     gradient schemes specified in the fvSchemes dictionary.
 
+Usage
+    Provide
+    \verbatim
+    SDPLSSource
+    {
+        type R;
+        discretization <SourceScheme>;
+    }
+    \endverbatim
+    with some type <SourceScheme> of the RTS in \c system/fvSolution.levelSet.
+
 SourceFiles
     SDPLS_R.C
 

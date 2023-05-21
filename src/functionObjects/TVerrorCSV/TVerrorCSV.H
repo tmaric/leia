@@ -30,13 +30,14 @@ Group
     grpFieldFunctionObjects
 
 Description
-    Calculates the TotalVaration of a field \psi and its absolute and relative error compared to the initial state.
+    Calculates the TotalVariation of a field \psi and its absolute and relative error compared to the initial state.
     The calculates properties are written to a CSV file "TVerror.csv".
 
-    <equation>
     \f[
-        TV = \sum_f \psi_N - \psi_O
+        TV = \sum_f |\psi_N - \psi_O|
     \f]
+
+    Note: This formula is only valid in 1D.
 
 Usage
     Minimal example by using \c system/controlDict.functions:
