@@ -71,7 +71,7 @@ def main():
     if time_label not in study_df.columns:
         raise RuntimeError(f"Did not find label '{time_label}' in the columns of the DataFrame")
 
-    errorlabels = list(filter(database.isErrorcolumn, study_df.columns))
+    errorlabels = list(filter(database.isErrorColumn, study_df.columns))
     study_df = add_convergencerates(study_df, 
                                     studyparameters = study_df.columns[study_df.columns.get_loc('studyparameters')], 
                                     refinement_parameter = refinement_parameter, 
