@@ -31,12 +31,24 @@ import leia
 from leia.convergence import _config
 
 
+# def isErrorColumn(errorcolumn):
+#     errorcolumn = drop_multilabel(errorcolumn)
+#     if isinstance(errorcolumn, str) and ( errorcolumn[:2] == 'E_' or 'error' in errorcolumn ):
+#         return True
+#     else:
+#         return False
+
 def isErrorColumn(errorcolumn):
-    errorcolumn = drop_multilabel(errorcolumn)
-    if isinstance(errorcolumn, str) and errorcolumn[:2] == 'E_':
-        return True
+    if isinstance(errorcolumn, str):
+        return errorcolumn[:2] == 'E_' or 'error' in errorcolumn
+    elif isinstance(errorcolumn, tuple) and len(errorcolumn) == 2:
+        if errorcolumn[0] != 'case':
+            return False
+        else:
+            return isErrorColumn(errorcolumn[1])
     else:
-        return False
+        raise TypeError("Column must be str or tuple of length 2.")
+
 
     
 def drop_multiindex(index):

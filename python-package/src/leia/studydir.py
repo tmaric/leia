@@ -10,7 +10,12 @@ The module name studydir would be probably better, but studydir is already a wid
 import os.path
 import warnings
 
-CASE_CSVs = ['leiaLevelSetFoam.csv', 'gradPsiError.csv', 'TVerror.csv']
+CASE_CSVs = [
+    'leiaLevelSetFoam.csv', 
+    'gradPsiError.csv', 
+    'TVerror.csv', 
+    'velocity_data.csv'
+    ]
 
 
 def cases_ls(casesfile):

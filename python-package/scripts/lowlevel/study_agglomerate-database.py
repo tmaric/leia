@@ -22,6 +22,8 @@ def merge_time_csv(CSVs):
     for csv in CSVs:
         try:
             df = pd.read_csv(os.path.join(csv))
+            if 'time' in df.columns:
+                df.rename(columns={"time": "TIME"}, inplace=True)
         except FileNotFoundError:
             warnings.warn(f"Skipping {csv}. Is no file")
             continue

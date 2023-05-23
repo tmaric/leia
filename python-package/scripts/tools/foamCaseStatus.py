@@ -102,7 +102,7 @@ def main():
     elif "Segmentation fault" in err:
         print("Segmentation fault")
         sys.exit(3)
-    elif " End " in out:
+    elif "End" in out:
         print("END, but latestTime != endTime")
         sys.exit(4)
     else:

@@ -43,6 +43,7 @@ def create_parameterstudy(args):
         "--no-mesh-create", "--no-case-setup", "--cloned-case-prefix=%s" % args.studyname,
         "--parameter-file=default.parameter",
         "--every-variant-one-case-execution",
+        "--allow-derived-changes",
         "--create-database", args.case, args.paramfile
         ],
         check=True
