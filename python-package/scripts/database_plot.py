@@ -10,6 +10,7 @@ import os
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
 from leia import database, plot, studycsv
+import leia
 from argparse import ArgumentParser, RawTextHelpFormatter
 from dataclasses import dataclass
 rcParams["text.usetex"] = True
@@ -107,6 +108,32 @@ def property_dict(template, study, mesh=''):
                 labelstr_conv = r"$ \max_{t \in T_h} E_v(t) $"   
             ),
 
+        "E_VOL_ALPHA_REL_TV":
+            Prop(
+                column = ('case', 'E_VOL_ALPHA_REL_TV'),
+                template = template,
+                study = study,
+                titlestr = 'TV of volume conservation error',
+                figstr = 'EvTV',
+                labelstr = r'$TV(E_v(t^n))$',
+                formula = r'$TV(E_v(t^n)) = \sum_{k=0}^n |E_v(t^k) - E_v(t^{k-1})|$',
+                mesh=mesh,
+                labelstr_conv = r"$TV(E_v(t^{end}))$"
+            ),
+
+        "E_VOL_ALPHA_REL_TVtime":
+            Prop(
+                column = ('case', 'E_VOL_ALPHA_REL_TVtime'),
+                template = template,
+                study = study,
+                titlestr = 'TV of volume conservation error',
+                figstr = 'EvTVtime',
+                labelstr = r'$TV(E_v(t^n))$',
+                formula = r'$TV(E_v(t^n)) = \sum_{k=0}^n \frac{|E_v(t^k) - E_v(t^{k-1})|}{\delta t}$',
+                mesh=mesh,
+                labelstr_conv = r"$TV(E_v(t^{end}))$"
+            ),
+
         "E_TV":
             Prop(
                 column = ('case', 'E_TV'),
@@ -132,6 +159,19 @@ def property_dict(template, study, mesh=''):
                 mesh=mesh,   
                 labelstr_conv = r"$ |E_{TV}(t^{end})| $"   
             ),
+
+        "max_error_velocity":
+            Prop(
+                column = ('case', 'max_error_velocity'),
+                template = template,
+                study = study,
+                titlestr = 'maximal velocity error',
+                figstr = 'E-umax',
+                labelstr = r'$ E_{\max(U)}(t) $',
+                formula = r'$ E_{\max(U)}(t) = \max U $',
+                mesh=mesh,   
+                labelstr_conv = r"$  $"
+            ),   
     }
 
 def time_property_dict(template, study, mesh=''):
@@ -170,7 +210,7 @@ def main():
                         )
 
     parser.add_argument('--plot',
-                        choices=['time', 'table', 'conv', 'bestconv'],
+                        choices=['time', 'loglogtime', 'table', 'conv', 'bestconv'],
                         help="Just plot following",
                         default='',
                         nargs='*',
@@ -280,14 +320,16 @@ def main():
         }
         kwargs['deltaX'] = map_[args.deltaX]
 
+    study_df = leia.derived_properties.append_TV(study_df, ('case','E_VOL_ALPHA_REL'), ('case','E_VOL_ALPHA_REL_TV'))
+    # study_df = leia.derived_properties.append_TVtime(study_df, ('case','E_VOL_ALPHA_REL'), ('case','E_VOL_ALPHA_REL_TVtime'))
     
     properties = property_dict(template, study, mesh=args.mesh)
     properties = check_properties_in_studydf(properties, study_df)
 
 
     if args.plot:
-        choices=['time', 'table', 'conv', 'bestconv']
-        funcs = [timeplot, nsmallest_table, convergenceplot, best_convergenceplot]
+        choices=['time', 'loglogtime', 'table', 'conv', 'bestconv']
+        funcs = [timeplot, loglogtimeplot, nsmallest_table, convergenceplot, best_convergenceplot]
         mapping_dict = dict(zip(choices, funcs))
         for pl in args.plot:
             mapping_dict[pl](study_df, properties, args.savedir, **kwargs)
@@ -327,6 +369,30 @@ def timeplot(study_df, properties, savedir, **kwargs):
             ls_len = len(grouped_study_df_ls)
             for fig_number, group_df in enumerate(grouped_study_df_ls):
                 fig = plot.timeplot(group_df, prop, **kwargs)
+                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
+                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
+                plt.close(fig)
+
+
+def loglogtimeplot(study_df, properties, savedir, **kwargs):
+    refinement_label = studycsv.get_refinementlabel(study_df)
+    if refinement_label is not None:
+        for prop in properties.values():
+            for resolution, resolution_df in study_df.groupby(refinement_label, sort=False):
+                # groupby CASE and M_TIME for concatenated databases where cases could have the same basename
+                grouped_resolution_df_ls = plot.group_DataFrame(resolution_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
+                ls_len = len(grouped_resolution_df_ls)
+                for fig_number, group_df in enumerate(grouped_resolution_df_ls):
+                    fig = plot.loglogtimeplot(group_df, prop, **kwargs)
+                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
+                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
+                    plt.close(fig)
+    else:
+        for prop in properties.values():
+            grouped_study_df_ls = plot.group_DataFrame(study_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
+            ls_len = len(grouped_study_df_ls)
+            for fig_number, group_df in enumerate(grouped_study_df_ls):
+                fig = plot.loglogtimeplot(group_df, prop, **kwargs)
                 fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
                 fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
                 plt.close(fig)

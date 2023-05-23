@@ -6,15 +6,13 @@ Module connects postprocessing properties/ columns of CSV files in this project 
 from ._getvalue import *
 
 
-DEFAULT =                       'endTime'
+DEFAULT =                       'max'
 DICT = {
-    'E_MEAN_GRAD_PSI'           : 'max',
-    'E_MAX_GRAD_PSI'            : 'max',
-    'E_NARROW_MEAN_GRAD_PSI'    : 'max',
-    'E_NARROW_MAX_GRAD_PSI'     : 'max',
-
-    'E_VOL_ALPHA'               : 'max',
-    'E_VOL_ALPHA_REL'           : 'max',
+    'E_GEOM_ALPHA'              : 'endTime',
+    'E_GEOM_ALPHA_REL'          : 'endTime',
+    
+    'E_VOL_ALPHA_REL_TV'        : 'endTime',
+    'E_VOL_ALPHA_REL_TVtime'    : 'endTime',
 
     "E_TV"                      : 'absendTime',
     "E_TV_REL"                  : 'absendTime',

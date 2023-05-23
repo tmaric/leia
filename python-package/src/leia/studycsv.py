@@ -36,7 +36,11 @@ def get_user():
 
 database_sublabels = ['TEMPLATE', 'CASE', 'USER', 'M_TIME']
 
-refinement_labels = [('studyparameters','N_CELLS'), ('studyparameters','MAX_CELL_SIZE')]
+refinement_labels = [
+    ('studyparameters','N_CELLS'),
+    ('studyparameters','RESOLUTION'), 
+    ('studyparameters','MAX_CELL_SIZE'),
+    ]
 
 time_label = ('case', 'TIME')
 

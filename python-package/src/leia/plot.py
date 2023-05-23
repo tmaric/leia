@@ -37,9 +37,86 @@ def timeplot(study_df, prop, *,
     ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
     ax.set_ylabel(ylabel)
     ax.set_xlabel(xlabel)
-    ax.grid('on')
+    # ax.grid('on')
     ax.set_title(title, pad=10.0)
     return fig
+
+def loglogtimeplot(study_df, prop, *,
+                time=('case', 'TIME'), 
+                caselabel=('database','CASE'), 
+                **kwargs
+             ):
+    column = prop.column
+    ylabel = prop.figTime.ylabel
+    xlabel = prop.figTime.xlabel
+    title = prop.figTime.title
+    case_gb = study_df.groupby(caselabel, sort=False)
+    fig, ax = plt.subplots()
+    for case, case_df  in case_gb:
+        # label = f"{case}: {studycsv.get_raw_label(case_df)}"
+        # label = detox_label(label)
+        label = studycsv.get_raw_label(case_df)
+        label = detox_label(label)
+        ax.loglog(case_df[time].values, case_df[column].values, 'x', label=label)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel)
+    ax.grid('on')
+    # ax.set_title(title, pad=10.0)
+
+    leg_title = studycsv.get_raw_title(study_df)
+    
+    if kwargs.get('legend') == 'below':
+        ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12), title=leg_title)
+        # ax.set_title(f"{title}", pad =10 )
+        fig.suptitle(f"{title}")
+    else: # right
+        ax.legend(loc='center left', bbox_to_anchor=(1,0.5), title=leg_title)
+        # ax.set_title(f"{title}", loc='left', pad =10 )
+        fig.suptitle(f"{title}", x=0, y=1, ha='left')
+
+    return fig
+
+# def _timeplot(study_df, prop, plot, *,
+#                 time=('case', 'TIME'), 
+#                 caselabel=('database','CASE'), 
+#                 **kwargs
+#              ):
+#     column = prop.column
+#     ylabel = prop.figTime.ylabel
+#     xlabel = prop.figTime.xlabel
+#     title = prop.figTime.title
+#     case_gb = study_df.groupby(caselabel, sort=False)
+#     fig, ax = plt.subplots()
+#     for case, case_df  in case_gb:
+#         label = f"{case}: {studycsv.get_raw_label(case_df)}"
+#         label = detox_label(label)
+#         plot(ax, case_df, time, column, label)
+#     ax.legend(loc='upper center', bbox_to_anchor=(0.5,-0.12))
+#     ax.set_ylabel(ylabel)
+#     ax.set_xlabel(xlabel)
+#     ax.grid('on')
+#     ax.set_title(title, pad=10.0)
+#     return fig
+
+# def timeplot(study_df, prop, *,
+#                 time=('case', 'TIME'), 
+#                 caselabel=('database','CASE'), 
+#                 **kwargs
+#              ):
+#     def _timeplot(ax, case_df, time, column, label):
+#         ax.plot(case_df[time].values, case_df[column].values, 'x', label=label)
+#     return _timeplot(study_df, prop, _timeplot, time, caselabel, **kwargs)
+
+
+# def loglogtimeplot(study_df, prop, *,
+#                 time=('case', 'TIME'), 
+#                 caselabel=('database','CASE'), 
+#                 **kwargs
+#              ):
+#     def _loglogtimeplot(ax, case_df, time, column, label):
+#         ax.loglog(case_df[time].values, case_df[column].values, 'x', label=label)
+#     return _timeplot(study_df, prop, _loglogtimeplot, time, caselabel, **kwargs)
 
 def convergenceplot(study_df, prop, *,
                     time=('case', 'TIME'), 
@@ -58,7 +135,10 @@ def convergenceplot(study_df, prop, *,
     if len(studyparameters) == 1:
         studyparameters = studyparameters[0]
 
-    refinement_gb = study_df.groupby(studyparameters, sort=False)
+    if len(studyparameters) > 0:
+        refinement_gb = study_df.groupby(studyparameters, sort=False)
+    else:
+        refinement_gb = ((None,study_df),)
 
     def unique_1significant(values):
         unique_ = []
@@ -76,11 +156,14 @@ def convergenceplot(study_df, prop, *,
     
     fig, ax = plt.subplots()
     ax.loglog()
+    # ax.xaxis.set_ticklabels([]) 
+    ax.tick_params(axis='x', which='minor', bottom=False)
     xtick_values = study_resolutions
     xtick_labels = [f'${value:.1e}$' for value in study_resolutions]
     ax.set_xticks(xtick_values, minor=False) 
     ax.set_xticklabels(xtick_labels)
     ax.minorticks_off()
+    # ax.xaxis.grid(False, which='minor')
     # plt.title(f"{title}", pad=10.0)
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
@@ -170,6 +253,8 @@ def group_DataFrame(study_df: pd.DataFrame, by, maxnitems=10) -> list[pd.DataFra
     From a provided agglomerated pd.DataFrame this function builds a 1-level nested list. 
     It groups the original DataFrame according to the function nitems_per_group().
     """
+    if isinstance(by, list) and len(by) == 0:
+        return [study_df]
     if isinstance(by, list) and len(by) == 1:
         by = by[0]
     
