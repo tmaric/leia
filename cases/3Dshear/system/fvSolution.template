@@ -86,8 +86,14 @@ levelSet
 
     SDPLSSource
     {
-        type @!SDPLS_SOURCE!@;
-        discretization @!SOURCE_SCHEME!@;
+        type            @!SDPLS_SOURCE!@;
+        discretization  @!SOURCE_SCHEME!@;
+        gradPsi         @!GRAD_PSI!@;
+        mollifier
+        {
+          type    @!MOLLIFIER!@;
+          w1      0.05;
+        }
     }
 }
 

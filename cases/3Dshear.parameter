@@ -18,6 +18,18 @@ values
 		simpleLinearImplicit 
 		strictNegativeSpLinearImplicit
 	);
+	
+  MOLLIFIER
+	(
+		none
+		m1
+	);
+	
+  GRAD_PSI
+	(
+		fvc
+		narrowLS
+	);
 
 	SDPLS_SOURCE
 	(
