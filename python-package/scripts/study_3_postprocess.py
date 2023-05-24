@@ -8,7 +8,6 @@ import pandas as pd
 import os.path
 import warnings
 import leia
-import yaml
 
 
 app_description = \
@@ -25,13 +24,21 @@ Run this script from within the directory where the actual study cases reside.
 def parse_studydir(args):
     basename_studydir = os.path.basename(os.path.abspath(args.studydir))
     studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
-    with open(studyinfofile, 'r') as file:
-        info = yaml.safe_load(file)
+    info = leia.io.read_info(studyinfofile)
     args.database_csv   = os.path.join(args.studydir, info["metaname"] + '_database.csv')
     args.casesfile      = os.path.join(args.studydir, info["casesfile"])
     args.variationfile  = os.path.join(args.studydir, info["pyFoam_variationfile"])
     args.endTimesfile   = os.path.join(args.studydir, info["metaname"] + '.latestTimes.txt')
     return args
+
+def append_info(args):
+    basename_studydir = os.path.basename(os.path.abspath(args.studydir))
+    studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
+    info = leia.io.read_info(studyinfofile)
+    info['studydatabase.csv'] = args.database_csv
+    info['endtimesfile'] = args.endTimesfile
+    leia.io.write_info(info, studyinfofile)
+
 
 def parse_arguments():
     parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
@@ -65,6 +72,8 @@ def main():
     print(f"Agglomerate {leia.studydir.CASE_CSVs} of all cases with metadata and studyparameters into {args.database_csv}")
     cmd_str_agglo = f"study_agglomerate-database.py {args.studydir} {args.database_csv}"
     run(cmd_str_agglo, check=True, shell=True)
+
+    append_info(args)
 
     refinementparameter = leia.studycsv.get_refinementlabel(pd.read_csv(args.database_csv, header=[0,1]))
     if not args.skip_convergence and refinementparameter is not None:

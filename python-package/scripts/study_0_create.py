@@ -8,6 +8,7 @@ import os
 import os.path
 import time
 from leia.studycsv import time_format
+import leia
 
 usage = """
 Creates the directory study_<STUDYNAME> for a pyFoam study, copies the template case, parameter files into it and 
@@ -63,18 +64,15 @@ def cp_templatecase_paramfile_to_studydir(args):
 
 def create_infofile(args):
     infofile = os.path.basename(args.studydir + '.info')
-    cmd = f"""(
-            echo "# YAML";
-            echo "";
-            echo "studydir: {args.studydir}";
-            echo "metaname: {args.metaname}";
-            echo "studyname: {args.studydir.removeprefix('study_')}";
-            echo "templatecase: {args.case}";
-            echo "parameterfile: {args.paramfile}";
-            echo "creationtime: {time.strftime(time_format)}";
-            echo "";
-        ) > {infofile}"""
-    run(cmd, shell=True, check=True)
+    info = {
+        "studydir"      : args.studydir,
+        "metaname"      : args.metaname,
+        "studyname"     : args.studydir.removeprefix('study_'),
+        "templatecase"  : args.case,
+        "parameterfile" : args.paramfile,
+        "creationtime"  : time.strftime(time_format),
+    }
+    leia.io.write_info(info, infofile)
 
     
 

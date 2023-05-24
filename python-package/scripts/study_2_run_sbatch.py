@@ -6,7 +6,7 @@ from subprocess import run
 from shlex import quote
 import os
 import os.path
-import yaml
+import leia
 
 
 usage = """
@@ -34,8 +34,7 @@ def main():
 
     basename_studydir = os.path.basename(os.path.abspath(args.studydir))
     studyinfofile = os.path.join(args.studydir, f"{basename_studydir}.info")
-    with open(studyinfofile, 'r') as file:
-        info = yaml.safe_load(file)
+    info = leia.io.read_info(studyinfofile)
 
     os.chdir(args.studydir)
 
