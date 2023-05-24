@@ -27,7 +27,7 @@ def merge_time_csv(CSVs):
         except FileNotFoundError:
             warnings.warn(f"Skipping {csv}. Is no file")
             continue
-        merged_df = pd.merge(merged_df, df, how='outer', on='TIME')
+        merged_df = pd.merge_ordered(merged_df, df, how='outer', on='TIME')
     return merged_df
 
 
