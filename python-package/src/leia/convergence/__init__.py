@@ -31,7 +31,8 @@ def local_label(label):
     format = lambda label: f"O_LOCAL({label})"
     return _label(label, format)
 
-def get_value(df):
+
+def get_row(df):
     """
     Parameter
     =========
@@ -42,7 +43,7 @@ def get_value(df):
 
     Returns
     =======
-    float
+    pd.Series of shape (2,) with name being the index / row of df
     """
     def _check(df):
         # df must have two columns, zeroth representing time values and the first representing some float values
@@ -57,6 +58,22 @@ def get_value(df):
     key = database.drop_multiindex(df.columns)[1]
     strategy_str = _config.get_strategy(key)
     return _config.dict_get_values[strategy_str](df)
+
+def get_value(df):
+    """
+    Parameter
+    =========
+    df: pd.DataFrame
+        Case DataFrame with just two columns.
+        Zeroth columns representing time.
+        First column representing some float values.
+
+    Returns
+    =======
+    float
+    """
+    return get_row(df).iloc[-1]
+
 
 def _check_labels(labels):
     """

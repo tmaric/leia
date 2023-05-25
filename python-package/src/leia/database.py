@@ -69,23 +69,17 @@ def df_endTimes(study_df):
     """
     return study_df.groupby(by=('database','CASE')).nth(-1).reset_index()
 
-def df_represantive_error_rows(study_df, errorcolumn):
-    errorlabel = drop_multilabel(errorcolumn)
+def df_represantive_error_rows(study_df, errorcolumn, timecolumn = ('case','TIME')):
+    """
+    Returns a view on the study_df with just one row per case 
+    according to the errorcolumn and its strategy for selecting representative values
+    """
     assert isErrorColumn(errorcolumn), f'{errorcolumn} does not correspond to writing convention for a error column.'
     indices = []
-    for by, case_df in study_df.groupby(by=[('database','CASE'),('database','M_TIME')]):
-        strategy = _config.get_strategy(errorlabel)
-        if strategy == 'max':
-            indices.append(case_df[errorcolumn].idxmax())
-        elif strategy == 'endTime':
-            indices.append(case_df[errorcolumn].index[-1])
-        elif strategy == 'absendTime':
-            indices.append(case_df[errorcolumn].index[-1])
-        else:
-            raise RuntimeError(f'No index selection process defined for strategy {strategy}')
+    for _, case_df in study_df.groupby(by=[('database','CASE'),('database','M_TIME')]):
+        idx = leia.convergence.get_row(case_df[[timecolumn,errorcolumn]]).name
+        indices.append(idx)
     return study_df.loc[indices]
-
-
 
 def database_smallest(df, columns, nsmallest=10):
     mi = df.columns

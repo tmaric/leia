@@ -16,6 +16,8 @@ DICT = {
 
     "E_TV"                      : 'absendTime',
     "E_TV_REL"                  : 'absendTime',
+
+    "max_error_velocity"        : 'lastvalue'
     
 }
 
@@ -26,4 +28,5 @@ dict_get_values = {
     'max': get_maxvalue,
     'endTime': get_endvalue,
     'absendTime': get_absendvalue,
+    'lastvalue' : get_lastvalue,
 }

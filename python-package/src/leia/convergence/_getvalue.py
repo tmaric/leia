@@ -14,23 +14,25 @@ df: pd.DataFrame
 
 Returns
 =======
-float
-
+pd.Series of shape (2,) with name being the index / row of df
 """
 
 import pandas as pd
 import numpy as np
 
 
-
 def get_endvalue(df):
     """Returns value at endTime."""
-    return df.iloc[-1,1]
+    return df.iloc[-1,:]
 
 def get_absendvalue(df):
     """Returns value at endTime."""
-    return abs(get_endvalue(df))
+    return get_endvalue.apply(abs)
 
 def get_maxvalue(df):
     """Returns the max value over all times."""
-    return df.iloc[:,1].max()
+    return df.loc[df.iloc[:,1].idxmax()]
+
+def get_lastvalue(df):
+    """Returns the value of the last row with non-NaN value"""
+    return df.loc[df.iloc[:,1].last_valid_index()]
