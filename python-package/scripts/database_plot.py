@@ -168,10 +168,10 @@ def property_dict(template, study, mesh=''):
                 study = study,
                 titlestr = 'maximal velocity ',
                 figstr = 'E-umax',
-                labelstr = r'$ \max(|\mathbf{U(t)}|) $ in m/s',
-                formula = r'$ \max(|\mathbf{U}|) $',
+                labelstr = r'$ \max(|\mathbf{v(t)}|) $ in m/s',
+                formula = r'$ \max(|\mathbf{v}|) $',
                 mesh=mesh,   
-                labelstr_conv = r'$ \max(|\mathbf{U(t^{end})}|) $ in m/s',
+                labelstr_conv = r'$ \max(|\mathbf{v(t^{end})}|) $ in m/s',
             ),   
     }
 
