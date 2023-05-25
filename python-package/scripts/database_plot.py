@@ -7,6 +7,7 @@
 import pandas as pd
 import os.path
 import os
+import re
 from matplotlib import rcParams
 import matplotlib.pyplot as plt
 from leia import database, plot, studycsv
@@ -300,9 +301,9 @@ def best_convergenceplot(study_df, properties, savedir, **kwargs):
 
 plot_func_dict = {
     'time'      : timeplot,
-    'table'     : nsmallest_table,
     'conv'      : convergenceplot,
     'bestconv'  : best_convergenceplot,
+    'table'     : nsmallest_table,
 }
 
 def main():
@@ -417,6 +418,7 @@ def main():
             keeps = [args.keepdrop]
         for keep in keeps: 
             study_df = studycsv.filter_keep(study_df, column(keep), keep[2], drop=True)
+    study_df.reset_index(drop=True)
 
     if args.savedir is None:
         args.savedir = os.path.abspath(os.path.dirname(study_csv))
@@ -445,11 +447,22 @@ def main():
     properties = property_dict(template, study, mesh=args.mesh)
     properties = check_properties_in_studydf(properties, study_df)
 
+    if 'table' in args.plot and not any(map(lambda col: bool(re.match('O_.*', col[1])), study_df.columns)):
+        print('Calc convergence') 
+        study_df = leia.convergence.add_convergencerates(
+            study_df, 
+            studyparameters = study_df.columns[study_df.columns.get_loc('studyparameters')], 
+            refinement_parameter = studycsv.get_refinementlabel(study_df), 
+            propertylabels = list(filter(database.isErrorColumn, study_df.columns)), 
+            h_label = kwargs['deltaX'],
+            time_label = ('case', 'TIME')
+            )
 
+    if 'time' in args.plot:
+        timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir, **kwargs)
     for plot_str in args.plot:
         plot_func = plot_func_dict[plot_str]
         plot_func(study_df, properties, args.savedir, **kwargs)
-    timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir, **kwargs)
 
 
 if __name__ == '__main__':

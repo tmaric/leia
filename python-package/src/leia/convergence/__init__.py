@@ -1,7 +1,7 @@
 from . import _config
 import pandas as pd
 import numpy as np
-from leia import database
+from leia import database, studycsv
 import warnings
 
 
@@ -206,4 +206,86 @@ def get_local_convergence(refinement_df, key, *, time='TIME', deltaX='DELTA_X', 
                                       deltaX=deltaX, 
                                       refinement_parameter=refinement_parameter
                                       )
-    return pd.DataFrame(convergence_np, columns=pd.Index([deltaX, local_label(key)]))
+    refinements = pd.Index(refinement_df[refinement_parameter].unique(), name=refinement_parameter)
+    return pd.DataFrame(convergence_np, index=refinements, columns=pd.Index([deltaX, local_label(key)]))
+
+
+def add_convergencerates(
+    study_df: pd.DataFrame,
+    *, 
+    studyparameters: list,
+    refinement_parameter: str,
+    propertylabels: list, 
+    h_label: str,
+    time_label: str
+    ):
+    """
+    For a concatenated pandas.DataFrame of cases belonging to one template case, \
+    this function calculates convergencerates of some properties over refinementlevels. \
+    The convergencerates will be addes as columns to the DataFrame. \
+    In every row, belonging to the group of studyparameters without the h-refinement parameter, \
+    the resulting convergencerate of the group will be written.
+
+    Parameters:
+    -----------
+    cases_df: pandas.DataFrame
+        DataFrame with postprocessing data of all cases of a study belonging to one template case. \
+        Index of DataFrame are just integer. All properties have to be in columns.
+    studyparameters: list(str)
+        List of study parameters, which are columns in the DataFrame
+    propertylabels: list(str)
+        List of properties for which convergence rates should be calculated and added to the DataFrame.
+    h_label: str
+        Label of column which stores the representative cell size deltaX or h
+    time_label: str
+        Label of column which stores the time values
+
+    Returns:
+    --------
+    pandas.DataFrame: Orginal DataFrame with added convergencerates columns of all provided properties. 
+
+    """
+    if h_label not in study_df.columns:
+        raise RuntimeError(f"'{h_label}' not in the columns of the DataFrame")
+    if refinement_parameter not in study_df.columns:
+        raise RuntimeError(f"'{refinement_parameter}' not in the columns of the DataFrame")
+    if time_label not in study_df.columns:
+        raise RuntimeError(f"Did not find label '{time_label}' in the columns of the DataFrame")
+
+
+    refinementlabel = studycsv.get_refinementlabel(study_df)
+    studyparameters = list(studycsv.get_studyparameters(study_df.columns))
+    studyparameters.remove(refinementlabel)
+    if len(studyparameters) == 1:
+        studyparameters = studyparameters[0]
+
+    refinement_gb = study_df.groupby(studyparameters, sort=False)
+
+    for label_p, label_c  in zip(propertylabels, map(global_label, propertylabels)):
+        study_df[label_c] = float(0) # initialise new convergence column
+        convergence_ser = refinement_gb.apply(
+                get_global_convergence, 
+                label_p, 
+                deltaX=h_label,
+                refinement_parameter=refinement_parameter,
+                time=time_label
+            ) # pandas.Series with convergencerates of groups
+        for convergence_fl, (ref_group, ref_df) in zip(convergence_ser, refinement_gb):
+            study_df.loc[ref_df.index, label_c] = convergence_fl
+
+    for label_p, label_c  in zip(propertylabels, map(local_label, propertylabels)):
+        study_df[label_c] = float(0) # initialise new convergence column
+        local_convergence_df = refinement_gb.apply(
+            get_local_convergence, 
+            label_p,                
+            deltaX=h_label,
+            refinement_parameter=refinement_parameter,
+            time=time_label
+            ) # pandas.DataFrame with local convergencerates DataFrames as entries for non-ref-studyparameter groups
+        params = local_convergence_df.index.names
+        for convergence_fl, param_vals in zip(local_convergence_df[label_c], local_convergence_df.index):
+            index = study_df[(study_df[params] == param_vals).all('columns')].index
+            study_df.loc[index, label_c] = convergence_fl
+
+
+    return study_df

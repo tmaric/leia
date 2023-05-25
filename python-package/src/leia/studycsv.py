@@ -141,8 +141,9 @@ def smallest_refinement_gb(study_df, by, deltaX=('case','DELTA_X')):
     def key(ref_gb_item):
         ref_gr = ref_gb_item[0]
         ref_df = ref_gb_item[1]
-        finest_deltaX = ref_df[deltaX].min()
-        finest_case_df = ref_df[ref_df[deltaX] == finest_deltaX]
+        caselabel = ('database','CASE')
+        finest_case = ref_df.loc[ref_df[deltaX].idxmin(), caselabel]
+        finest_case_df = ref_df[ref_df[caselabel] == finest_case]
         return convergence.get_value(finest_case_df[[time_label, by]])
     
     return sorted(study_ref_gb, key=key)

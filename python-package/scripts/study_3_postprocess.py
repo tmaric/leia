@@ -43,11 +43,11 @@ def append_info(args):
 def parse_arguments():
     parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
 
-    parser.add_argument("--skip-convergence",
-                    action='store_true',
-                    help="Skip calculation of convergence rates",
-                    required=False,
-                    )
+    # parser.add_argument("--skip-convergence",
+    #                 action='store_true',
+    #                 help="Skip calculation of convergence rates",
+    #                 required=False,
+    #                 )
     parser.add_argument("-n", "--name",
                         help="Provide a different database CSV file name. Default: <STUDYDIR>_database.csv",
                         required=False,
@@ -75,11 +75,11 @@ def main():
 
     append_info(args)
 
-    refinementparameter = leia.studycsv.get_refinementlabel(pd.read_csv(args.database_csv, header=[0,1]))
-    if not args.skip_convergence and refinementparameter is not None:
-        print(f"Study investigates refinemenet. Calculate convergence rates and add them to {args.database_csv}")
-        cmd_str_conver = f"database_add-convergence.py --inplace --refinement-parameter {refinementparameter[1]} {args.database_csv}"
-        run(cmd_str_conver, check=True, shell=True)
+    # refinementparameter = leia.studycsv.get_refinementlabel(pd.read_csv(args.database_csv, header=[0,1]))
+    # if not args.skip_convergence and refinementparameter is not None:
+    #     print(f"Study investigates refinemenet. Calculate convergence rates and add them to {args.database_csv}")
+    #     cmd_str_conver = f"database_add-convergence.py --inplace --refinement-parameter {refinementparameter[1]} {args.database_csv}"
+    #     run(cmd_str_conver, check=True, shell=True)
 
 
 
