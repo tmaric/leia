@@ -92,9 +92,9 @@ def get_raw_title(df):
     studyparameters = get_studyparameters(df.columns)
     list_ = []
     for param in studyparameters:
-        unique = df[param].unique()
-        if len(unique) == 1:
-            list_.append(f'{param[1]}')
+        # unique = df[param].unique()
+        # if len(unique) == 1:
+        list_.append(f'{param[1]}')
     return ' / '.join(list_)
 
 def get_raw_label(df):

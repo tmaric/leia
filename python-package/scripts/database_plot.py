@@ -165,10 +165,10 @@ def property_dict(template, study, mesh=''):
                 column = ('case', 'max_error_velocity'),
                 template = template,
                 study = study,
-                titlestr = 'maximal velocity error',
+                titlestr = 'maximal velocity ',
                 figstr = 'E-umax',
-                labelstr = r'$ E_{\max(U)}(t) $',
-                formula = r'$ E_{\max(U)}(t) = \max U $',
+                labelstr = r'$ \max(|\mathbf{U}|) $ in m/s',
+                formula = r'$ \max(|\mathbf{U}|) $',
                 mesh=mesh,   
                 labelstr_conv = r"$  $"
             ),   
@@ -196,6 +196,115 @@ def filter_studydf(study_df, column, value):
     study_df.reset_index()
     return study_df
 
+
+
+def check_properties_in_studydf(properties, study_df):
+    properties = dict(filter(lambda item: item[0] in study_df.columns.levels[1], properties.items()))
+    return properties
+
+def runall(study_df, properties, savedir, **kwargs):
+    timeplot(study_df, properties, savedir, **kwargs)
+    nsmallest_table(study_df, properties, savedir, **kwargs)
+    convergenceplot(study_df, properties, savedir, **kwargs)
+    best_convergenceplot(study_df, properties, savedir, **kwargs)
+
+
+def timeplot(study_df, properties, savedir, **kwargs):
+    refinement_label = studycsv.get_refinementlabel(study_df)
+    if refinement_label is not None:
+        for prop in properties.values():
+            for resolution, resolution_df in study_df.groupby(refinement_label, sort=False):
+                # groupby CASE and M_TIME for concatenated databases where cases could have the same basename
+                grouped_resolution_df_ls = plot.group_DataFrame(resolution_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
+                ls_len = len(grouped_resolution_df_ls)
+                for fig_number, group_df in enumerate(grouped_resolution_df_ls):
+                    fig = plot.timeplot(group_df, prop, **kwargs)
+                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
+                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
+                    plt.close(fig)
+    else:
+        for prop in properties.values():
+            grouped_study_df_ls = plot.group_DataFrame(study_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
+            ls_len = len(grouped_study_df_ls)
+            for fig_number, group_df in enumerate(grouped_study_df_ls):
+                fig = plot.timeplot(group_df, prop, **kwargs)
+                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
+                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
+                plt.close(fig)
+
+
+def nsmallest_table(study_df, properties, savedir, **kwargs):
+    ## nsmallest CSV table
+    refinement_label = studycsv.get_refinementlabel(study_df)
+    
+    for prop in properties.values():
+        if refinement_label is not None:
+            columns = [
+                prop.column,
+                ('case', f"O({prop.column[1]})"),
+                ('case', f"O_LOCAL({prop.column[1]})"),
+            ]
+        else:
+            columns = [ 
+                    prop.column,
+                ]
+            
+        error_df = database.df_represantive_error_rows(study_df, prop.column)
+        result_df = database.database_smallest(error_df, columns, len(error_df))
+        result_df.to_csv(os.path.join(savedir, '_'.join([prop.study, prop.figstr, 'nsmallest.csv'])), index=False)
+
+
+def convergenceplot(study_df, properties, savedir, **kwargs):
+    ## Convergence Plot
+    refinement_label = studycsv.get_refinementlabel(study_df)
+
+    if refinement_label is not None:
+        mi = study_df.columns
+        studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
+        studyparameters.remove(refinement_label)
+
+        for prop in properties.values():
+            grouped_study_df_ls = plot.group_DataFrame(study_df, by=studyparameters, maxnitems=10)
+            ls_len = len(grouped_study_df_ls)
+            for fig_number, group_df in enumerate(grouped_study_df_ls):
+                fig = plot.convergenceplot(group_df, prop, **kwargs) 
+                fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
+                fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
+                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'))
+                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'))
+                plt.close(fig)
+
+def best_convergenceplot(study_df, properties, savedir, **kwargs):
+    nbest = 10
+
+    ## Convergence Plot
+    refinement_label = studycsv.get_refinementlabel(study_df)
+
+    if refinement_label is None:
+        return None
+    mi = study_df.columns
+    studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
+    studyparameters.remove(refinement_label)
+    for prop in properties.values():
+        ref_gb_ls = studycsv.smallest_refinement_gb(study_df, by=prop.column)
+        if len(ref_gb_ls) > nbest:
+            ref_gb_ls = ref_gb_ls[:nbest]
+
+        best_study_df = pd.concat(map(lambda item: item[1], ref_gb_ls), ignore_index=False)
+        
+        fig = plot.convergenceplot(best_study_df, prop, **kwargs) 
+        fig.savefig(os.path.join(savedir, f'{prop.figBestConv.figname}.jpg'), bbox_inches='tight')
+        fig.savefig(os.path.join(savedir, f'{prop.figBestConv.figname}.pdf'), bbox_inches='tight')
+        plt.close(fig)
+
+
+plot_func_dict = {
+    'time'      : timeplot,
+    'table'     : nsmallest_table,
+    'conv'      : convergenceplot,
+    'bestconv'  : best_convergenceplot,
+}
+
 def main():
     parser = ArgumentParser(description=app_description, formatter_class=RawTextHelpFormatter)
     parser.add_argument("studyCSV", help="The database-CSV file to postprocess.")
@@ -210,11 +319,18 @@ def main():
                         )
 
     parser.add_argument('--plot',
-                        choices=['time', 'loglogtime', 'table', 'conv', 'bestconv'],
-                        help="Just plot following",
-                        default='',
+                        # choices=['time', 'loglogtime', 'table', 'conv', 'bestconv'],
+                        choices=plot_func_dict.keys(),
+                        help="Plots to choose from. Default: plot all.",
+                        default=plot_func_dict.keys(),
                         nargs='*',
-                        # action='append',
+                        required=False,
+                        )
+    
+    parser.add_argument('--method',
+                        choices=['plot', 'semilogy', 'loglog'],
+                        help="Plotting method for time plots.",
+                        default=None,
                         required=False,
                         )
 
@@ -320,6 +436,9 @@ def main():
         }
         kwargs['deltaX'] = map_[args.deltaX]
 
+    if args.method:
+        kwargs['method'] = args.method
+
     study_df = leia.derived_properties.append_TV(study_df, ('case','E_VOL_ALPHA_REL'), ('case','E_VOL_ALPHA_REL_TV'))
     # study_df = leia.derived_properties.append_TVtime(study_df, ('case','E_VOL_ALPHA_REL'), ('case','E_VOL_ALPHA_REL_TVtime'))
     
@@ -327,140 +446,10 @@ def main():
     properties = check_properties_in_studydf(properties, study_df)
 
 
-    if args.plot:
-        choices=['time', 'loglogtime', 'table', 'conv', 'bestconv']
-        funcs = [timeplot, loglogtimeplot, nsmallest_table, convergenceplot, best_convergenceplot]
-        mapping_dict = dict(zip(choices, funcs))
-        for pl in args.plot:
-            mapping_dict[pl](study_df, properties, args.savedir, **kwargs)
-    else:
-        # run just timeplot for some properties
-        timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir, **kwargs)
-        runall(study_df, properties, args.savedir, **kwargs)
-
-
-def check_properties_in_studydf(properties, study_df):
-    properties = dict(filter(lambda item: item[0] in study_df.columns.levels[1], properties.items()))
-    return properties
-
-def runall(study_df, properties, savedir, **kwargs):
-    timeplot(study_df, properties, savedir, **kwargs)
-    nsmallest_table(study_df, properties, savedir, **kwargs)
-    convergenceplot(study_df, properties, savedir, **kwargs)
-    best_convergenceplot(study_df, properties, savedir, **kwargs)
-
-
-def timeplot(study_df, properties, savedir, **kwargs):
-    refinement_label = studycsv.get_refinementlabel(study_df)
-    if refinement_label is not None:
-        for prop in properties.values():
-            for resolution, resolution_df in study_df.groupby(refinement_label, sort=False):
-                # groupby CASE and M_TIME for concatenated databases where cases could have the same basename
-                grouped_resolution_df_ls = plot.group_DataFrame(resolution_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
-                ls_len = len(grouped_resolution_df_ls)
-                for fig_number, group_df in enumerate(grouped_resolution_df_ls):
-                    fig = plot.timeplot(group_df, prop, **kwargs)
-                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
-                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
-                    plt.close(fig)
-    else:
-        for prop in properties.values():
-            grouped_study_df_ls = plot.group_DataFrame(study_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
-            ls_len = len(grouped_study_df_ls)
-            for fig_number, group_df in enumerate(grouped_study_df_ls):
-                fig = plot.timeplot(group_df, prop, **kwargs)
-                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
-                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
-                plt.close(fig)
-
-
-def loglogtimeplot(study_df, properties, savedir, **kwargs):
-    refinement_label = studycsv.get_refinementlabel(study_df)
-    if refinement_label is not None:
-        for prop in properties.values():
-            for resolution, resolution_df in study_df.groupby(refinement_label, sort=False):
-                # groupby CASE and M_TIME for concatenated databases where cases could have the same basename
-                grouped_resolution_df_ls = plot.group_DataFrame(resolution_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
-                ls_len = len(grouped_resolution_df_ls)
-                for fig_number, group_df in enumerate(grouped_resolution_df_ls):
-                    fig = plot.loglogtimeplot(group_df, prop, **kwargs)
-                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
-                    fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{refinement_label[1]}-{resolution}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
-                    plt.close(fig)
-    else:
-        for prop in properties.values():
-            grouped_study_df_ls = plot.group_DataFrame(study_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
-            ls_len = len(grouped_study_df_ls)
-            for fig_number, group_df in enumerate(grouped_study_df_ls):
-                fig = plot.loglogtimeplot(group_df, prop, **kwargs)
-                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
-                fig.savefig(os.path.join(savedir, f'{prop.figTime.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
-                plt.close(fig)
-
-
-def nsmallest_table(study_df, properties, savedir, **kwargs):
-    ## nsmallest CSV table
-    refinement_label = studycsv.get_refinementlabel(study_df)
-    
-    for prop in properties.values():
-        if refinement_label is not None:
-            columns = [
-                prop.column,
-                ('case', f"O({prop.column[1]})"),
-                ('case', f"O_LOCAL({prop.column[1]})"),
-            ]
-        else:
-            columns = [ 
-                    prop.column,
-                ]
-            
-        error_df = database.df_represantive_error_rows(study_df, prop.column)
-        result_df = database.database_smallest(error_df, columns, len(error_df))
-        result_df.to_csv(os.path.join(savedir, '_'.join([prop.study, prop.figstr, 'nsmallest.csv'])), index=False)
-
-
-def convergenceplot(study_df, properties, savedir, **kwargs):
-    ## Convergence Plot
-    refinement_label = studycsv.get_refinementlabel(study_df)
-
-    if refinement_label is not None:
-        mi = study_df.columns
-        studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
-        studyparameters.remove(refinement_label)
-
-        for prop in properties.values():
-            grouped_study_df_ls = plot.group_DataFrame(study_df, by=studyparameters, maxnitems=10)
-            ls_len = len(grouped_study_df_ls)
-            for fig_number, group_df in enumerate(grouped_study_df_ls):
-                fig = plot.convergenceplot(group_df, prop, **kwargs) 
-                fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
-                fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
-                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'))
-                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'))
-                plt.close(fig)
-
-def best_convergenceplot(study_df, properties, savedir, **kwargs):
-    nbest = 10
-
-    ## Convergence Plot
-    refinement_label = studycsv.get_refinementlabel(study_df)
-
-    if refinement_label is None:
-        return None
-    mi = study_df.columns
-    studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
-    studyparameters.remove(refinement_label)
-    for prop in properties.values():
-        ref_gb_ls = studycsv.smallest_refinement_gb(study_df, by=prop.column)
-        if len(ref_gb_ls) > nbest:
-            ref_gb_ls = ref_gb_ls[:nbest]
-
-        best_study_df = pd.concat(map(lambda item: item[1], ref_gb_ls), ignore_index=False)
-        
-        fig = plot.convergenceplot(best_study_df, prop, **kwargs) 
-        fig.savefig(os.path.join(savedir, f'{prop.figBestConv.figname}.jpg'), bbox_inches='tight')
-        fig.savefig(os.path.join(savedir, f'{prop.figBestConv.figname}.pdf'), bbox_inches='tight')
-        plt.close(fig)
+    for plot_str in args.plot:
+        plot_func = plot_func_dict[plot_str]
+        plot_func(study_df, properties, args.savedir, **kwargs)
+    timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir, **kwargs)
 
 
 if __name__ == '__main__':
