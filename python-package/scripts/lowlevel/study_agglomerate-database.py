@@ -24,8 +24,8 @@ def merge_time_csv(CSVs):
             df = pd.read_csv(os.path.join(csv))
             if 'time' in df.columns:
                 df.rename(columns={"time": "TIME"}, inplace=True)
-        except FileNotFoundError:
-            warnings.warn(f"Skipping {csv}. Is no file")
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            warnings.warn(f"Skipping {csv}. No or empty file.")
             continue
         merged_df = pd.merge_ordered(merged_df, df, how='outer', on='TIME')
     return merged_df
