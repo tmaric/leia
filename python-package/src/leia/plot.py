@@ -93,7 +93,7 @@ def convergenceplot(study_df, prop, *,
         return unique_
 
     # filter out similiar resolutions that can occur on perturbed meshes. Would overload xticks
-    study_resolutions = study_df[deltaX].unique()
+    study_resolutions = study_df[deltaX].dropna().unique()
     study_resolutions = unique_1significant(study_resolutions)
     
     fig, ax = plt.subplots()
