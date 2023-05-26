@@ -61,7 +61,7 @@ def append_TVtime(study_df, column, TVcolumn):
     # study_df[('case','E_VOL_ALPHA_REL_TV')] = float(0)
     study_df[TVcolumn] = float(0)
     for case, case_df in cases_gb:
-        TV_se = total_variation_per_time(case_df[[('case','TIME'), column]])
+        TV_se = total_variation_per_time(case_df[[('case','TIME'), column]].interpolate())
         case_idx = case_df.index
         study_df.loc[case_idx,TVcolumn] = TV_se.array
     return study_df
@@ -71,7 +71,7 @@ def append_TV(study_df, column, TVcolumn):
     # study_df[('case','E_VOL_ALPHA_REL_TV')] = float(0)
     study_df[TVcolumn] = float(0)
     for case, case_df in cases_gb:
-        TV_se = total_variation(case_df[[('case','TIME'), column]])
+        TV_se = total_variation(case_df[[('case','TIME'), column]].interpolate())
         case_idx = case_df.index
         study_df.loc[case_idx,TVcolumn] = TV_se.array
     return study_df
