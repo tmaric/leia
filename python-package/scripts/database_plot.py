@@ -447,7 +447,7 @@ def main():
     properties = property_dict(template, study, mesh=args.mesh)
     properties = check_properties_in_studydf(properties, study_df)
 
-    if 'table' in args.plot and not any(map(lambda col: bool(re.match('O_.*', col[1])), study_df.columns)):
+    if 'table' in args.plot and not any(map(lambda col: bool(re.match('O[(_].*', col[1])), study_df.columns)):
         print('Calc convergence') 
         study_df = leia.convergence.add_convergencerates(
             study_df, 

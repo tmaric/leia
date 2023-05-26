@@ -27,7 +27,7 @@ def get_endvalue(df):
 
 def get_absendvalue(df):
     """Returns value at endTime."""
-    return get_endvalue.apply(abs)
+    return get_endvalue(df).apply(abs)
 
 def get_maxvalue(df):
     """Returns the max value over all times."""

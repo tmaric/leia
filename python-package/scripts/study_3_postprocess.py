@@ -12,9 +12,11 @@ import leia
 
 app_description = \
 f"""
-Script merges and concatenates case specific {leia.studydir.CASE_CSVs} CSV files into one large database CSV file,
-lists the latest times of all cases and
-if the study is investigating refinement, the convergence rates of all the error properties are calculated and added to the CSV database file.
+Script merges and concatenates case specific CSV files into one large study database CSV file.
+Furthermore, latest time folders of all cases are listed.
+
+Case specific CSV files:
+{leia.studydir.CASE_CSVs}
 
 Note:
 Run this script from within the directory where the actual study cases reside.
