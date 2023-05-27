@@ -57,29 +57,32 @@ class divGradPsiSnGradAlpha
 :
     public surfaceTensionForce
 {
+    protected:
+        
+        const fvSolution& fvSolutionDict_;
+        const dictionary& levelSetDict_; 
+        const dictionary& surfTensionDict_;
+        
+        // Interface normals from the geometrical phase indicator. 
+        const volVectorField& normals_;
+        // Volume fraction
+        const volScalarField& alpha_;
+        // Level set field 
+        const volScalarField& psi_;
 
 public:
 
     // Static Data Members
-
     TypeName ("divGradPsiSnGradAlpha");
 
     // Constructors
-
-    divGradPsiSnGradAlpha();
-
-    divGradPsiSnGradAlpha(const dictionary& dict);
+    divGradPsiSnGradAlpha(const fvMesh& mesh);
 
     //- Destructor
     virtual ~divGradPsiSnGradAlpha() = default;
 
     // Member Functions
-    
-    virtual tmp<surfaceScalarField> faceSurfaceTensionForce 
-    (
-        const volScalarField& alpha, 
-        const volScalarField& psi 
-    ) const; 
+    virtual tmp<surfaceScalarField> faceSurfaceTensionForce() const; 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -36,33 +36,37 @@ License
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-namespace Foam
-{
+namespace Foam {
+using Foam::mag;
 
 defineTypeNameAndDebug(divGradPsiSnGradAlpha, false);
-addToRunTimeSelectionTable(surfaceTensionForce, divGradPsiSnGradAlpha, Dictionary);
+addToRunTimeSelectionTable(surfaceTensionForce, divGradPsiSnGradAlpha, Mesh);
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-
-divGradPsiSnGradAlpha::divGradPsiSnGradAlpha() {}
-
-divGradPsiSnGradAlpha::divGradPsiSnGradAlpha(const dictionary& dict) {}
+divGradPsiSnGradAlpha::divGradPsiSnGradAlpha(const fvMesh& mesh)
+:
+    surfaceTensionForce(mesh),
+    fvSolutionDict_(mesh_),
+    levelSetDict_(fvSolutionDict_.subDict("levelSet")),
+    surfTensionDict_(levelSetDict_.subDict("surfaceTensionForce")),
+    normals_(mesh_.lookupObject<volVectorField>(surfTensionDict_.getOrDefault<word>("normals", "nc"))),
+    alpha_(mesh_.lookupObject<volScalarField>(surfTensionDict_.getOrDefault<word>("alpha", "alpha.dispersed"))),
+    psi_(mesh_.lookupObject<volScalarField>(surfTensionDict_.getOrDefault<word>("levelSet", "psi")))
+{}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-tmp<surfaceScalarField> divGradPsiSnGradAlpha::faceSurfaceTensionForce
-(
-    const volScalarField& alpha, 
-    const volScalarField& psi 
-) const 
+tmp<surfaceScalarField> divGradPsiSnGradAlpha::faceSurfaceTensionForce() const 
 {
-    // Compute interface-normals from the normalized 
-    // gradient of the level set function.
-    tmp<volVectorField> nSigmaTmp = fvc::grad(psi);
-    volVectorField& nSigma = nSigmaTmp.ref();
-    nSigma /= mag(nSigma);
-
-    return fvc::interpolate(fvc::div(nSigma)) * fvc::snGrad(alpha);
+    // Compute interface-normals using the gradient of the level set field. 
+    tmp<volVectorField> nPsiTmp = fvc::grad(psi_);
+    nPsiTmp->rename("nPsi");
+    volVectorField& nPsi = nPsiTmp.ref();
+    nPsi = nPsi / mag(nPsi);
+    
+    // Face-centered curvature as a linear interpolation of the trace of the gradient 
+    // of the interface-normal-field. 
+    return sigma_*fvc::interpolate(fvc::div(nPsi))*fvc::snGrad(alpha_);
 }
 
 } // End namespace Foam
