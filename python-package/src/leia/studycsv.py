@@ -174,12 +174,42 @@ def filter_rm(study_df, column, value):
     study_df.reset_index()
     return study_df
 
-def filter_drop(study_df, column):
+def filter_drop(study_df, column, force=False):
     """
     Takes a study_df and drops a whole column if the values are unique.
     """
-    if len(study_df[column].unique()) == 1: 
+    if force == True or len(study_df[column].unique()) == 1: 
         study_df = study_df.drop(column, axis='columns', inplace=False) # inplace=False otherwise SettingWithCopyWarning
     else:
         print("Did nothing. Column values are not unique.")
     return study_df
+
+def filter_cases(study_df, cases, mode='keep', column=('database','CASE')) -> pd.DataFrame:
+    """
+    Takes a study DataFrame and filter for cases depending on the mode.
+    mode:  
+    - 'keep': keep cases and remove all other
+    - 'rm': remove cases and keep all other
+    
+    Parameters
+    ==========
+    cases: list or dict
+    column: tuple or str
+        Column where case str is stored in study_df
+    """
+    # if mode not in ['keep', 'rm']:
+    #     raise RuntimeError("Wrong mode parameter.")
+    if mode == 'keep':
+        ffunc = lambda case: case in cases
+    elif mode == 'rm':
+        ffunc = lambda case: case not in cases
+    else:
+        raise RuntimeError("Wrong mode parameter.")
+
+    rows = []
+    # for _, case_df in study_df.groupby(column):
+    #     case_df.index
+    for _, case_df in filter(lambda group: ffunc(group[0]), study_df.groupby(column)):
+        rows.extend(case_df.index)
+
+    return study_df.filter(rows, axis=0)

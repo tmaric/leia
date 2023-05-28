@@ -361,6 +361,15 @@ def main():
                         required=False,
                         )
 
+    filterfile_group = parser.add_mutually_exclusive_group(required=False)
+    filterfile_group.add_argument('--rm-file',
+                       help="Removes all cases listed in file. Accepts JSON or list",
+                       )
+
+    filterfile_group.add_argument('--keep-file',
+                       help="Keep all cases listed in file. Accepts JSON or list",
+                       )
+
     parser.add_argument('--rm',
                        help="Removes all rows matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
                        action='append',
@@ -418,6 +427,14 @@ def main():
             keeps = [args.keepdrop]
         for keep in keeps: 
             study_df = studycsv.filter_keep(study_df, column(keep), keep[2], drop=True)
+
+    if args.rm_file:
+        cases = leia.io.read_cases(args.rm_file)
+        study_df = studycsv.filter_cases(study_df, cases, mode='rm')
+    if args.keep_file:
+        cases = leia.io.read_cases(args.keep_file)
+        study_df = studycsv.filter_cases(study_df, cases, mode='keep')
+
     study_df.reset_index(drop=True)
 
     if args.savedir is None:

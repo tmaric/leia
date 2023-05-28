@@ -41,13 +41,18 @@ def main():
                        nargs=3,                   
                        )
     
-    idx_group.add_argument('--keep', 
+    idx_group.add_argument('-k','--keep', 
                        help="Removes all rows not matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
                        nargs=3, 
                         )
     
-    idx_group.add_argument('--drop', 
+    idx_group.add_argument('-d','--drop', 
                     help="Drop whole column if values are unique. Expects 3 parameters: <1-lvl column name> <2-lvl column name>",
+                    nargs=2, 
+                    )
+
+    idx_group.add_argument('-df','--drop-force', 
+                    help="Drop whole column. Expects 3 parameters: <1-lvl column name> <2-lvl column name>",
                     nargs=2, 
                     )
 
@@ -71,6 +76,8 @@ def main():
         database_df = studycsv.filter_keep(database_df, column(args.keep), args.keep[2])
     elif args.drop:
         database_df = studycsv.filter_drop(database_df, column(args.drop))
+    elif args.drop_force:
+        database_df = studycsv.filter_drop(database_df, column(args.drop_force), force=True)
     else:
         raise RuntimeError("No option for action.")
 
