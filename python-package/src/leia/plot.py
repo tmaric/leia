@@ -98,15 +98,7 @@ def convergenceplot(study_df, prop, *,
     
     fig, ax = plt.subplots()
     ax.loglog()
-    # ax.xaxis.set_ticklabels([]) 
-    ax.tick_params(axis='x', which='minor', bottom=False)
-    xtick_values = study_resolutions
-    xtick_labels = [f'${value:.1e}$' for value in study_resolutions]
-    ax.set_xticks(xtick_values, minor=False) 
-    ax.set_xticklabels(xtick_labels)
-    ax.minorticks_off()
-    # ax.xaxis.grid(False, which='minor')
-    # plt.title(f"{title}", pad=10.0)
+
     plt.ylabel(ylabel)
     plt.xlabel(xlabel)
     
@@ -143,6 +135,21 @@ def convergenceplot(study_df, prop, *,
     Ev_error1st_01 = [convergence_ref, convergence_ref*(h_01[1]/h_01[0])]
     ax.plot(h_01,Ev_error2nd_01,"k--",label="second-order")
     ax.plot(h_01,Ev_error1st_01,"r:",label="first-order")
+
+    xtick_values = study_resolutions
+    xtick_labels = [f'${value:.1e}$' for value in study_resolutions]
+
+    ax.tick_params(
+        axis='x',          # changes apply to the x-axis
+        which='both',      # both major and minor ticks are affected
+        bottom=False,      # ticks along the bottom edge are off
+        top=False,         # ticks along the top edge are off
+        labelbottom=False) # labels along the bottom edge are off
+
+    ax.tick_params(axis='x', which='major', bottom=True, labelbottom=True)
+    
+    ax.set_xticks(xtick_values, minor=False) 
+    ax.set_xticklabels(xtick_labels)
 
     leg_title = studycsv.get_raw_title(
                                 refinement_df.drop(studycsv.get_refinementlabel(refinement_df), axis='columns')
