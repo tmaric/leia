@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from leia import convergence, studycsv
 
-from itertools import cycle
+import itertools
 
 
 
@@ -105,11 +105,20 @@ def convergenceplot(study_df, prop, *,
     convergence_ref = 1e6
 
     if 'cmap' in kwargs:
-        cmap = plt.get_cmap(kwargs['cmap'])
-        cmap_it = cycle(map(cmap, range(cmap.N)))
+        if isinstance(kwargs['cmap'], str): 
+            cmap = plt.get_cmap(kwargs['cmap'])
+            cmap_it = itertools.cycle(map(cmap, range(cmap.N)))
+        elif isinstance(kwargs['cmap'], list) and len(kwargs['cmap']) == 1:
+            cmap = plt.get_cmap(kwargs['cmap'][0])
+            cmap_it = itertools.cycle(map(cmap, range(cmap.N)))
+        else:
+            cmaps = map(lambda cmap: plt.get_cmap(cmap), kwargs['cmap'])
+            # colors_nested = []
+            # cmap_it = itertools.chain(*cmaps)
+            cmap_it = itertools.chain(*[map(cmap, range(cmap.N)) for cmap in cmaps])
     else:
         cmap = plt.get_cmap('tab10')
-        cmap_it = cycle(map(cmap, range(cmap.N)))
+        cmap_it = itertools.cycle(map(cmap, range(cmap.N)))
 
     if kwargs.get('sorted', False):
         refinement_gb = sorted(refinement_gb)
@@ -183,7 +192,7 @@ def nitems_per_group(nitems: int, maxnitems=10) -> list[int]:
     """
     ngroups = int(np.ceil(nitems/ maxnitems))
     nitems_in_group = [0] * ngroups
-    iter_ = cycle(range(len(nitems_in_group)))
+    iter_ = itertools.cycle(range(len(nitems_in_group)))
     for i in range(nitems):
         nitems_in_group[next(iter_)] += 1
     return nitems_in_group
@@ -202,7 +211,7 @@ def group_DataFrame(study_df: pd.DataFrame, by, maxnitems=10) -> list[pd.DataFra
     From a provided agglomerated pd.DataFrame this function builds a 1-level nested list. 
     It groups the original DataFrame according to the function nitems_per_group().
     """
-    if isinstance(by, list) and len(by) == 0:
+    if isinstance(by, list) and len(by) == 0 or maxnitems is None:
         return [study_df]
     if isinstance(by, list) and len(by) == 1:
         by = by[0]

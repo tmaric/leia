@@ -212,6 +212,13 @@ def runall(study_df, properties, savedir, **kwargs):
 
 def timeplot(study_df, properties, savedir, **kwargs):
     refinement_label = studycsv.get_refinementlabel(study_df)
+
+    if kwargs.get('all'):
+        maxitems = None
+    else:
+        maxitems = 10
+
+
     if refinement_label is not None:
         for prop in properties.values():
             for resolution, resolution_df in study_df.groupby(refinement_label, sort=False):
@@ -225,7 +232,7 @@ def timeplot(study_df, properties, savedir, **kwargs):
                     plt.close(fig)
     else:
         for prop in properties.values():
-            grouped_study_df_ls = plot.group_DataFrame(study_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=10)
+            grouped_study_df_ls = plot.group_DataFrame(study_df, by=[('database','CASE'),('database','M_TIME')], maxnitems=maxitems)
             ls_len = len(grouped_study_df_ls)
             for fig_number, group_df in enumerate(grouped_study_df_ls):
                 fig = plot.timeplot(group_df, prop, **kwargs)
@@ -259,13 +266,18 @@ def convergenceplot(study_df, properties, savedir, **kwargs):
     ## Convergence Plot
     refinement_label = studycsv.get_refinementlabel(study_df)
 
+    if kwargs.get('all'):
+        maxitems = None
+    else:
+        maxitems = 10
+
     if refinement_label is not None:
         mi = study_df.columns
         studyparameters = list(mi[mi.get_loc_level('studyparameters')[0]])
         studyparameters.remove(refinement_label)
 
         for prop in properties.values():
-            grouped_study_df_ls = plot.group_DataFrame(study_df, by=studyparameters, maxnitems=10)
+            grouped_study_df_ls = plot.group_DataFrame(study_df, by=studyparameters, maxnitems=maxitems)
             ls_len = len(grouped_study_df_ls)
             for fig_number, group_df in enumerate(grouped_study_df_ls):
                 fig = plot.convergenceplot(group_df, prop, **kwargs) 
@@ -276,10 +288,13 @@ def convergenceplot(study_df, properties, savedir, **kwargs):
                 plt.close(fig)
 
 def best_convergenceplot(study_df, properties, savedir, **kwargs):
-    nbest = 10
-
     ## Convergence Plot
     refinement_label = studycsv.get_refinementlabel(study_df)
+
+    if kwargs.get('all'):
+        nbest = None
+    else:
+        nbest = 10
 
     if refinement_label is None:
         return None
@@ -288,7 +303,7 @@ def best_convergenceplot(study_df, properties, savedir, **kwargs):
     studyparameters.remove(refinement_label)
     for prop in properties.values():
         ref_gb_ls = studycsv.smallest_refinement_gb(study_df, by=prop.column)
-        if len(ref_gb_ls) > nbest:
+        if nbest is not None and len(ref_gb_ls) > nbest:
             ref_gb_ls = ref_gb_ls[:nbest]
 
         best_study_df = pd.concat(map(lambda item: item[1], ref_gb_ls), ignore_index=False)
@@ -346,6 +361,7 @@ def main():
                         help="Matplotlib colormap for lines in convergenceplot. Default 'tab10'",
                         default='tab10',
                         required=False,
+                        nargs='*',
                         )
 
     parser.add_argument('-s','--sorted',
@@ -391,6 +407,13 @@ def main():
     
     parser.add_argument('-d','--savedir',
                         help="Directory where plots are saved. Default: dirname(studyCSV)",
+                        required=False,
+                        default=None,
+                        )
+
+    parser.add_argument('-a','--all',
+                        help="Plot all lines in one plot.",
+                        action='store_true',
                         required=False,
                         default=None,
                         )
@@ -444,6 +467,8 @@ def main():
     kwargs = dict()
     kwargs['legend'] = args.legend
     kwargs['cmap'] = args.cmap
+    if args.all:
+        kwargs['all'] = True 
     if args.sorted:
         kwargs['sorted'] = True
     
