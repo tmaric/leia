@@ -262,6 +262,28 @@ def nsmallest_table(study_df, properties, savedir, **kwargs):
         result_df.to_csv(os.path.join(savedir, '_'.join([prop.study, prop.figstr, 'nsmallest.csv'])), index=False)
 
 
+def table(study_df, properties, savedir, **kwargs):
+    """
+    Tabulate cases
+    """
+    refinement_label = studycsv.get_refinementlabel(study_df)
+    
+    for prop in properties.values():
+        if refinement_label is not None:
+            columns = [
+                prop.column,
+                ('case', f"O({prop.column[1]})"),
+                ('case', f"O_LOCAL({prop.column[1]})"),
+            ]
+        else:
+            columns = [ 
+                    prop.column,
+                ]
+            
+        error_df = database.df_represantive_error_rows(study_df, prop.column)
+        error_df.to_csv(os.path.join(savedir, '_'.join([prop.study, prop.figstr, 'table.csv'])), index=False)
+
+
 def convergenceplot(study_df, properties, savedir, **kwargs):
     ## Convergence Plot
     refinement_label = studycsv.get_refinementlabel(study_df)
@@ -318,7 +340,8 @@ plot_func_dict = {
     'time'      : timeplot,
     'conv'      : convergenceplot,
     'bestconv'  : best_convergenceplot,
-    'table'     : nsmallest_table,
+    'rank-table': nsmallest_table,
+    'table'     : table,
 }
 
 def main():
