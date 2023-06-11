@@ -5,6 +5,7 @@
 
 
 import pandas as pd
+import sys
 import os.path
 import os
 import re
@@ -280,8 +281,11 @@ def table(study_df, properties, savedir, **kwargs):
                     prop.column,
                 ]
             
+        mi = study_df.columns
+        database_columns = mi[mi.get_locs(['database'])].to_list()
+        studyparameters = list(leia.studycsv.get_studyparameters(study_df.columns))
         error_df = database.df_represantive_error_rows(study_df, prop.column)
-        error_df.to_csv(os.path.join(savedir, '_'.join([prop.study, prop.figstr, 'table.csv'])), index=False)
+        error_df[database_columns + studyparameters + [('case','TIME')] + columns ].to_csv(os.path.join(savedir, '_'.join([prop.study, prop.figstr, 'table.csv'])), index=False)
 
 
 def convergenceplot(study_df, properties, savedir, **kwargs):
@@ -486,6 +490,9 @@ def main():
     if args.savedir is None:
         args.savedir = os.path.abspath(os.path.dirname(study_csv))
     os.makedirs(args.savedir, exist_ok=True)
+
+    with open(os.path.join(args.savedir, "command_plot.txt"), "w") as text_file:
+        text_file.write("# Following command was used for plotting:\n" + ' '.join(sys.argv))
 
     kwargs = dict()
     kwargs['legend'] = args.legend
