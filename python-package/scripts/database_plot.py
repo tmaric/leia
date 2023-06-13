@@ -309,8 +309,6 @@ def convergenceplot(study_df, properties, savedir, **kwargs):
                 fig = plot.convergenceplot(group_df, prop, **kwargs) 
                 fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'), bbox_inches='tight')
                 fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'), bbox_inches='tight')
-                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.jpg'))
-                # fig.savefig(os.path.join(savedir, f'{prop.figConv.figname}_{fig_number+1}-{ls_len}.pdf'))
                 plt.close(fig)
 
 def best_convergenceplot(study_df, properties, savedir, **kwargs):
@@ -453,30 +451,30 @@ def main():
     study_df = pd.read_csv(study_csv, header=[0,1])
     assert study_df.index.is_unique, "Index of study_df is not unique! Would cause errors."
 
+    def group_list_of_columns_values(lst):
+        lst = [tuple(ls) for ls in lst]
+        grouped_dict = {}
+        for item in lst:
+            key = item[:2]  # Take the first two items as the key
+            if key in grouped_dict:
+                grouped_dict[key].append(item[2])
+            else:
+                grouped_dict[key] = [item[2]]
+        return grouped_dict
 
-    def column(ls: list):
-        return (ls[0], ls[1])
     if args.rm:
-        if isinstance(args.rm[0], list): # then multiple --rm are passed
-            rms = args.rm
-        else:
-            rms = [args.rm]
-        for rm in rms: 
-            study_df = studycsv.filter_rm(study_df, column(rm), rm[2])
+        rms = group_list_of_columns_values(args.rm)
+        for column, values in rms.items():  
+            study_df = studycsv.filter_rm(study_df, column, values)
     if args.keep:
-        if isinstance(args.keep[0], list): # then multiple --keep are passed
-            keeps = args.keep
-        else:
-            keeps = [args.keep]
-        for keep in keeps: 
-            study_df = studycsv.filter_keep(study_df, column(keep), keep[2], drop=False)
+        keeps = group_list_of_columns_values(args.keep)
+        for column, values in keeps.items(): 
+            study_df = studycsv.filter_keep(study_df, column, values, drop=False)
     if args.keepdrop:
-        if isinstance(args.keepdrop[0], list): # then multiple --keep are passed
-            keeps = args.keepdrop
-        else:
-            keeps = [args.keepdrop]
-        for keep in keeps: 
-            study_df = studycsv.filter_keep(study_df, column(keep), keep[2], drop=True)
+        keeps = group_list_of_columns_values(args.keepdrop)
+        for column, values in keeps.items(): 
+            study_df = studycsv.filter_keep(study_df, column, values, drop=True)
+            
 
     if args.rm_file:
         cases = leia.io.read_cases(args.rm_file)

@@ -159,7 +159,10 @@ def filter_keep(study_df, column, value, drop=False):
     Takes a study_df and removes all rows which do not match the value to keep in the provided column.
     Also drops column for drop = True
     """
-    study_df = study_df.loc[study_df[column] == value]
+    if isinstance(value, list):
+        study_df = study_df.loc[study_df[column].isin(value)]
+    else:
+        study_df = study_df.loc[study_df[column] == value]
     if drop:
         study_df = filter_drop(study_df, column)
     study_df.reset_index()
@@ -169,8 +172,10 @@ def filter_rm(study_df, column, value):
     """
     Takes a study_df and removes all rows which do match the value to remove in the provided column.
     """
-    study_df = study_df.loc[study_df[column] != value]
-    # study_df = study_df.drop(column, axis='columns', inplace=False)
+    if isinstance(value, list):
+        study_df = study_df.loc[~study_df[column].isin(value)]
+    else:
+        study_df = study_df.loc[study_df[column] != value]
     study_df.reset_index()
     return study_df
 
