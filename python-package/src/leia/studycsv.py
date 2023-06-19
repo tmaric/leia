@@ -64,7 +64,10 @@ def get_studyparameters(columns):
     The columns must follow the convention of this module.
     """
     if isinstance(columns, pd.MultiIndex):
-        return columns[columns.get_loc('studyparameters')]
+        try:
+            return columns[columns.get_loc('studyparameters')]
+        except KeyError:
+            return columns[[]]
     elif isinstance(columns, pd.Index):
         return columns[len(database_sublabels)+1 : columns.get_loc(time_label[1])]
     elif isinstance(columns, list):

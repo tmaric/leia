@@ -259,33 +259,62 @@ def add_convergencerates(
     if len(studyparameters) == 1:
         studyparameters = studyparameters[0]
 
-    refinement_gb = study_df.groupby(studyparameters, sort=False)
+    if len(studyparameters) > 0:
+        refinement_gb = study_df.groupby(studyparameters, sort=False)
+    else:
+        refinement_gb = study_df
 
-    for label_p, label_c  in zip(propertylabels, map(global_label, propertylabels)):
+    for label_p, label_c, label_lc  in zip(propertylabels, map(global_label, propertylabels), map(local_label, propertylabels)):
         study_df[label_c] = float(0) # initialise new convergence column
-        convergence_ser = refinement_gb.apply(
-                get_global_convergence, 
-                label_p, 
+        study_df[label_lc] = float(0) # initialise new convergence column
+        if isinstance(refinement_gb, pd.core.groupby.generic.DataFrameGroupBy):
+            # BEGIN: global convergence
+            convergence_ser = refinement_gb.apply(
+                    get_global_convergence, 
+                    label_p, 
+                    deltaX=h_label,
+                    refinement_parameter=refinement_parameter,
+                    time=time_label
+                ) # pandas.Series with convergencerates of groups
+            for convergence_fl, (ref_group, ref_df) in zip(convergence_ser, refinement_gb):
+                study_df.loc[ref_df.index, label_c] = convergence_fl
+            # END: global convergence
+            # BEGIN: local convergence
+            local_convergence_df = refinement_gb.apply(
+                get_local_convergence, 
+                label_p,                
                 deltaX=h_label,
                 refinement_parameter=refinement_parameter,
                 time=time_label
-            ) # pandas.Series with convergencerates of groups
-        for convergence_fl, (ref_group, ref_df) in zip(convergence_ser, refinement_gb):
-            study_df.loc[ref_df.index, label_c] = convergence_fl
-
-    for label_p, label_c  in zip(propertylabels, map(local_label, propertylabels)):
-        study_df[label_c] = float(0) # initialise new convergence column
-        local_convergence_df = refinement_gb.apply(
-            get_local_convergence, 
-            label_p,                
-            deltaX=h_label,
-            refinement_parameter=refinement_parameter,
-            time=time_label
-            ) # pandas.DataFrame with local convergencerates DataFrames as entries for non-ref-studyparameter groups
-        params = local_convergence_df.index.names
-        for convergence_fl, param_vals in zip(local_convergence_df[label_c], local_convergence_df.index):
-            index = study_df[(study_df[params] == param_vals).all('columns')].index
-            study_df.loc[index, label_c] = convergence_fl
+                ) # pandas.DataFrame with local convergencerates DataFrames as entries for non-ref-studyparameter groups
+            params = local_convergence_df.index.names
+            for convergence_fl, param_vals in zip(local_convergence_df[label_lc], local_convergence_df.index):
+                index = study_df[(study_df[params] == param_vals).all('columns')].index
+                study_df.loc[index, label_lc] = convergence_fl
+            # END: local convergence
+        elif isinstance(refinement_gb, pd.DataFrame):
+            # BEGIN: global convergence
+            convergence = get_global_convergence(
+                    study_df,
+                    label_p, 
+                    deltaX=h_label,
+                    refinement_parameter=refinement_parameter,
+                    time=time_label
+                )
+            study_df[label_c] = convergence
+            # END: global convergence
+            # BEGIN: local convergence
+            local_convergence = get_local_convergence(
+                    study_df,
+                    label_p, 
+                    deltaX=h_label,
+                    refinement_parameter=refinement_parameter,
+                    time=time_label
+                )
+            for convergence_fl, resolution in zip(local_convergence[label_lc], local_convergence.index):
+                index = study_df[study_df[refinement_parameter] == resolution].index
+                study_df.loc[index, label_lc] = convergence_fl
+            # END: local convergence
 
 
     return study_df
