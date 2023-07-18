@@ -20,6 +20,7 @@ SDPLSSource/SDPLS_Rquad.C
 SDPLSSource/SDPLS_quad.C
 SDPLSSource/SDPLS_lin.C
 SDPLSSource/SDPLS_test.C
+SDPLSSource/beta.C
 
 SDPLSSource/SourceScheme/SourceScheme.C
 SDPLSSource/SourceScheme/explicitScheme.C
