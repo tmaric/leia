@@ -25,17 +25,9 @@ stopAt          endTime;
 
 endTime         0.8; 
 
-Umax            1.2;
+CFL             0.5;
 
-CFL              0.5;
-
-// safty factor which is necessary to ensure maxCFL for some reason
-CFLsafty        1.0;
-
-// dummy float value. Will be replaced by Allrun
-deltaX          1.0;
-
-deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+deltaT          1e-6; 
 
 writeControl    runTime;
 
