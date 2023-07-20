@@ -517,16 +517,17 @@ def main():
     properties = property_dict(template, study, mesh=args.mesh)
     properties = check_properties_in_studydf(properties, study_df)
 
-    if 'table' in args.plot and not any(map(lambda col: bool(re.match('O[(_].*', col[1])), study_df.columns)):
-        print('Calc convergence') 
-        study_df = leia.convergence.add_convergencerates(
-            study_df, 
-            studyparameters = study_df.columns[study_df.columns.get_loc('studyparameters')], 
-            refinement_parameter = studycsv.get_refinementlabel(study_df), 
-            propertylabels = list(filter(database.isErrorColumn, study_df.columns)), 
-            h_label = kwargs['deltaX'],
-            time_label = ('case', 'TIME')
-            )
+    if ('table' in args.plot or 'rank-table' in args.plot) \
+        and not any(map(lambda col: bool(re.match('O[(_].*', col[1])), study_df.columns)):
+            print('Calc convergence') 
+            study_df = leia.convergence.add_convergencerates(
+                study_df, 
+                studyparameters = study_df.columns[study_df.columns.get_loc('studyparameters')], 
+                refinement_parameter = studycsv.get_refinementlabel(study_df), 
+                propertylabels = list(filter(database.isErrorColumn, study_df.columns)), 
+                h_label = kwargs['deltaX'],
+                time_label = ('case', 'TIME')
+                )
 
     if 'time' in args.plot:
         timeplot(study_df, time_property_dict(template, study, mesh=args.mesh), args.savedir, **kwargs)
