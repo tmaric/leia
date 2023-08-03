@@ -84,6 +84,19 @@ def property_dict(template, study, mesh=''):
                 labelstr_conv = r"$ \max_{t \in T_h} E_{\nabla\psi}(t) $"   
             ),
 
+        "E_MAX_GRAD_PSI":
+            Prop(
+                column = ('case', 'E_MAX_GRAD_PSI'),
+                template = template,
+                study = study,
+                titlestr = 'max signed distance error',
+                figstr = 'EMaxGradPsi',
+                labelstr = r'$ E_{\nabla\psi}(t) $',
+                formula = r'$E_{\nabla\psi}(t) = \max(|\|(\nabla \psi)_c(t)\|_2-1|)$',
+                mesh=mesh,
+                labelstr_conv = r"$ \max_{t \in T_h} E_{\nabla\psi}(t) $"   
+            ),
+
         "E_GEOM_ALPHA":
             Prop(
                 column = ('case', 'E_GEOM_ALPHA'),
