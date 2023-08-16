@@ -25,18 +25,9 @@ stopAt          endTime;
 
 endTime         @!END_TIME!@;
 
-// Maximal velocity in the rotation around an axis for a unit-cube domain is sqrt(0.5^2 + 0.5^2)
-Umax            0.7071067811865476;
+CFL             @!CFL!@;
 
-CFL              @!CFL!@;
-
-// safty factor which is necessary to ensure maxCFL for some reason
-CFLsafty        1.0;
-
-// dummy float value. Will be replaced by Allrun
-deltaX          1.0;
-
-deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
+deltaT          1e-6;
 
 writeControl    runTime;
 
