@@ -98,4 +98,10 @@ Foam::SourceScheme::Sp(const volScalarField& nonLinearPart) const
     return tmp<scalarField>(new scalarField(nonLinearPart.size(), 0.0));
 }
 
+
+bool Foam::SourceScheme::iterative()
+{
+    return false;
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

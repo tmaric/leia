@@ -26,6 +26,7 @@ SDPLSSource/SourceScheme/SourceScheme.C
 SDPLSSource/SourceScheme/explicitScheme.C
 SDPLSSource/SourceScheme/simpleLinearImplicitScheme.C
 SDPLSSource/SourceScheme/strictNegativeSpLinearImplicitScheme.C
+SDPLSSource/SourceScheme/iterativeImplicitScheme.C
 
 
 SDPLSSource/Mollifier/Mollifier.C

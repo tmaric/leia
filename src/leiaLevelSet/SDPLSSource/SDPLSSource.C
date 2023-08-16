@@ -185,7 +185,10 @@ void Foam::SDPLSSource::write() const
     nonLinearPart_.write();
 }
 
-
+bool Foam::SDPLSSource::iterative()
+{
+    return discretization_->iterative();
+}
 
 // * * * * * * * * * * * * * *  Global functions  * * * * * * * * * * * * * * //
 

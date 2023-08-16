@@ -124,16 +124,55 @@ int main(int argc, char *argv[])
             velocityModel->oscillateVelocity(U, U0, phi, phi0, runTime);
         }
 
-        fvScalarMatrix psiEqn
-        (
-            fvm::ddt(psi)
-          + fvm::div(phi, psi)
-          ==
-            // fvm::SDPLSSource(psi, U)
-            source->fvmSDPLSSource(psi, U)
-        );
+        if (!source->iterative())
+        {
+            fvScalarMatrix psiEqn
+            (
+                fvm::ddt(psi)
+                + fvm::div(phi, psi)
+            ==
+                // fvm::SDPLSSource(psi, U)
+                source->fvmSDPLSSource(psi, U)
+            );
 
-        psiEqn.solve();
+            psiEqn.solve();
+        }
+        else
+        {
+            scalarField sdpls0 = scalarField(psi.size());
+            scalar sdplsChange = 9999;
+            uint maxIteration = 50;
+
+            uint i = 0;
+            while (sdplsChange > 1e-6 && i < maxIteration)
+            {
+                fvScalarMatrix psiEqn
+                (
+                    fvm::ddt(psi)
+                    + fvm::div(phi, psi)
+                ==
+                    // fvm::SDPLSSource(psi, U)
+                    source->fvmSDPLSSource(psi, U)
+                );
+
+                psiEqn.solve();
+
+                fvScalarMatrix sdplsEqn = source->fvmSDPLSSource(psi, U);
+                sdplsEqn.lower() = scalarField(psi.size());
+                sdplsEqn.upper() = scalarField(psi.size());
+                sdplsEqn.psi() == psi;
+
+                scalarField sdpls = sdplsEqn.residual();
+                sdplsChange = gSum(mag(sdpls - sdpls0));
+                sdpls0 = sdpls;
+                ++i;
+            }
+            Info    << "Evaluating SDPLS source iterative "
+                    << ":  Final iteration change = " << sdplsChange
+                    << ", No Iterations " << i
+                    << endl;
+
+        }
 
         redist->redistance(psi);
         

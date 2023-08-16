@@ -116,6 +116,8 @@ public:
                 const volScalarField& psi
             ) const;
 
+        //- Returns True if the Scheme is updated iteratively
+        virtual bool iterative();
 
 protected:
 

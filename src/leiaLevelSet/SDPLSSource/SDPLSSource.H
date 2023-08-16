@@ -220,6 +220,8 @@ public:
         //- Write private data members
         void write() const;
 
+        bool iterative();
+
 
 protected:
 
