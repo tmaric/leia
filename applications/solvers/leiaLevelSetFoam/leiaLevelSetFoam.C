@@ -141,10 +141,9 @@ int main(int argc, char *argv[])
         {
             scalarField sdpls0 = scalarField(psi.size());
             scalar sdplsChange = 9999;
-            uint maxIteration = 50;
 
             uint i = 0;
-            while (sdplsChange > 1e-6 && i < maxIteration)
+            while (!std::isnan(sdplsChange) && sdplsChange > 1e-6 && i < source->maxIterations())
             {
                 fvScalarMatrix psiEqn
                 (
@@ -166,6 +165,10 @@ int main(int argc, char *argv[])
                 sdplsChange = gSum(mag(sdpls - sdpls0));
                 sdpls0 = sdpls;
                 ++i;
+
+                Info    << "Evaluating SDPLS source iterative "
+                        << ":  Iteration change = " << sdplsChange
+                        << endl;
             }
             Info    << "Evaluating SDPLS source iterative "
                     << ":  Final iteration change = " << sdplsChange

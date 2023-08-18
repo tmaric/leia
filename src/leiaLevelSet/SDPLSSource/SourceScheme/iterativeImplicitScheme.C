@@ -45,29 +45,13 @@ namespace Foam
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 Foam::iterativeImplicitScheme::iterativeImplicitScheme()
     :
-        simpleLinearImplicitScheme(),
-        niterations_(3)
+        simpleLinearImplicitScheme()
 {}
 
 // * * * * * * * * * * * * * *  Member functions  * * * * * * * * * * * * * * //
 
 bool Foam::iterativeImplicitScheme::iterative()
 {
-
-    // if (niterations_ > 0)
-    // {
-    //     return --niterations_;
-    // }
-    // else if (niterations_ == 0)
-    // {
-    //     niterations_ = 3;
-    //     return 0;
-    // }
-    // else
-    // {
-    //     FatalErrorInFunction << "No valid choice" << exit(FatalError);
-    //     return 0;
-    // }
     return true;
 }
 

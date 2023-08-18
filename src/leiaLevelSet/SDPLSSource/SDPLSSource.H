@@ -162,6 +162,9 @@ private:
         tmp<volScalarField> 
         R(const volScalarField& psi, const volVectorField& U) const;
 
+protected:
+
+    const dictionary& sourceDict_; 
 
 public:
 
@@ -221,6 +224,8 @@ public:
         void write() const;
 
         bool iterative();
+
+        uint maxIterations();
 
 
 protected:

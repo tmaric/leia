@@ -71,6 +71,7 @@ Foam::SDPLSSource::New(const fvMesh& mesh)
 
 Foam::SDPLSSource::SDPLSSource(const dictionary& dict, const fvMesh& mesh)
     :
+        sourceDict_(dict),
         discretization_
             (
                 SourceScheme::
@@ -188,6 +189,18 @@ void Foam::SDPLSSource::write() const
 bool Foam::SDPLSSource::iterative()
 {
     return discretization_->iterative();
+}
+
+uint Foam::SDPLSSource::maxIterations()
+{
+    if (iterative())
+    {
+        return sourceDict_.getOrDefault<uint>("maxIterations", 50);
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 // * * * * * * * * * * * * * *  Global functions  * * * * * * * * * * * * * * //
