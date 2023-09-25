@@ -424,19 +424,19 @@ def main():
                        help="Keep all cases listed in file. Accepts JSON or list",
                        )
 
-    parser.add_argument('--rm',
+    parser.add_argument('-r','--rm',
                        help="Removes all rows matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
                        action='append',
                        nargs=3,                   
                        )
     
-    parser.add_argument('--keep', 
+    parser.add_argument('-k','--keep', 
                        help="Removes all rows not matching the value. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
                        action='append',
                        nargs=3, 
                         )
     
-    parser.add_argument('--keep-drop', 
+    parser.add_argument('-K','--keep-drop', 
                        help="Removes all rows not matching the value and drops the column. Expects 3 parameters: <1-lvl column name> <2-lvl column name> <value>",
                        action='append',
                        nargs=3,
