@@ -53,6 +53,8 @@ Foam::functionObjects::gradPsiErrorCSV::gradPsiErrorCSV
 :
     fvMeshFunctionObject (name, runTime, dict),
     field_(mesh_.lookupObject<volScalarField>(dict.get<word>("field"))),
+    psi_(mesh_.lookupObject<volScalarField>("psi")),
+    // gradPsi_(mesh_.lookupObject<volVectorField>("gradPsi")),// Does not work, but why?
     csvFile_(fileName("gradPsiError.csv"),  IOstreamOption(), IOstreamOption::appendType::APPEND)
 
 {
@@ -65,7 +67,11 @@ Foam::functionObjects::gradPsiErrorCSV::gradPsiErrorCSV
                 << "E_MAX_GRAD_PSI,"
                 << "E_MEAN_GRAD_PSI,"
                 << "E_NARROW_MAX_GRAD_PSI,"
-                << "E_NARROW_MEAN_GRAD_PSI\n";
+                << "E_NARROW_MEAN_GRAD_PSI,"
+                << "MAX_MAG_GRAD_PSI,"
+                << "MEAN_MAG_GRAD_PSI,"
+                << "NARROW_MAX_MAG_GRAD_PSI,"
+                << "NARROW_MEAN_MAG_GRAD_PSI\n";
     }
     write();
 }
@@ -85,12 +91,23 @@ bool Foam::functionObjects::gradPsiErrorCSV::write()
     scalar max_narrowGradPsiError = 0.0;
     scalar mean_narrowGradPsiError = 0.0;
 
+    const volScalarField magGradPsi = mag(fvc::grad(psi_));
+    // const volScalarField magGradPsi = mag(gradPsi_);
+    const auto max_magGradPsi = gMax(magGradPsi);
+    const auto mean_magGradPsi = gAverage(magGradPsi);
+    scalar max_narrowMagGradPsi = 0.0;
+    scalar mean_narrowMagGradPsi = 0.0;
+
     if (mesh.objectRegistry::found("NarrowBand"))
     {
         const auto narrowBand = mesh.lookupObject<volScalarField>("NarrowBand");
         List<scalar> narrowGradPsiError = subset(narrowBand, gradPsiError);
         max_narrowGradPsiError = gMax(narrowGradPsiError);
         mean_narrowGradPsiError = gAverage(narrowGradPsiError);
+
+        List<scalar> narrowMagGradPsi = subset(narrowBand, magGradPsi);
+        max_narrowMagGradPsi = gMax(narrowMagGradPsi);
+        mean_narrowMagGradPsi = gAverage(narrowMagGradPsi);
     }
 
     if (Pstream::myProcNo() == 0)
@@ -101,7 +118,11 @@ bool Foam::functionObjects::gradPsiErrorCSV::write()
             << max_gradPsiError << ","
             << mean_gradPsiError << ","
             << max_narrowGradPsiError << ","
-            << mean_narrowGradPsiError << "\n";
+            << mean_narrowGradPsiError << ","
+            << max_magGradPsi << ","
+            << mean_magGradPsi << ","
+            << max_narrowMagGradPsi << ","
+            << mean_narrowMagGradPsi << "\n";
     }
     return true;
 }
