@@ -65,16 +65,24 @@ Description
 
 scalar maxDeltaT(surfaceScalarField phi, const dictionary& dict)
 {
+    scalar maxCo;
+    if (dict.found("CFL"))
+    {
+        maxCo = dict.get<scalar>("CFL");
+    }
+    else
+    {
+        maxCo = dict.get<scalar>("maxCo");
+    }
     scalar maxGrowFactor = 1.2;
     const fvMesh& mesh = phi.mesh();
     scalar deltaT = mesh.time().deltaT().value();
-    scalar maxCFL = dict.get<scalar>("CFL");
     scalarField sumPhi
     (
         fvc::surfaceSum(mag(phi))().primitiveField()
     );
 
-    scalar deltaT_suggestion = maxCFL / (0.5*gMax(sumPhi/mesh.V().field()));
+    scalar deltaT_suggestion = maxCo / (0.5*gMax(sumPhi/mesh.V().field()));
 
     deltaT = min(deltaT * maxGrowFactor, deltaT_suggestion);
 
@@ -105,7 +113,10 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     // CFL based deltaT setting
-    runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+    if (runTime.controlDict().getOrDefault<bool>("adjustTimeStep", false))
+    {
+        runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+    }
 
     Info<< "\nCalculating scalar transport\n" << endl;
 
@@ -198,7 +209,10 @@ int main(int argc, char *argv[])
         
 
         // CFL based deltaT setting
+    if (runTime.controlDict().getOrDefault<bool>("adjustTimeStep", false))
+    {
         runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+    }
 
         // if last timestep would overshoot endTime, set deltaT
         if ((runTime.endTime() - runTime) < runTime.deltaT())
