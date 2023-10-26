@@ -25,7 +25,7 @@ stopAt          endTime;
 
 endTime         6.283185307179586;
 
-CFL             0.3;
+maxCo             0.3;
 
 deltaT          1e-6;
 
