@@ -53,8 +53,8 @@ Description
 #include "advectionErrors.H"
 #include "phaseIndicator.H"
 #include "redistancer.H"
-#include "NarrowBand.H"
-#include "SDPLSSource.H"
+#include "narrowBand.H"
+#include "sdplsSource.H"
 #include "advectionVerification.H"
 
 // tmp
@@ -142,8 +142,8 @@ int main(int argc, char *argv[])
                 fvm::ddt(psi)
                 + fvm::div(phi, psi)
             ==
-                // fvm::SDPLSSource(psi, U)
-                source->fvmSDPLSSource(psi, U)
+                // fvm::sdplsSource(psi, U)
+                source->fvmsdplsSource(psi, U)
             );
 
             psiEqn.solve();
@@ -161,13 +161,13 @@ int main(int argc, char *argv[])
                     fvm::ddt(psi)
                     + fvm::div(phi, psi)
                 ==
-                    // fvm::SDPLSSource(psi, U)
-                    source->fvmSDPLSSource(psi, U)
+                    // fvm::sdplsSource(psi, U)
+                    source->fvmsdplsSource(psi, U)
                 );
 
                 psiEqn.solve();
 
-                fvScalarMatrix sdplsEqn = source->fvmSDPLSSource(psi, U);
+                fvScalarMatrix sdplsEqn = source->fvmsdplsSource(psi, U);
                 sdplsEqn.lower() = scalarField(psi.size());
                 sdplsEqn.upper() = scalarField(psi.size());
                 sdplsEqn.psi() == psi;

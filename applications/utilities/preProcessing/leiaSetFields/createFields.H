@@ -49,7 +49,7 @@ autoPtr<profile> LSprofile_ptr = profile::New
 profile LSprofile = LSprofile_ptr.ref();
 
 // RTS of the narrowBand model
-autoPtr<NarrowBand> narrowBand = NarrowBand::New(mesh, psi); 
+autoPtr<narrowBand> narrowBand = narrowBand::New(mesh, psi); 
 narrowBand->calc();
 
 //- RTS of the phase indicator model.

@@ -35,7 +35,7 @@ Description
 #include "levelSetImplicitSurfaces.H"
 #include "phaseIndicator.H"
 #include "profile.H"
-#include "NarrowBand.H"
+#include "narrowBand.H"
 #include "processorFvPatchField.H"
 #include <math.h>
 

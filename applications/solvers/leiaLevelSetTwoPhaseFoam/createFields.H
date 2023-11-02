@@ -148,7 +148,7 @@ volScalarField psi
 autoPtr<redistancer> redist = redistancer::New(mesh);
 
 // Level Set narrowBand model
-autoPtr<NarrowBand> narrowBand = NarrowBand::New(mesh, psi); 
+autoPtr<narrowBand> narrowBand = narrowBand::New(mesh, psi); 
 narrowBand->calc();
 narrowBand->write();
 

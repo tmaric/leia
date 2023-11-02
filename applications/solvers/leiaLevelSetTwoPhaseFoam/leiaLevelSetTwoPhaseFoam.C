@@ -62,7 +62,7 @@ Description
 #include "phaseIndicator.H"
 #include "redistancer.H"
 #include "surfaceTensionForce.H"
-#include "NarrowBand.H"
+#include "narrowBand.H"
 
 #include "advectionErrors.H"
 
