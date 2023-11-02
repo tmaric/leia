@@ -1,5 +1,9 @@
 name: Build Tests
-on: [push]
+on:
+  push:
+    branches:
+      - main
+      - 'releases/**'
 jobs:
   Build-OpenFOAM-v2206-Opt:
     runs-on: ubuntu-latest
