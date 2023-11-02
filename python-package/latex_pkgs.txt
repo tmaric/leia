@@ -1,8 +1,0 @@
-texlive 
-texlive-latex-base 
-texlive-fonts-recommended 
-texlive-science 
-texlive-xetex
-dvipng
-ghostscript
-cm-super
