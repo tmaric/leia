@@ -1,1 +1,0 @@
-../python-package/scripts/study_0_create_empty.py

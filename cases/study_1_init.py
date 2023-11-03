@@ -1,1 +1,0 @@
-../python-package/scripts/study_1_init.py

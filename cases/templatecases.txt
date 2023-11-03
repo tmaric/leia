@@ -1,8 +1,0 @@
-2Dcontactline-periodic
-2Dcontactline-vortex
-2Dcontactline-vortex-oscillate
-3Dcontactline
-3Ddeformation
-3Drotation
-3Dshear
-3Dtranslation
