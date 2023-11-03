@@ -15,6 +15,10 @@ The "leia" project is an [OpenFOAM](https://develop.openfoam.com/Development/ope
 
 This project is licensed under the GPL3.0 License - see the [LICENSE.md](LICENSE.md) file for details.
 
+## Documentation
+
+A doxygen-generated documentation can be found [here](https://julianjohannes.github.io/leia2/).
+
 ## Installation
 
 These instructions will get your copy of the project up and running on your local machine for development and testing purposes. 
