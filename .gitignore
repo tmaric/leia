@@ -53,6 +53,7 @@ doc/Doxygen/html
 doc/Doxygen/latex
 doc/Doxygen/man
 doc/Doxygen/DTAGS
+doc/Doxygen/Doxygen.warnings
 
 # Generated files in the main and doc directories
 /*.html
@@ -100,6 +101,7 @@ log
 *.vtk
 *.vtm
 *.pdf
+*.csv
 processor*/
 dynamicCode/
 mpirun.schema
@@ -116,11 +118,4 @@ processor*/
 
 # python
 __pycache__
-
-# Doxygen generated
-doc/Doxygen/html
-doc/Doxygen/latex
-doc/Doxygen/man
-doc/Doxygen/DTAGS
-doc/Doxygen/Doxygen.warnings
 
