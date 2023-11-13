@@ -81,7 +81,7 @@ levelSet
         type noRedistancing;
     }
     
-    SDPLSSource
+    sdplsSource
     {
         type             @!SDPLS_SOURCE!@;
         discretization   @!SOURCE_SCHEME!@;

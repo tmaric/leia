@@ -75,7 +75,7 @@ levelSet
         type noRedistancing;
     }
 
-    SDPLSSourceTerm
+    sdplsSourceTerm
     {
             discretization explicit;
     }

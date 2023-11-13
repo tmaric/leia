@@ -91,6 +91,7 @@ VTK/
 *.ogv
 *.avi
 PyFoam*
+*.obj
 
 .ipynb_checkpoints/
 *.database

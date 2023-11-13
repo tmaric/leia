@@ -80,7 +80,7 @@ levelSet
         type noRedistancing;
     }
 
-    SDPLSSource
+    sdplsSource
     {
         type noSource;
         discretization none;
