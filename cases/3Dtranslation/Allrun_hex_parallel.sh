@@ -7,7 +7,7 @@ fi
 
 set -o verbose
 
-rm -rf 0 && cp -r 0.org 0  
+restore0Dir  
 find 0/ -name "*.template" -delete && \
 touch "$(basename ${PWD}).foam" && \
 set -o errexit
