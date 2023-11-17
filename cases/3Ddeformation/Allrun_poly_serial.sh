@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+. ${WM_PROJECT_DIR}/bin/tools/RunFunctions
+
 set -o verbose
 
 restore0Dir  

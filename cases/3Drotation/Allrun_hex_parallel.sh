@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+. ${WM_PROJECT_DIR}/bin/tools/RunFunctions
+
 # if mpi_call is unset, initialise it
 if [[ -z ${mpi_call+x} ]]; then
   mpi_call="mpirun -np 4"
