@@ -53,8 +53,8 @@ Description
 #include "advectionErrors.H"
 #include "phaseIndicator.H"
 #include "redistancer.H"
-#include "NarrowBand.H"
-#include "SDPLSSource.H"
+#include "narrowBand.H"
+#include "sdplsSource.H"
 #include "advectionVerification.H"
 
 // tmp
@@ -65,16 +65,24 @@ Description
 
 scalar maxDeltaT(surfaceScalarField phi, const dictionary& dict)
 {
+    scalar maxCo;
+    if (dict.found("CFL"))
+    {
+        maxCo = dict.get<scalar>("CFL");
+    }
+    else
+    {
+        maxCo = dict.get<scalar>("maxCo");
+    }
     scalar maxGrowFactor = 1.2;
     const fvMesh& mesh = phi.mesh();
     scalar deltaT = mesh.time().deltaT().value();
-    scalar maxCFL = dict.get<scalar>("CFL");
     scalarField sumPhi
     (
         fvc::surfaceSum(mag(phi))().primitiveField()
     );
 
-    scalar deltaT_suggestion = maxCFL / (0.5*gMax(sumPhi/mesh.V().field()));
+    scalar deltaT_suggestion = maxCo / (0.5*gMax(sumPhi/mesh.V().field()));
 
     deltaT = min(deltaT * maxGrowFactor, deltaT_suggestion);
 
@@ -105,7 +113,10 @@ int main(int argc, char *argv[])
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     // CFL based deltaT setting
-    runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+    if (runTime.controlDict().getOrDefault<bool>("adjustTimeStep", false))
+    {
+        runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+    }
 
     Info<< "\nCalculating scalar transport\n" << endl;
 
@@ -124,16 +135,58 @@ int main(int argc, char *argv[])
             velocityModel->oscillateVelocity(U, U0, phi, phi0, runTime);
         }
 
-        fvScalarMatrix psiEqn
-        (
-            fvm::ddt(psi)
-          + fvm::div(phi, psi)
-          ==
-            // fvm::SDPLSSource(psi, U)
-            source->fvmSDPLSSource(psi, U)
-        );
+        if (!source->iterative())
+        {
+            fvScalarMatrix psiEqn
+            (
+                fvm::ddt(psi)
+                + fvm::div(phi, psi)
+            ==
+                // fvm::sdplsSource(psi, U)
+                source->fvmsdplsSource(psi, U)
+            );
 
-        psiEqn.solve();
+            psiEqn.solve();
+        }
+        else
+        {
+            scalarField sdpls0 = scalarField(psi.size());
+            scalar sdplsChange = 9999;
+
+            uint i = 0;
+            while (!std::isnan(sdplsChange) && sdplsChange > 1e-6 && i < source->maxIterations())
+            {
+                fvScalarMatrix psiEqn
+                (
+                    fvm::ddt(psi)
+                    + fvm::div(phi, psi)
+                ==
+                    // fvm::sdplsSource(psi, U)
+                    source->fvmsdplsSource(psi, U)
+                );
+
+                psiEqn.solve();
+
+                fvScalarMatrix sdplsEqn = source->fvmsdplsSource(psi, U);
+                sdplsEqn.lower() = scalarField(psi.size());
+                sdplsEqn.upper() = scalarField(psi.size());
+                sdplsEqn.psi() == psi;
+
+                scalarField sdpls = sdplsEqn.residual();
+                sdplsChange = gSum(mag(sdpls - sdpls0));
+                sdpls0 = sdpls;
+                ++i;
+
+                Info    << "Evaluating SDPLS source iterative "
+                        << ":  Iteration change = " << sdplsChange
+                        << endl;
+            }
+            Info    << "Evaluating SDPLS source iterative "
+                    << ":  Final iteration change = " << sdplsChange
+                    << ", No Iterations " << i
+                    << endl;
+
+        }
 
         redist->redistance(psi);
         
@@ -156,7 +209,10 @@ int main(int argc, char *argv[])
         
 
         // CFL based deltaT setting
+    if (runTime.controlDict().getOrDefault<bool>("adjustTimeStep", false))
+    {
         runTime.setDeltaT(maxDeltaT(phi, runTime.controlDict()), false);
+    }
 
         // if last timestep would overshoot endTime, set deltaT
         if ((runTime.endTime() - runTime) < runTime.deltaT())

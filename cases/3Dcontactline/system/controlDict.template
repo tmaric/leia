@@ -25,6 +25,7 @@ stopAt          endTime;
 
 endTime         @!END_TIME!@;
 
+<<<<<<<< HEAD:cases/2Dcontactline-vortex-oscillate/system/controlDict.template
 Umax            0.2;
 
 CFL              @!CFL!@;
@@ -37,6 +38,14 @@ deltaX          1.0;
 
 deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
 
+========
+maxCo             @!CFL!@;
+
+deltaT          1e-6;
+
+adjustTimeStep  yes;
+
+>>>>>>>> f0a742d96763dc0926bac8022029dec3adea578c:cases/3Dcontactline/system/controlDict.template
 writeControl    runTime;
 
 writeInterval   0.05;

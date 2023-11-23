@@ -1,0 +1,288 @@
+/*---------------------------------------------------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | www.openfoam.com
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+    Copyright (C) 2022 Tomislav Maric, TU Darmstadt 
+-------------------------------------------------------------------------------
+License
+    This file is part of OpenFOAM.
+
+    OpenFOAM is free software: you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
+    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+    for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+
+Class
+    Foam::levelSetBlended
+
+Group
+    grpFvSurfaceInterpolationSchemes
+
+Description
+    Level Set blended scheme blends uses the first scheme in the narrow band 
+    surrounding the level set of a scalar field and the second scheme outside
+    the narrow band.
+
+Usage
+
+    \verbatim
+    divSchemes
+    {
+        .
+        .
+        div(phi,psi) levelSetBlended; 
+        .
+        .
+    }
+    \endverbatim
+
+SourceFiles
+    levelSetBlended.C
+
+\*---------------------------------------------------------------------------*/
+
+#ifndef levelSetBlended_H
+#define levelSetBlended_H
+
+#include "surfaceInterpolationScheme.H"
+#include "blendedSchemeBase.H"
+#include "surfaceInterpolate.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+
+/*---------------------------------------------------------------------------*\
+                        Class levelSetBlended Declaration
+\*---------------------------------------------------------------------------*/
+
+template<typename Type>
+class levelSetBlended
+:
+    public surfaceInterpolationScheme<Type>,
+    public blendedSchemeBase<Type>
+{
+    // Private data
+
+        //- Scheme 1
+        tmp<surfaceInterpolationScheme<Type>> tScheme1_;
+
+        //- Scheme 2
+        tmp<surfaceInterpolationScheme<Type>> tScheme2_;
+
+    // Private Member Functions
+
+        //- No copy construct
+        levelSetBlended(const levelSetBlended&) = delete;
+
+        //- No copy assignment
+        void operator=(const levelSetBlended&) = delete;
+
+public:
+
+    //- Runtime type information
+    TypeName("levelSetBlended");
+
+    // Constructors
+
+        //- Construct from mesh and Istream.
+        //  The name of the flux field is read from the Istream and looked-up
+        //  from the mesh objectRegistry
+        levelSetBlended
+        (
+            const fvMesh& mesh,
+            Istream& is
+        )
+        :
+            surfaceInterpolationScheme<Type>(mesh),
+            tScheme1_
+            (
+                surfaceInterpolationScheme<Type>::New(mesh, is)
+            ),
+            tScheme2_
+            (
+                surfaceInterpolationScheme<Type>::New(mesh, is)
+            )
+        {}
+
+
+        //- Construct from mesh, faceFlux and Istream
+        levelSetBlended
+        (
+            const fvMesh& mesh,
+            const surfaceScalarField& faceFlux,
+            Istream& is
+        )
+        :
+            surfaceInterpolationScheme<Type>(mesh),
+            tScheme1_
+            (
+                surfaceInterpolationScheme<Type>::New(mesh, faceFlux, is)
+            ),
+            tScheme2_
+            (
+                surfaceInterpolationScheme<Type>::New(mesh, faceFlux, is)
+            )
+        {}
+
+
+    // Member Functions
+
+        //- Return the face-based blending factor
+        virtual tmp<surfaceScalarField> blendingFactor
+        (
+             const GeometricField<Type, fvPatchField, volMesh>& vf
+        ) const
+        {
+            Info << vf.name() << endl;
+            //const fvMesh& mesh = this->mesh();
+
+            //if (faceFlux_.dimensions() == dimDensity*dimVelocity*dimArea)
+            //{
+                //// Currently assume that the density field
+                //// corresponding to the mass-flux is named "rho"
+                //const volScalarField& rho =
+                    //mesh.objectRegistry::template lookupObject<volScalarField>
+                    //("rho");
+
+                //tUflux = faceFlux_/fvc::interpolate(rho);
+            //}
+            //else if (faceFlux_.dimensions() != dimVelocity*dimArea)
+            //{
+                //FatalErrorInFunction
+                    //<< "dimensions of faceFlux are not correct"
+                    //<< exit(FatalError);
+            //}
+
+            //return tmp<surfaceScalarField>
+            //(
+                //new surfaceScalarField
+                //(
+                    //vf.name() + "BlendingFactor",
+                    //scalar(1)
+                  //- max
+                    //(
+                        //min
+                        //(
+                            //(
+                                //mesh.time().deltaT()*mesh.deltaCoeffs()
+                               //*mag(tUflux)/mesh.magSf()
+                              //- Co1_
+                            //)/(Co2_ - Co1_),
+                            //scalar(1)
+                        //),
+                        //scalar(0)
+                    //)
+                //)
+            //);
+        //}
+
+
+        ////- Return the interpolation weighting factors
+        //tmp<surfaceScalarField>
+        //weights
+        //(
+            //const GeometricField<Type, fvPatchField, volMesh>& vf
+        //) const
+        //{
+            //surfaceScalarField bf(blendingFactor(vf));
+
+            //return
+                //bf*tScheme1_().weights(vf)
+              //+ (scalar(1) - bf)*tScheme2_().weights(vf);
+        //}
+
+
+        ////- Return the face-interpolate of the given cell field
+        ////  with explicit correction
+        //tmp<GeometricField<Type, fvsPatchField, surfaceMesh>>
+        //interpolate
+        //(
+            //const GeometricField<Type, fvPatchField, volMesh>& vf
+        //) const
+        //{
+            //surfaceScalarField bf(blendingFactor(vf));
+
+            //return
+                //bf*tScheme1_().interpolate(vf)
+              //+ (scalar(1) - bf)*tScheme2_().interpolate(vf);
+        //}
+
+
+        ////- Return true if this scheme uses an explicit correction
+        //virtual bool corrected() const
+        //{
+            //return tScheme1_().corrected() || tScheme2_().corrected();
+        //}
+
+
+        ////- Return the explicit correction to the face-interpolate
+        ////  for the given field
+        //virtual tmp<GeometricField<Type, fvsPatchField, surfaceMesh>>
+        //correction
+        //(
+            //const GeometricField<Type, fvPatchField, volMesh>& vf
+        //) const
+        //{
+            //surfaceScalarField bf(blendingFactor(vf));
+
+            //if (tScheme1_().corrected())
+            //{
+                //if (tScheme2_().corrected())
+                //{
+                    //return
+                    //(
+                        //bf
+                      //* tScheme1_().correction(vf)
+                      //+ (scalar(1) - bf)
+                      //* tScheme2_().correction(vf)
+                    //);
+                //}
+                //else
+                //{
+                    //return
+                    //(
+                        //bf
+                      //* tScheme1_().correction(vf)
+                    //);
+                //}
+            //}
+            //else if (tScheme2_().corrected())
+            //{
+                //return
+                //(
+                    //(scalar(1) - bf)
+                  //* tScheme2_().correction(vf)
+                //);
+            //}
+            //else
+            //{
+                //return tmp<GeometricField<Type, fvsPatchField, surfaceMesh>>
+                //(
+                    //nullptr
+                //);
+            //}
+        }
+};
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#endif
+
+// ************************************************************************* //

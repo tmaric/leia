@@ -23,11 +23,12 @@ startTime       0;
 
 stopAt          endTime;
 
-endTime         @!END_TIME!@;
+endTime         0.8; 
 
-Umax            0.2;
+<<<<<<<< HEAD:cases/2Dcontactline-periodic/system/controlDict
+Umax            1.2;
 
-CFL              @!CFL!@;
+CFL              0.5;
 
 // safty factor which is necessary to ensure maxCFL for some reason
 CFLsafty        1.0;
@@ -37,6 +38,14 @@ deltaX          1.0;
 
 deltaT          #eval "$CFL * $CFLsafty * $deltaX / $Umax";
 
+========
+maxCo             @!CFL!@;
+
+deltaT          1e-6;
+
+adjustTimeStep  yes;
+
+>>>>>>>> f0a742d96763dc0926bac8022029dec3adea578c:cases/2Dcontactline-vortex/system/controlDict.template
 writeControl    runTime;
 
 writeInterval   0.05;

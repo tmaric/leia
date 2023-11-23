@@ -62,7 +62,9 @@ Description
 #include "phaseIndicator.H"
 #include "redistancer.H"
 #include "surfaceTensionForce.H"
-#include "NarrowBand.H"
+#include "narrowBand.H"
+
+#include "advectionErrors.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -85,9 +87,13 @@ int main(int argc, char *argv[])
     #include "initCorrectPhi.H"
     #include "createUfIfPresent.H"
 
-    #include "CourantNo.H"
+    // #include "CourantNo.H"
+    const volScalarField& alpha = alpha1;
+    #include "errorCalculation.H"
+    
     #include "setInitialDeltaT.H"
 
+    
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
     Info<< "\nStarting time loop\n" << endl;
     
@@ -186,6 +192,16 @@ int main(int argc, char *argv[])
                 turbulence->correct();
             }
         }
+
+        reportErrors(
+            errorFile, 
+            psi, 
+            psi0, 
+            alpha, 
+            alpha0, 
+            phi,
+            CoNum
+        );
 
         runTime.write();
 

@@ -217,7 +217,7 @@ autoPtr<velocityModel> velocityModel::New(const fvMesh& mesh)
         FatalIOErrorInLookup
         (
             fvSolution,
-            "viscosityModel",
+            "velocityModel",
             modelType,
             *MeshConstructorTablePtr_
         ) << exit(FatalIOError);

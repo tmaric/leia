@@ -1,9 +1,0 @@
-values
-{
-    solver (leiaTestFoamGeometry);
-
-    N_CELLS
-    (
-        1 3 
-    );
-}

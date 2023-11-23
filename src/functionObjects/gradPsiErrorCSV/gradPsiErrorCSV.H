@@ -106,6 +106,10 @@ class gradPsiErrorCSV
 {
 
     const volScalarField& field_;
+
+    const volScalarField& psi_;
+
+    // const volVectorField& gradPsi_;
     OFstream csvFile_;
 
 public:

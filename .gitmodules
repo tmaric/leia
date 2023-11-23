@@ -1,0 +1,3 @@
+[submodule "modules/pyFoamStudy"]
+	path = modules/pyFoamStudy
+	url = git@github.com:JulianJohannes/pyFoamStudy.git

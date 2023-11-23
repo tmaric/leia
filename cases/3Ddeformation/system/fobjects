@@ -36,9 +36,9 @@ functions
         writeControl    timeStep;
         field           gradPsiError;
     }
-    TVerrorCSV
+    tvErrorCSV
     {
-        type            TVerrorCSV;
+        type            tvErrorCSV;
         libs            ( leiaFunctionObjects );
         writeControl    timeStep;
         field           psi;

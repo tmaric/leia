@@ -98,7 +98,8 @@ public:
     virtual ~surfaceTensionForce() = default;
 
     // Member Functions
-    // - Face-centered surface tension force 
+    
+    //- Face-centered surface tension force 
     virtual tmp<surfaceScalarField> faceSurfaceTensionForce() const = 0;
 
 };

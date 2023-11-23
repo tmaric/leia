@@ -35,70 +35,21 @@ Description
 #include "levelSetImplicitSurfaces.H"
 #include "phaseIndicator.H"
 #include "profile.H"
-#include "NarrowBand.H"
+#include "narrowBand.H"
 #include "processorFvPatchField.H"
 #include <math.h>
 
-// template<typename Surface> 
-// scalar signedDistance_profile(Surface const& surf, vector point)
-// {
-//     return surf->value(point);
-// }
 
-// template<typename Surface> 
-// scalar tanh_profile(Surface const& surf, vector point)
-// {
-//     scalar const eps = 1.0;
-//     scalar const limit = 0.2; 
-//     return limit * Foam::tanh(1/limit * signedDistance_profile(surf, point)/eps);
-// }
-
-
-// template<typename Surface>  
 void setField
 (
     volScalarField& psi, 
-    // profile const& LSprofile
     autoPtr<profile> LSprofile_ptr
 )
 {
     const auto& mesh = psi.mesh();
     const auto& cellCenters = mesh.C();
 
-    // const fvSolution& fvSolution (mesh);
-    // const dictionary& levelSetDict = fvSolution.subDict("levelSet");
-    // const word& profile_word = 
-    //     levelSetDict.getOrDefault<word>("profile", "signedDistance");
-
-    // scalar (*profile)(Surface const&, vector);
-
-    // if (profile_word == "tanh")
-    // {
-    //     profile = &tanh_profile;
-    //     Info << "Level-set profile tanh\n";
-    // }
-    // else //(profile_word == "signedDistance")
-    // {
-    //     profile = &signedDistance_profile;
-    //         Info << "Level-set profile signed-distance\n";
-    // }
-    // // else
-    // // {
-    // //     InfoErr << "Wrong level-set profile selected.\n";
-    // //     exit();
-    // //             // FatalIOErrorInLookup
-    // //     // (
-    // //     //     levelSetDict,
-    // //     //     "profile",
-    // //     //     systemType,
-    // //     //     *dictionaryConstructorTablePtr_
-    // //     // ) << exit(FatalIOError);
-    // // }
-
-
-
     forAll(psi, cellI)
-        // psi[cellI] = LSprofile.value(cellCenters[cellI]);
         psi[cellI] = LSprofile_ptr->value(cellCenters[cellI]);
     
     const auto& Cf = mesh.Cf();
@@ -116,7 +67,6 @@ void setField
             auto& psiPatchField = psiBoundaryField[patchI]; 
             forAll(psiPatchField, faceI)
             {
-                // psiPatchField[faceI] = LSprofile.value(CfPatchField[faceI]);
                 psiPatchField[faceI] = LSprofile_ptr->value(CfPatchField[faceI]);
             }
         // }
@@ -139,12 +89,23 @@ int main(int argc, char *argv[])
 
     #include "createFields.H"
 
-    // setField(psi, LSprofile);
     setField(psi, LSprofile_ptr);
     phaseInd->calcPhaseIndicator(alpha, psi);
 
     psi.write();
     alpha.write();
+
+
+    { // Write functionObjects with writeControl=timeStep at time 0
+        functionObjectList& fobjects = runTime.functionObjects();
+        fobjects.start();
+        fobjects.execute();
+        // forAll(fobjects, ID)
+        // {
+        //     fobjects[ID].write();
+        // }
+    }
+
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

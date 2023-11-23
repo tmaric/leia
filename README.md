@@ -15,6 +15,10 @@ The "leia" project is an [OpenFOAM](https://develop.openfoam.com/Development/ope
 
 This project is licensed under the GPL3.0 License - see the [LICENSE.md](LICENSE.md) file for details.
 
+## Documentation
+
+A doxygen-generated documentation can be found [here](https://julianjohannes.github.io/leia2/).
+
 ## Installation
 
 These instructions will get your copy of the project up and running on your local machine for development and testing purposes. 
@@ -46,12 +50,6 @@ To install OpenFOAM follow the [instructions on installing OpenFOAM from sources
     ?> ./Allwmake
 ```
 
-#### Post-processing dependencies
-
-We use [Jupyter notebooks](https://jupyter.org/) for visualization and processing of test results, and following packages (may be differently named on your Operating System) 
-
-* python, python-pandas, python-numpy, python-jupyter
-
 #### Compilation 
 
 Once OpenFOAM is installed, run
@@ -68,7 +66,7 @@ The template cases used for advection verification are located in `cases/`.
 
 
 ```
- case> ./Allrun.serial
+ case> ./Allrun_hex_serial.sh
 ```
 
 ### Parallel execution
@@ -76,12 +74,12 @@ The template cases used for advection verification are located in `cases/`.
 Create the mesh and initialize the fields with 
 
 ```
-case> ./Allrun.parallel
+case> ./Allrun_hex_parallel.sh
 ```
 
 ### Level Set Advection  
 
-The velocity field for an alternative advection case can be set in `testAdvection/system/fvSolution`
+The velocity field for an alternative advection case can be set in `3Ddeformation/system/fvSolution`
 
 ```
 velocityModel
@@ -91,7 +89,7 @@ velocityModel
 }
 ```
 
-Enter `test` ater `type` to get a list of available velocity models. Initial interface shape is also set in `testAdvection/system/fvSolution`
+Enter `test` ater `type` to get a list of available velocity models. Initial interface shape is also set in `3Ddeformation/system/fvSolution`
 
 
 ```
@@ -108,6 +106,14 @@ levelSet
 ```
 
 Enter `test` after `type` to get a list of available types and their parameters.
+
+#### Parameter studies
+
+To run parameter studies, we use the pyFoamStudy submodule, which is a pip-installable package of scripts built on top of pyFoam.
+
+#### Postprocessing and visualization
+
+Currently, pyFoamStudy also includes scripts to agglomerate a study's postprocessing data into a CSV database and a script to visualize the CSV database.
 
 ## Contributing
 

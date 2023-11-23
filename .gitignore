@@ -53,6 +53,7 @@ doc/Doxygen/html
 doc/Doxygen/latex
 doc/Doxygen/man
 doc/Doxygen/DTAGS
+doc/Doxygen/Doxygen.warnings
 
 # Generated files in the main and doc directories
 /*.html
@@ -90,6 +91,7 @@ VTK/
 *.ogv
 *.avi
 PyFoam*
+*.obj
 
 .ipynb_checkpoints/
 *.database
@@ -100,6 +102,7 @@ log
 *.vtk
 *.vtm
 *.pdf
+*.csv
 processor*/
 dynamicCode/
 mpirun.schema
@@ -117,18 +120,3 @@ processor*/
 # python
 __pycache__
 
-# Doxygen generated
-doc/Doxygen/html
-doc/Doxygen/latex
-doc/Doxygen/man
-doc/Doxygen/DTAGS
-doc/Doxygen/Doxygen.warnings
-
-# by JR
-cases/tmp_save_calculated_cases/
-cases/3D*_[0-9][0-9][0-9][0-9][0-9]_3D*/
-cases/**/*.csv
-cases/network-drive
-cases/study_*/
-tmp*
-**/leia.egg-info/**
